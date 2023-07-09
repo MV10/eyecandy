@@ -1,0 +1,124 @@
+﻿using OpenTK.Graphics.OpenGL;
+
+namespace eyecandy
+{
+    public abstract class AudioTexture
+    {
+        /// <summary>
+        /// The Handle is set to this until GenerateTexture has been called.
+        /// </summary>
+        public static readonly int UninitializedTexture = int.MinValue;
+
+        /// <summary>
+        /// The name of this texture in the shader uniform declaration.
+        /// </summary>
+        public string UniformName { get; private set; } = string.Empty;
+
+        /// <summary>
+        /// The unit where the texture definition is stored.
+        /// </summary>
+        public TextureUnit AssignedTextureUnit { get; private set; } = TextureUnit.Texture0;
+
+        /// <summary>
+        /// Do not set this directly. Call Enable/Disable in AudioTextureEngine, which
+        /// allows the audio processor to re-evaluate which post-processing activities
+        /// must be invoked. When false, all processing on this texture is suspended.
+        /// </summary>
+        public bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// The algorithm used to calculate volume, if any.
+        /// </summary>
+        public VolumeAlgorithm VolumeCalc { get; protected internal set; } = VolumeAlgorithm.NotApplicable;
+
+        /// <summary>
+        /// The FFT algorithm used to calculate frequency, if any.
+        /// </summary>
+        public FrequencyAlgorithm FrequencyCalc { get; protected internal set; } = FrequencyAlgorithm.NotApplicable;
+
+        /// <summary>
+        /// OpenGL handle to the texture object.
+        /// </summary>
+        public int Handle = UninitializedTexture;
+
+        /// <summary>
+        /// Audio data converted to RGBA channel data.
+        /// </summary>
+        public float[] ChannelBuffer;
+
+        /// <summary>
+        /// Number of pixels in each row of the texture.
+        /// Remember the "power of 2" rule for less-modern GPUs.
+        /// </summary>
+        public int PixelWidth = -1;
+
+        /// <summary>
+        /// Number of rows in the audio Buffer data and the texture.
+        /// Remember the "power of 2" rule for less-modern GPUs.
+        /// </summary>
+        public int Rows = -1;
+
+        /// <summary>
+        /// Number of raw columns in the ChannelBuffer (ie. pixel width multiplied by 4 for RGBA).
+        /// </summary>
+        public int BufferWidth;
+
+        protected internal object ChannelBufferLock = new();
+
+        internal static AudioTexture Factory<AudioTextureType>(string uniformName, TextureUnit assignedTextureUnit, bool enabled = true)
+        {
+            var texture = Activator.CreateInstance<AudioTextureType>() as AudioTexture;
+
+            if (texture.PixelWidth == -1 || texture.Rows == -1) throw new InvalidOperationException($"The {typeof(AudioTextureType)} constructor must set PixelWidth and Rows.");
+
+            texture.UniformName = uniformName;
+            texture.AssignedTextureUnit = assignedTextureUnit;
+            texture.Enabled = enabled;
+
+            texture.BufferWidth = texture.PixelWidth * AudioTextureEngine.RGBAPixelSize;
+            texture.ChannelBuffer = new float[texture.BufferWidth];
+
+            return texture;
+        }
+
+        protected AudioTexture()
+        { }
+
+        /// <summary>
+        /// Invoked whenever new audio data is available.
+        /// </summary>
+        public abstract void UpdateChannelBuffer(AudioData audioBuffers);
+
+        /// <summary>
+        /// Copies audio Buffer data into a 2D texture object associated with the AssignedTextureUnit.
+        /// </summary>
+        public void GenerateTexture()
+        {
+            if (Handle == UninitializedTexture)
+            {
+                Handle = GL.GenTexture();
+            }
+
+            if (!Enabled) return;
+
+            GL.ActiveTexture(AssignedTextureUnit);
+            GL.BindTexture(TextureTarget.Texture2D, Handle);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+
+            lock(ChannelBufferLock)
+            {
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, PixelWidth, Rows, 0, PixelFormat.Rgba, PixelType.Float, ChannelBuffer);
+            }
+
+            ErrorLogging.OpenGLErrorCheck($"{GetType()}.{nameof(GenerateTexture)}");
+        }
+
+        // Assumes caller will lock ChannelBuffer
+        protected internal void ScrollHistoryBuffer()
+            => Array.Copy(ChannelBuffer, 0, ChannelBuffer, BufferWidth, ChannelBuffer.Length - BufferWidth);
+    }
+}
