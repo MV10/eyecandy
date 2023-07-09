@@ -6,7 +6,7 @@
 
         static async Task Main(string[] args)
         {
-            //if(args.Length == 0) args = new[]{ "wave" };
+            if(args.Length == 0) args = new[]{ "frag" };
 
             if(args.Length == 0 || args.Length > 2)
             {
@@ -46,8 +46,7 @@
                     break;
 
                 case "frag":
-                    Console.WriteLine("TODO");
-                    //await Frag.Demo();
+                    await Frag.Demo();
                     break;
 
                 case "info":

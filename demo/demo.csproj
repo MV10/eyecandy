@@ -16,6 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Frag\frag.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Frag\frag.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Freq\freq_wave.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
