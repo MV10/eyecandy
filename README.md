@@ -3,9 +3,7 @@
 
 Work in progress.
 
-While doing related experimental work in my [vertViwer](https://github.com/MV10/vertViewer) repository, it quickly became apparent the overhead of audio capture needs to be handled by a separate thread. A shader-only test (no audio) runs on my Raspberry Pi at a surprising and respectable 410 FPS, but a very basic test with audio capture only manages about 55 FPS. (By comparison, my Windows desktop runs the same test programs at a mind-bending 4083 FPS and 1150 FPS, respectively.)
-
-I had planned to start from scratch on a library for my "piFX" audio visualization program anyway, so no time like the present...
+Run the command-line demo program without arguments to see what's available.
 
 #### Notes
 

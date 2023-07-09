@@ -30,6 +30,7 @@ namespace demo
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Bass Frequency and Volume";
             windowConfig.OpenTKNativeWindowSettings.Size = (960, 540);
+            windowConfig.StartFullScreen = Program.StartFullScreen;
 
             // remember Linux is case-sensitive...
             windowConfig.VertexShaderPathname = "Freq/freq_scroll.vert";

@@ -33,9 +33,10 @@
                     await History.Demo();
                     break;
 
-                //case "wave":
-                //    await Wave.Demo();
-                //    break;
+                case "wave":
+                    Console.WriteLine("TODO");
+                    //await Wave.Demo();
+                    break;
 
                 case "freq":
                     await Freq.Demo();
@@ -45,9 +46,10 @@
                     await Vert.Demo();
                     break;
 
-                //case "frag":
-                //    await Frag.Demo();
-                //    break;
+                case "frag":
+                    Console.WriteLine("TODO");
+                    //await Frag.Demo();
+                    break;
 
                 case "info":
                     await Info.Demo();

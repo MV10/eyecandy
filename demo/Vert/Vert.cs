@@ -24,6 +24,7 @@ namespace demo
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Vert Int-Stream Shader";
             windowConfig.OpenTKNativeWindowSettings.Size = (960, 540);
+            windowConfig.StartFullScreen = Program.StartFullScreen;
 
             // remember Linux is case-sensitive...
             windowConfig.VertexShaderPathname = "Vert/vertdemo.vert";
