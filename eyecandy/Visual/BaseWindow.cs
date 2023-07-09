@@ -15,7 +15,10 @@ namespace eyecandy
         public Shader Shader = null;
 
         /// <summary>
-        /// Automatically-calculated FPS (based on render-loop calls, updated once per second).
+        /// If derived classes require FPS, they must call CalculateFPS before exiting their
+        /// OnRenderFrame callback. It is not calculated automatically because it is impossible
+        /// for this base class to eliminate skew introduced by short-circuit code that skips
+        /// render calls.
         /// </summary>
         public int FramesPerSecond = 0;
 
@@ -73,7 +76,6 @@ namespace eyecandy
             base.OnRenderFrame(e);
             GL.Clear(ClearBufferMask.ColorBufferBit);
             Shader.Use();
-            CalculateFPS();
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -99,7 +101,10 @@ namespace eyecandy
             }
         }
 
-        private void CalculateFPS()
+        /// <summary>
+        /// Derived classes should call this before exiting their OnRenderFrame callback.
+        /// </summary>
+        protected void CalculateFPS()
         {
             FramesThisSecond++;
             if (DateTime.Now.Second != CurrentSecond)

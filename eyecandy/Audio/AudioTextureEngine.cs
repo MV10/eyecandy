@@ -137,7 +137,7 @@ namespace eyecandy
             }
         }
 
-        public void SetUniforms(Shader shader)
+        public void SetTextureUniforms(Shader shader)
         {
             foreach (var t in Textures)
             {

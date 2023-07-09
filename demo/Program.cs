@@ -6,7 +6,7 @@
 
         static async Task Main(string[] args)
         {
-            args = new[]{ "history" };
+            //if(args.Length == 0) args = new[]{ "wave" };
 
             if(args.Length == 0 || args.Length > 2)
             {
@@ -37,17 +37,21 @@
                 //    await Wave.Demo();
                 //    break;
 
-                //case "vert":
-                //    await Vert.Demo();
-                //    break;
+                case "freq":
+                    await Freq.Demo();
+                    break;
+
+                case "vert":
+                    await Vert.Demo();
+                    break;
 
                 //case "frag":
                 //    await Frag.Demo();
                 //    break;
 
-                //case "test":
-                //    await Test.Demo();
-                //    break;
+                case "info":
+                    await Info.Demo();
+                    break;
 
                 default:
                     Help();
@@ -64,10 +68,11 @@
             Console.WriteLine("peaks\t\tPeak audio capture values (use for configuration)");
             Console.WriteLine("text\t\tText-based audio visualizations");
             Console.WriteLine("history\t\tRaw history-texture dumps");
-            Console.WriteLine("wave\t\tPCM wave audio visualization");
+            Console.WriteLine("wave\t\tRaw PCM wave audio visualization");
+            Console.WriteLine("freq\t\tFrequency magnitude and volume history (multiple shaders)");
             Console.WriteLine("vert\t\tVertexShaderArt-style integer-array vertex shader (no audio)");
             Console.WriteLine("frag\t\tShadertoy-style pixel fragment shader");
-            Console.WriteLine("test\t\t??? (whatever I happen to be testing at the moment)");
+            Console.WriteLine("info\t\tOpenAL information (devices, defaults, extensions, etc.)");
 
             Console.WriteLine("\n[options]");
             Console.WriteLine("F\t\tFull-screen mode");

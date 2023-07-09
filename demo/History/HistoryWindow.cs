@@ -10,9 +10,8 @@ namespace demo
         enum AudioTextureType { Wave, Volume, Frequency }
 
         private AudioTextureType DemoMode = AudioTextureType.Wave;
-        private DateTime LastTextureTimestamp;
 
-        private AudioTextureEngine Audio;
+        private AudioTextureEngine Engine;
 
         float[] vertices =
         {
@@ -36,11 +35,11 @@ namespace demo
         public HistoryWindow(EyeCandyWindowConfig windowConfig, EyeCandyCaptureConfig audioConfig)
             : base(windowConfig)
         {
-            Audio = new(audioConfig);
+            Engine = new(audioConfig);
 
-            Audio.Create<AudioTextureFrequencyMagnitudeHistory>("sound", TextureUnit.Texture0);
-            Audio.Create<AudioTextureWaveHistory>("floatSound", TextureUnit.Texture1);
-            Audio.Create<AudioTextureVolumeHistory>("volume", TextureUnit.Texture2);
+            Engine.Create<AudioTextureFrequencyMagnitudeHistory>("sound", TextureUnit.Texture0);
+            Engine.Create<AudioTextureWaveHistory>("wave", TextureUnit.Texture1);
+            Engine.Create<AudioTextureVolumeHistory>("volume", TextureUnit.Texture2);
         }
 
         protected override void OnLoad()
@@ -72,34 +71,31 @@ namespace demo
 
             ErrorLogging.OpenGLErrorCheck($"{nameof(HistoryWindow)}.{OnLoad}");
 
-            LastTextureTimestamp = DateTime.Now;
-            Audio.BeginAudioProcessing();
+            Engine.BeginAudioProcessing();
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
 
-            if (Audio.TexturesUpdatedTimestamp < LastTextureTimestamp) return;
+            Engine.UpdateTextures();
 
             Shader.Use();
 
             GL.BindVertexArray(VertexArrayObject);
 
-            Audio.UpdateTextures();
-
             int handle = DemoMode switch
             {
-                AudioTextureType.Wave => Audio.Get<AudioTextureWaveHistory>().Handle,
-                AudioTextureType.Volume => Audio.Get<AudioTextureVolumeHistory>().Handle,
-                AudioTextureType.Frequency => Audio.Get<AudioTextureFrequencyMagnitudeHistory>().Handle,
+                AudioTextureType.Wave => Engine.Get<AudioTextureWaveHistory>().Handle,
+                AudioTextureType.Volume => Engine.Get<AudioTextureVolumeHistory>().Handle,
+                AudioTextureType.Frequency => Engine.Get<AudioTextureFrequencyMagnitudeHistory>().Handle,
             };
 
             TextureUnit unit = DemoMode switch
             {
-                AudioTextureType.Wave => Audio.Get<AudioTextureWaveHistory>().AssignedTextureUnit,
-                AudioTextureType.Volume => Audio.Get<AudioTextureVolumeHistory>().AssignedTextureUnit,
-                AudioTextureType.Frequency => Audio.Get<AudioTextureFrequencyMagnitudeHistory>().AssignedTextureUnit,
+                AudioTextureType.Wave => Engine.Get<AudioTextureWaveHistory>().AssignedTextureUnit,
+                AudioTextureType.Volume => Engine.Get<AudioTextureVolumeHistory>().AssignedTextureUnit,
+                AudioTextureType.Frequency => Engine.Get<AudioTextureFrequencyMagnitudeHistory>().AssignedTextureUnit,
             };
 
             // The demo frag shader declares audioTexture; we're disregarding the uniform names
@@ -111,6 +107,8 @@ namespace demo
             SwapBuffers();
 
             ErrorLogging.OpenGLErrorCheck($"{nameof(HistoryWindow)}.{OnRenderFrame}");
+
+            CalculateFPS();
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -121,7 +119,7 @@ namespace demo
 
             if (input.IsKeyReleased(Keys.Escape))
             {
-                Audio.EndAudioProcessing_SynchronousHack();
+                Engine.EndAudioProcessing_SynchronousHack();
                 Close();
                 Console.WriteLine($"\n\n{FramesPerSecond} FPS");
                 return;
@@ -152,7 +150,7 @@ namespace demo
         public new void Dispose()
         {
             base.Dispose();
-            Audio.Dispose();
+            Engine.Dispose();
         }
     }
 }
