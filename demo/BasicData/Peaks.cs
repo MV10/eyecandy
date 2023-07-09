@@ -1,8 +1,16 @@
 ﻿using eyecandy;
 
-namespace peakaudio
+/*
+
+Reports the peak values from the audio capture and post-processing calcs. You should
+run this against maximum-volume playback, and try many different tracks to get a good
+sample. These can be used as the normalization inputs in the capture config class.
+ 
+*/
+
+namespace demo
 {
-    internal class Program
+    internal static class Peaks
     {
         static EyeCandyCaptureConfig config;
         static AudioCaptureProcessor audio;
@@ -12,28 +20,31 @@ namespace peakaudio
         static double maxFreqMagnitude = double.MinValue;
         static double maxFreqDecibels = double.MinValue;
 
-        static async Task Main(string[] args)
+        public static async Task Demo()
         {
-            Console.WriteLine("\n\npeakaudio\nEyecandy utility to report peak RMS volume and peak FFT frequency values.");
+            Console.WriteLine("\n\npeaks: Utility to report peak RMS volume and peak FFT frequency values.");
             Console.WriteLine("\nStart playback, set volume to maximum, and press any key to begin capturing audio....");
             Console.ReadKey(true);
 
             config = new EyeCandyCaptureConfig();
-            audio = new AudioCaptureProcessor(config);
-            audio.Requirements = new()
+            audio = new AudioCaptureProcessor(config)
             {
-                CalculateVolumeRMS = true,
-                CalculateFrequency = true,
-                CalculateFFTMagnitude = true,
-                CalculateFFTDecibels = true,
+                Requirements = new()
+                {
+                    CalculateVolumeRMS = true,
+                    CalculateFrequency = true,
+                    CalculateFFTMagnitude = true,
+                    CalculateFFTDecibels = true,
+                }
             };
 
             Console.Clear();
+            Console.WriteLine("Capture starting...");
 
             var ctsAbortCapture = new CancellationTokenSource();
             var captureTask = Task.Run(() => audio.Capture(CheckSamples, ctsAbortCapture.Token));
 
-            while(!Console.KeyAvailable)
+            while (!Console.KeyAvailable)
             {
                 await Task.Delay(1000);
                 Console.SetCursorPosition(0, 0);
@@ -55,7 +66,7 @@ namespace peakaudio
         {
             maxRMSVolume = Math.Max(maxRMSVolume, audio.Buffers.RealtimeRMSVolume);
 
-            for(int i = 0; i < config.SampleSize; i++)
+            for (int i = 0; i < config.SampleSize; i++)
             {
                 maxWave = Math.Max(maxWave, Math.Abs(audio.Buffers.Wave[i]));
                 maxFreqMagnitude = Math.Max(maxFreqMagnitude, Math.Abs(audio.Buffers.FrequencyMagnitude[i]));

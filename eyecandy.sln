@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RepoFiles", "RepoFiles", "{
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "peakaudio", "peakaudio\peakaudio.csproj", "{5DFB23C5-84AC-42F0-8751-21C823E13DC6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "demo", "demo\demo.csproj", "{9725222D-9B47-4111-8DDE-FF84128E3912}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{B33B4F91-070C-477D-B869-7BB33F5D9F71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B33B4F91-070C-477D-B869-7BB33F5D9F71}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B33B4F91-070C-477D-B869-7BB33F5D9F71}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5DFB23C5-84AC-42F0-8751-21C823E13DC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5DFB23C5-84AC-42F0-8751-21C823E13DC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5DFB23C5-84AC-42F0-8751-21C823E13DC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5DFB23C5-84AC-42F0-8751-21C823E13DC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9725222D-9B47-4111-8DDE-FF84128E3912}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9725222D-9B47-4111-8DDE-FF84128E3912}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9725222D-9B47-4111-8DDE-FF84128E3912}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9725222D-9B47-4111-8DDE-FF84128E3912}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

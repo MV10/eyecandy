@@ -18,7 +18,7 @@ namespace eyecandy
         /// <summary>
         /// DateTime.Now value when the texture data was updated from the underlying audio buffers.
         /// </summary>
-        public DateTime TextureTimestamp = DateTime.MaxValue;
+        public DateTime TexturesUpdatedTimestamp = DateTime.MaxValue;
 
         private Dictionary<Type, AudioTexture> Textures = new();
         private bool TextureHandlesAllocated = false;
@@ -39,7 +39,8 @@ namespace eyecandy
         {
             if (IsCapturing) return;
             ctsAudioProcessing = new();
-            AudioTask = Task.Run(() => AudioProcessor.Capture(NewAudioDataCallback, ctsAudioProcessing.Token));
+            AudioTask = Task.Run(() => AudioProcessor.Capture(ProcessAudioDataCallback, ctsAudioProcessing.Token));
+            IsCapturing = true;
         }
 
         public async Task EndAudioProcessing()
@@ -49,6 +50,15 @@ namespace eyecandy
             IsCapturing = false;
             await AudioTask;
         }
+
+        /// <summary>
+        /// Not recommended, safer to correctly await the EndAudioProcessing task.
+        /// Added because the OpenTK window events like OnUpdateFrame are synchronous.
+        /// Pitfalls described here: 
+        /// https://learn.microsoft.com/en-us/archive/msdn-magazine/2015/july/async-programming-brownfield-async-development#the-blocking-hack
+        /// </summary>
+        public void EndAudioProcessing_SynchronousHack()
+            => EndAudioProcessing().GetAwaiter().GetResult();
 
         public void Create<AudioTextureType>(string uniformName, TextureUnit assignedTextureUnit, bool enabled = true)
         where AudioTextureType : AudioTexture
@@ -60,6 +70,14 @@ namespace eyecandy
             var texture = AudioTexture.Factory<AudioTextureType>(uniformName, assignedTextureUnit, enabled);
             Textures.Add(type, texture);
             EvaluateRequirements();
+        }
+
+        public AudioTextureType Get<AudioTextureType>()
+        where AudioTextureType : AudioTexture
+        {
+            var type = typeof(AudioTextureType);
+            if (!Textures.ContainsKey(type)) return null;
+            return Textures[type] as AudioTextureType;
         }
 
         public void Destroy<AudioTextureType>()
@@ -97,7 +115,7 @@ namespace eyecandy
         public void UpdateTextures()
         {
             // Short-circuit if the audio buffers haven't changed yet AND we've already generated textures at least once.
-            if (AudioProcessor.Buffers.Timestamp < TextureTimestamp && TextureHandlesAllocated) return;
+            if (AudioProcessor.Buffers.Timestamp < TexturesUpdatedTimestamp && TextureHandlesAllocated) return;
 
             foreach(var tex in Textures)
             {
@@ -105,17 +123,17 @@ namespace eyecandy
             }
 
             TextureHandlesAllocated = true;
-            TextureTimestamp = DateTime.Now;
+            TexturesUpdatedTimestamp = DateTime.Now;
         }
 
         /// <summary>
         /// This is invoked by the AudioCaptureProcessor thread.
         /// </summary>
-        public void NewAudioDataCallback()
+        public void ProcessAudioDataCallback()
         {
             foreach (var t in Textures)
             {
-                if(t.Value.Enabled) t.Value.UpdateChannelBuffer(AudioProcessor.Buffers);
+                if (t.Value.Enabled) t.Value.UpdateChannelBuffer(AudioProcessor.Buffers);
             }
         }
 
@@ -132,27 +150,6 @@ namespace eyecandy
             if (IsCapturing) throw new InvalidOperationException("Dispose invoked before audio processing was terminated.");
             AudioProcessor?.Dispose();
         }
-
-        //private void ScrollHistoryTextures()
-        //{
-        //    if (!HasHistoryTextures) return;
-        //    foreach(var t in Textures)
-        //    {
-        //        t.Value.ScrollHistoryBuffer();
-        //    }
-        //}
-
-        //private void ProcessOnePixelTextures()
-        //{
-        //    if (!HasOnePixelTextures) return;
-        //    // TODO
-        //}
-
-        //private void ProcessSampleWidthTextures()
-        //{
-        //    if (!HasSampleWidthTextures) return;
-        //    // TODO
-        //}
 
         public void EvaluateRequirements()
         {

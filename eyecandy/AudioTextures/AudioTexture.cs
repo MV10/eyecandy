@@ -76,23 +76,28 @@ namespace eyecandy
             texture.Enabled = enabled;
 
             texture.BufferWidth = texture.PixelWidth * AudioTextureEngine.RGBAPixelSize;
-            texture.ChannelBuffer = new float[texture.BufferWidth];
+            texture.ChannelBuffer = new float[texture.BufferWidth * texture.Rows];
 
             return texture;
         }
 
+        /// <summary>
+        /// The derived constructor must set PixelWidth and Rows (at a minimum). The factory method will store the
+        /// UniformName, AssignedTextureUnit, Enabled flag, calculate BufferWidth, and allocate ChannelBuffer.
+        /// </summary>
         protected AudioTexture()
         { }
 
         /// <summary>
-        /// Invoked whenever new audio data is available.
+        /// Invoked whenever new audio data is available. Call lock(ChannelBufferLock) before
+        /// modifying the ChannelBuffer contents.
         /// </summary>
         public abstract void UpdateChannelBuffer(AudioData audioBuffers);
 
         /// <summary>
         /// Copies audio Buffer data into a 2D texture object associated with the AssignedTextureUnit.
         /// </summary>
-        public void GenerateTexture()
+        public virtual void GenerateTexture()
         {
             if (Handle == UninitializedTexture)
             {
@@ -109,7 +114,7 @@ namespace eyecandy
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
 
-            lock(ChannelBufferLock)
+            lock (ChannelBufferLock)
             {
                 GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, PixelWidth, Rows, 0, PixelFormat.Rgba, PixelType.Float, ChannelBuffer);
             }

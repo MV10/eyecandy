@@ -41,24 +41,29 @@ namespace eyecandy
 
         /// <summary>
         /// Texture data is normalized (values range from 0.0 to 1.0). This defines the divisor
-        /// for the raw RMS Volume data to produce the normalized range. Use the peakaudio utility
-        /// to analyze audio that is typical for your usage.
+        /// for the raw RMS Volume data to produce the normalized range. Use the demo "peaks"
+        /// option to analyze audio that is typical for your usage.
         /// </summary>
         public int NormalizeRMSVolumePeak { get; set; } = 100;
 
         /// <summary>
         /// Texture data is normalized (values range from 0.0 to 1.0). This defines the divisor
-        /// for the raw FFT Frequency data to produce the normalized range. Use the peakaudio utility
-        /// to analyze audio that is typical for your usage.
+        /// for the raw FFT Frequency data to produce the normalized range. Use the demo "peaks"
+        /// option to analyze audio that is typical for your usage.
         /// </summary>
         public double NormalizeFrequencyMagnitudePeak { get; set; } = 6500;
 
         /// <summary>
         /// Texture data is normalized (values range from 0.0 to 1.0). This defines the divisor
-        /// for the raw FFT Frequency data to produce the normalized range. Use the peakaudio utility
-        /// to analyze audio that is typical for your usage.
+        /// for the raw FFT Frequency data to produce the normalized range. Use the demo "peaks"
+        /// option to analyze audio that is typical for your usage.
         /// </summary>
-        public double NormalizeFrequencyDecibelsPeak { get; set; } = 6500;
+        public double NormalizeFrequencyDecibelsPeak { get; set; } = 90;
 
+        /// <summary>
+        /// For audio textures which support it, this can make texture contents more visible
+        /// for debug purposes. Defaults to 1.0 which is no magnification.
+        /// </summary>
+        public float DebugTextureIntensityMultiplier { get; set; } = 1.0f;
     }
 }

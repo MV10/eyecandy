@@ -11,7 +11,7 @@ namespace eyecandy
 
         public override void UpdateChannelBuffer(AudioData audioBuffers)
         {
-            lock(ChannelBufferLock)
+            //lock(ChannelBufferLock)
             {
                 ScrollHistoryBuffer();
 
@@ -20,6 +20,7 @@ namespace eyecandy
                 {
                     int green = (x * AudioTextureEngine.RGBAPixelSize) + 1;
                     ChannelBuffer[green] = (float)audioBuffers.Wave[x] / (float)short.MaxValue;
+                    ChannelBuffer[green] *= AudioCaptureProcessor.Configuration.DebugTextureIntensityMultiplier;
                 }
             }
         }
