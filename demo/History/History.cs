@@ -36,8 +36,10 @@ namespace demo
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: History Textures";
             windowConfig.OpenTKNativeWindowSettings.Size = (960, 540);
             windowConfig.BackgroundColor = new(0.2f, 0.4f, 0.4f, 1.0f);
-            windowConfig.VertexShaderPathname = "history/history.vert";
-            windowConfig.FragmentShaderPathname = "history/history.frag";
+
+            // remember Linux is case-sensitive...
+            windowConfig.VertexShaderPathname = "History/history.vert";
+            windowConfig.FragmentShaderPathname = "History/history.frag";
 
             var win = new HistoryWindow(windowConfig, audioConfig);
             win.Focus();
