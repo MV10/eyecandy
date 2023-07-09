@@ -34,8 +34,7 @@
                     break;
 
                 case "wave":
-                    Console.WriteLine("TODO");
-                    //await Wave.Demo();
+                    await Wave.Demo();
                     break;
 
                 case "freq":

@@ -22,7 +22,7 @@ namespace demo
     {
         public static async Task Demo()
         {
-            Console.WriteLine("\n\nwave: Simple audio-reactive shader driven by Frequency and Volume history");
+            Console.WriteLine("\n\nfreq: Simple audio-reactive shader driven by Frequency and Volume history");
             Console.WriteLine("\n\nPress Enter to toggle between history-scroll and frequency-wave shaders...");
 
             var audioConfig = new EyeCandyCaptureConfig();
