@@ -6,7 +6,7 @@
 
         static async Task Main(string[] args)
         {
-            //if(args.Length == 0) args = new[]{ "frag" };
+            //if(args.Length == 0) args = new[]{ "freq" };
 
             if(args.Length == 0 || args.Length > 2)
             {
@@ -17,9 +17,10 @@
             if(args.Length == 2)
             {
                 StartFullScreen = args[1].Contains("F", StringComparison.InvariantCultureIgnoreCase);
+                if (args[1].Contains("P", StringComparison.InvariantCultureIgnoreCase)) Console.WriteLine($"\nPID {Environment.ProcessId}\n\n");
             }
 
-            switch(args[0].ToLower())
+            switch (args[0].ToLower())
             {
                 case "peaks":
                     await Peaks.Demo();
@@ -76,6 +77,7 @@
 
             Console.WriteLine("\n[options]");
             Console.WriteLine("F\t\tFull-screen mode");
+            Console.WriteLine("P\t\tOutput Process ID");
         }
     }
 }

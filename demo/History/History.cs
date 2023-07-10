@@ -30,7 +30,6 @@ namespace demo
             Console.WriteLine(" F\tFrequency magnitude");
 
             var audioConfig = new EyeCandyCaptureConfig();
-            audioConfig.DebugTextureIntensityMultiplier = 5.0f;
 
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: History Textures";

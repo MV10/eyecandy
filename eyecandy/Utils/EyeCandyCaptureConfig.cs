@@ -59,11 +59,5 @@ namespace eyecandy
         /// option to analyze audio that is typical for your usage.
         /// </summary>
         public double NormalizeFrequencyDecibelsPeak { get; set; } = 90;
-
-        /// <summary>
-        /// For audio textures which support it, this can make texture contents more visible
-        /// for debug purposes. Defaults to 1.0 which is no magnification.
-        /// </summary>
-        public float DebugTextureIntensityMultiplier { get; set; } = 1.0f;
     }
 }

@@ -60,7 +60,7 @@ namespace eyecandy
             BufferRMSVolume = new int[RmsBufferLength];
         }
 
-        public void Capture(Action newAudioDataCallback, CancellationToken cancellationToken)
+        public async void Capture(Action newAudioDataCallback, CancellationToken cancellationToken)
         {
             Connect();
 
@@ -78,7 +78,18 @@ namespace eyecandy
                     newAudioDataCallback.Invoke();
                     samplesAvailable -= SampleSize;
                 }
-                Thread.Yield();
+                // Relative FPS results using different methods with "demo freq" (worst-performer)
+                // tested on Win10x64 debug build in IDE (Ryzen 9 3900XT / GeForce RTX 2060); very
+                // little difference on the Raspberry Pi4B, however: ~50 FPS improves to ~60 FPS.
+                Thread.Sleep(0);        // 4750     cede control to any thread of equal priority
+                // spinWait.SpinOnce(); // 4100     periodically yields (default is 10 iterations)
+                // Thread.Sleep(1);     // 3900     cede control to any thread of OS choice
+                // Thread.Yield();      // 3650     cede control to any thread on the same core
+                // await Task.Delay(0); // 3600     creates and waits on a system timer
+                // do nothing           // 3600     burn down a CPU core
+                // Thread.SpinWait(1);  // 3600     duration-limited Yield
+                // await Task.Yield();  // 3250     suspend task indefinitely (scheduler control)
+
             }
 
             ALC.CaptureStop(CaptureDevice);
