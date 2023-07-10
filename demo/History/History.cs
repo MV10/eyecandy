@@ -39,7 +39,6 @@ namespace demo
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: History Textures";
             windowConfig.OpenTKNativeWindowSettings.Size = (960, 540);
             windowConfig.StartFullScreen = Program.StartFullScreen;
-            windowConfig.BackgroundColor = new(0.2f, 0.4f, 0.4f, 1.0f);
 
             // remember Linux is case-sensitive...
             windowConfig.VertexShaderPathname = "History/history.vert";
