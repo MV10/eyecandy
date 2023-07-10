@@ -40,6 +40,8 @@ namespace demo
             Console.WriteLine("\n\nStart playback, press any key to begin capturing audio...");
             Console.ReadKey(true);
 
+            Console.CursorVisible = false;
+
             config = new EyeCandyCaptureConfig();
             audio = new AudioCaptureProcessor(config)
             {
@@ -68,8 +70,8 @@ namespace demo
                         case ConsoleKey.V:
                         case ConsoleKey.F:
                         case ConsoleKey.D:
-                            Console.Clear();
                             key = k.Key;
+                            Console.Clear();
                             break;
 
                         default:
@@ -82,6 +84,7 @@ namespace demo
             await captureTask;
             audio.Dispose();
 
+            Console.CursorVisible = true;
             Console.Clear();
         }
 
@@ -104,7 +107,7 @@ namespace demo
                         }
                         else
                         {
-                            spacing = (int)Math.Clamp((audio.Buffers.FrequencyDecibels[i] / config.NormalizeFrequencyDecibelsPeak) * width * 1.5, 0, width - 1);
+                            spacing = (int)Math.Clamp((audio.Buffers.FrequencyDecibels[i] / config.NormalizeFrequencyDecibelsPeak) * width * 0.75, 0, width - 1);
                         }
                         Console.SetCursorPosition(0, i);
                         Console.ForegroundColor = (i < 11) ? ConsoleColor.Red : ConsoleColor.White;
