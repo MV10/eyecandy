@@ -1,6 +1,9 @@
 ﻿
 namespace eyecandy
 {
+    /// <summary>
+    /// AudioCaptureProcessor settings.
+    /// </summary>
     public class EyeCandyCaptureConfig
     {
         /// <summary>

@@ -1,6 +1,9 @@
 ﻿
 namespace eyecandy
 {
+    /// <summary>
+    /// A container for the various buffers used by AudioCaptureProcessor.
+    /// </summary>
     public class AudioData
     {
         /// <summary>
@@ -29,6 +32,9 @@ namespace eyecandy
         /// </summary>
         public double RealtimeRMSVolume = 0;
 
+        /// <summary>
+        /// The constructor allocates the buffer arrays according to the configured sample size.
+        /// </summary>
         public AudioData()
         {
             Wave = new short[AudioCaptureProcessor.Configuration.SampleSize];

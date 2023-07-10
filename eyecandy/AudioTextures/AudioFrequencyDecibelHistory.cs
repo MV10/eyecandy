@@ -2,17 +2,17 @@
 namespace eyecandy
 {
     /// <summary>
-    /// Represents an audio texture containing FFT frequency magnitude
+    /// Represents an audio texture containing FFT frequency decibel
     /// data in row 0, and history data in higher rows.
     /// </summary>
-    public class AudioTextureFrequencyMagnitudeHistory : AudioTexture
+    public class AudioFrequencyDecibelHistory : AudioTexture
     {
-        public AudioTextureFrequencyMagnitudeHistory()
+        public AudioFrequencyDecibelHistory()
         {
             PixelWidth = AudioCaptureProcessor.Configuration.SampleSize;
             Rows = AudioCaptureProcessor.Configuration.HistorySize;
 
-            FrequencyCalc = FrequencyAlgorithm.Magnitude;
+            FrequencyCalc = FrequencyAlgorithm.Decibels;
         }
 
         public override void UpdateChannelBuffer(AudioData audioBuffers)
@@ -25,7 +25,7 @@ namespace eyecandy
                 for (int x = 0; x < PixelWidth; x++)
                 {
                     int green = (x * AudioTextureEngine.RGBAPixelSize) + 1;
-                    ChannelBuffer[green] = (float)audioBuffers.FrequencyMagnitude[x] / (float)AudioCaptureProcessor.Configuration.NormalizeFrequencyMagnitudePeak;
+                    ChannelBuffer[green] = (float)audioBuffers.FrequencyDecibels[x] / (float)AudioCaptureProcessor.Configuration.NormalizeFrequencyDecibelsPeak;
                 }
             }
         }

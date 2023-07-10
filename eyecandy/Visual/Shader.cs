@@ -3,6 +3,9 @@ using OpenTK.Mathematics;
 
 namespace eyecandy
 {
+    /// <summary>
+    /// A helper class for managing OpenGL shaders.
+    /// </summary>
     public class Shader : IDisposable
     {
         /// <summary>
@@ -22,6 +25,9 @@ namespace eyecandy
 
         private bool IsDisposed = false;
 
+        /// <summary>
+        /// The constructor compiles a new vertex / fragment shader pair.
+        /// </summary>
         public Shader(string vertexPathname, string fragmentPathname)
         {
             int VertexShader = 0;
@@ -107,6 +113,9 @@ namespace eyecandy
             }
         }
 
+        /// <summary>
+        /// Wraps the GL.UseProgram call.
+        /// </summary>
         public void Use()
         {
             if (!IsValid || IsDisposed)
@@ -115,15 +124,24 @@ namespace eyecandy
             GL.UseProgram(Handle);
         }
 
+        /// <summary>
+        /// Returns the location handle for a given attribute.
+        /// </summary>
         public int GetAttribLocation(string attribName)
         {
             Use();
             return GL.GetAttribLocation(Handle, attribName);
         }
 
+        /// <summary>
+        /// Assigns a texture to a shader uniform.
+        /// </summary>
         public void SetTexture(AudioTexture audioTexture)
             => SetTexture(audioTexture.UniformName, audioTexture.Handle, audioTexture.AssignedTextureUnit);
 
+        /// <summary>
+        /// Assigns a texture to a shader uniform.
+        /// </summary>
         public void SetTexture(string name, int handle, TextureUnit unit)
         {
             if (!UniformLocations.ContainsKey(name)) return;
@@ -138,6 +156,9 @@ namespace eyecandy
             GL.Uniform1(UniformLocations[name], unitOrdinal);
         }
 
+        /// <summary>
+        /// Assigns a value to a shader uniform.
+        /// </summary>
         public void SetUniform(string name, int data)
         {
             if (!UniformLocations.ContainsKey(name)) return;
@@ -145,6 +166,9 @@ namespace eyecandy
             GL.Uniform1(UniformLocations[name], data);
         }
 
+        /// <summary>
+        /// Assigns a value to a shader uniform.
+        /// </summary>
         public void SetUniform(string name, float data)
         {
             if (!UniformLocations.ContainsKey(name)) return;
@@ -152,6 +176,9 @@ namespace eyecandy
             GL.Uniform1(UniformLocations[name], data);
         }
 
+        /// <summary>
+        /// Assigns a value to a shader uniform.
+        /// </summary>
         public void SetUniform(string name, Matrix4 data)
         {
             if (!UniformLocations.ContainsKey(name)) return;
@@ -159,6 +186,9 @@ namespace eyecandy
             GL.UniformMatrix4(UniformLocations[name], transpose: true, ref data);
         }
 
+        /// <summary>
+        /// Assigns a value to a shader uniform.
+        /// </summary>
         public void SetUniform(string name, Vector2 data)
         {
             if (!UniformLocations.ContainsKey(name)) return;
@@ -166,6 +196,9 @@ namespace eyecandy
             GL.Uniform2(UniformLocations[name], data);
         }
 
+        /// <summary>
+        /// Assigns a value to a shader uniform.
+        /// </summary>
         public void SetUniform(string name, Vector3 data)
         {
             if (!UniformLocations.ContainsKey(name)) return;

@@ -8,7 +8,7 @@ namespace eyecandy
     /// representation of the audio data in eyecandy is slightly different from
     /// the WebAudio data used by the Shadertoy website. Also, Shadertoy data is
     /// in the x channel, but these textures are RGBA and the data is in the green
-    /// channel.
+    /// channel (the eyecandy default).
     /// </summary>
     public class AudioTextureShadertoy : AudioTexture
     {

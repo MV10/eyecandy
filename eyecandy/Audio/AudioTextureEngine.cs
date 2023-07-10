@@ -3,6 +3,10 @@ using OpenTK.Graphics.OpenGL;
 
 namespace eyecandy
 {
+    /// <summary>
+    /// Produces OpenGL textures based on OpenAL audio data provided by an AudioCaptureProcessor
+    /// running on a background thread.
+    /// </summary>
     public class AudioTextureEngine : IDisposable
     {
         /// <summary>
@@ -22,19 +26,25 @@ namespace eyecandy
 
         private Dictionary<Type, AudioTexture> Textures = new();
         private bool TextureHandlesAllocated = false;
-        //private bool HasSampleWidthTextures = false;
-        //private bool HasOnePixelTextures = false;
-        //private bool HasHistoryTextures = false;
 
         private AudioCaptureProcessor AudioProcessor;
         private Task AudioTask;
         private CancellationTokenSource ctsAudioProcessing;
 
+        /// <summary>
+        /// The constructor requries a configuration object. This object is stored and is accessible
+        /// but should not be altered during program execution. Some settings are cached elsewhere
+        /// for performance and/or thread-safety considerations and would not be updated.
+        /// </summary>
         public AudioTextureEngine(EyeCandyCaptureConfig configuration)
         {
             AudioProcessor = new(configuration);
         }
 
+        /// <summary>
+        /// Invokes the AudioCaptureProcessor on a background thread and begins updating any
+        /// requested, enabled AudioTextures.
+        /// </summary>
         public void BeginAudioProcessing()
         {
             if (IsCapturing) return;
@@ -43,6 +53,10 @@ namespace eyecandy
             IsCapturing = true;
         }
 
+        /// <summary>
+        /// Cancels the AudioCaptureProcessor background thread. Callers should await this to
+        /// ensure clean shutdown of the wrapping task before calling Dispose.
+        /// </summary>
         public async Task EndAudioProcessing()
         {
             if (!IsCapturing) return;
@@ -60,6 +74,11 @@ namespace eyecandy
         public void EndAudioProcessing_SynchronousHack()
             => EndAudioProcessing().GetAwaiter().GetResult();
 
+        /// <summary>
+        /// AudioTexture objects can't be created directly. This factory method ensures they are properly
+        /// initialized and ready for use. Normally it isn't necessary to manipulate the AudioTexture objects
+        /// directly.
+        /// </summary>
         public void Create<AudioTextureType>(string uniformName, TextureUnit assignedTextureUnit, bool enabled = true)
         where AudioTextureType : AudioTexture
         {
@@ -72,6 +91,10 @@ namespace eyecandy
             EvaluateRequirements();
         }
 
+        /// <summary>
+        /// If an AudioTexture object of the requested type has been created, this returns a reference.
+        /// Otherwise null is returned.
+        /// </summary>
         public AudioTextureType Get<AudioTextureType>()
         where AudioTextureType : AudioTexture
         {
@@ -80,6 +103,9 @@ namespace eyecandy
             return Textures[type] as AudioTextureType;
         }
 
+        /// <summary>
+        /// Removes a given type of AudioTexture object from the application.
+        /// </summary>
         public void Destroy<AudioTextureType>()
         where AudioTextureType : AudioTexture
         {
@@ -89,6 +115,9 @@ namespace eyecandy
             EvaluateRequirements();
         }
 
+        /// <summary>
+        /// When enabled, the AudioTexture is updated whenever new audio data is available.
+        /// </summary>
         public void Enable<AudioTextureType>()
         where AudioTextureType : AudioTexture
         {
@@ -98,6 +127,9 @@ namespace eyecandy
             EvaluateRequirements();
         }
 
+        /// <summary>
+        /// When disabled, an AudioTexture is not updated by audio data sampling.
+        /// </summary>
         public void Disable<AudioTextureType>()
         where AudioTextureType : AudioTexture
         {
@@ -109,8 +141,8 @@ namespace eyecandy
 
         /// <summary>
         /// The render loop should call this before any textures are used. It will short-circuit if
-        /// new audio data isn't available yet (since the render loop is much faster than the audio
-        /// sampling rate).
+        /// new audio data isn't available yet since the render loop is much faster than the audio
+        /// sampling rate, so it is safe to call on every render pass.
         /// </summary>
         public void UpdateTextures()
         {
@@ -127,7 +159,7 @@ namespace eyecandy
         }
 
         /// <summary>
-        /// This is invoked by the AudioCaptureProcessor thread.
+        /// This is invoked by the AudioCaptureProcessor thread whenever new audio sample data is available.
         /// </summary>
         public void ProcessAudioDataCallback()
         {
@@ -137,6 +169,9 @@ namespace eyecandy
             }
         }
 
+        /// <summary>
+        /// Calls Shader.SetTexture for each of the currently-enabled AudioTexture objects.
+        /// </summary>
         public void SetTextureUniforms(Shader shader)
         {
             foreach (var t in Textures)
@@ -151,6 +186,10 @@ namespace eyecandy
             AudioProcessor?.Dispose();
         }
 
+        /// <summary>
+        /// Generates an updated AudioProcessingRequirements structure and applies it to the AudioCaptureProcessor.
+        /// This is primarily used internally when an AudioTexture is created, deleted, or the enabled state changes.
+        /// </summary>
         public void EvaluateRequirements()
         {
             AudioProcessor.Requirements = new()

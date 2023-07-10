@@ -3,6 +3,9 @@ using OpenTK.Windowing.Desktop;
 
 namespace eyecandy
 {
+    /// <summary>
+    /// OpenTK GameWindow and NativeWindow settings, and also eyecandy BsaeWindow settings.
+    /// </summary>
     public class EyeCandyWindowConfig
     {
         /// <summary>

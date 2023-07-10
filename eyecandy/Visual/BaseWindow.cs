@@ -5,6 +5,12 @@ using OpenTK.Windowing.Desktop;
 
 namespace eyecandy
 {
+    /// <summary>
+    /// A base class derived from the OpenTK GameWindow. This manages a Shader object (which can
+    /// be swapped out for other Shader objects at runtime and handles certain chores like setting
+    /// the background color on every render pass. It also forces OpenGL ES 3.2 for Raspberry Pi 4B
+    /// compatibility.
+    /// </summary>
     public abstract class BaseWindow : GameWindow, IDisposable
     {
         /// <summary>
@@ -22,6 +28,9 @@ namespace eyecandy
         /// </summary>
         public int FramesPerSecond = 0;
 
+        /// <summary>
+        /// The active configuration. This should never be changed during execution.
+        /// </summary>
         public EyeCandyWindowConfig Configuration;
 
         // FPS calcs
@@ -30,6 +39,7 @@ namespace eyecandy
 
         private bool InitialFullScreenApplied;
 
+        // used to modify the settings passed to the base constructor
         private static NativeWindowSettings ForceOpenGLES(NativeWindowSettings nativeWindowSettings)
         {
             nativeWindowSettings.API = ContextAPI.OpenGLES;
@@ -38,6 +48,11 @@ namespace eyecandy
             return nativeWindowSettings;
         }
 
+        /// <summary>
+        /// The constructor requries a configuration object. This object is stored and is accessible
+        /// but should not be altered during program execution. Some settings are cached elsewhere
+        /// for performance and/or thread-safety considerations and would not be updated.
+        /// </summary>
         public BaseWindow(EyeCandyWindowConfig configuration)
             : base(configuration.OpenTKGameWindowSettings, ForceOpenGLES(configuration.OpenTKNativeWindowSettings))
         {
@@ -89,6 +104,11 @@ namespace eyecandy
             }
         }
 
+        /// <summary>
+        /// Compiles a new set of vertex and fragment shaders and immediately uses them. It is
+        /// also possible to create a Shader object elsewhere in your code and update the window's
+        /// Shader property as needed.
+        /// </summary>
         public virtual void SetShader(string vertexShaderPathname, string fragmentShaderPathname)
         {
             Shader = new Shader(vertexShaderPathname, fragmentShaderPathname);

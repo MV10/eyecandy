@@ -5,10 +5,20 @@ using eyecandy.Audio;
 
 namespace eyecandy
 {
+    /// <summary>
+    /// Uses OpenAL to capture audio and invoke callbacks for further processing of
+    /// the capture data. Can perform optional post-processing of the raw PCM samples.
+    /// </summary>
     public class AudioCaptureProcessor : IDisposable
     {
-        // fixed configuration
+        /// <summary>
+        /// Fixed stereo sample rate, 44.1kHz is equivalent to CD audio.
+        /// </summary>
         public static readonly int SampleRate = 44100;
+
+        /// <summary>
+        /// Fixed sampling format is 16 bit.
+        /// </summary>
         public static readonly ALFormat SampleFormat = ALFormat.Mono16;
 
         /// <summary>
@@ -48,6 +58,11 @@ namespace eyecandy
         private int RmsPointer = 0;
         private int RmsSum = 0;
 
+        /// <summary>
+        /// The constructor requries a configuration object. This object is stored and is accessible
+        /// but should not be altered during program execution. Some settings are cached elsewhere
+        /// for performance and/or thread-safety considerations and would not be updated.
+        /// </summary>
         public AudioCaptureProcessor(EyeCandyCaptureConfig configuration)
         {
             Configuration = configuration;
@@ -60,7 +75,12 @@ namespace eyecandy
             BufferRMSVolume = new int[RmsBufferLength];
         }
 
-        public async void Capture(Action newAudioDataCallback, CancellationToken cancellationToken)
+        /// <summary>
+        /// Enters the audio capture / processing loop. Typically this will be invoked with Task.Run.
+        /// When the CancellationToken is canceled to end processing, the caller should await the
+        /// Task.Run to ensure shutdown is completed.
+        /// </summary>
+        public void Capture(Action newAudioDataCallback, CancellationToken cancellationToken)
         {
             Connect();
 
