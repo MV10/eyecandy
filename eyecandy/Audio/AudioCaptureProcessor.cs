@@ -42,8 +42,7 @@ namespace eyecandy
         private AudioData InternalBuffers;
 
         // internal
-        private static readonly int RmsTimeMs = 300;
-        private static readonly int RmsBufferLength = (int)((double)RmsTimeMs / 1000.0 * SampleRate);
+        private int RmsBufferLength;
 
         private ALDevice Device;
         private ALContext Context;
@@ -66,6 +65,8 @@ namespace eyecandy
         public AudioCaptureProcessor(EyeCandyCaptureConfig configuration)
         {
             Configuration = configuration;
+
+            RmsBufferLength = (int)((double)Configuration.RMSVolumeMilliseconds / 1000.0 * SampleRate);
 
             Buffers = new();
             InternalBuffers = new();
