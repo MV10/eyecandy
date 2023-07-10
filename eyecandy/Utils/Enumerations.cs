@@ -19,7 +19,12 @@ namespace eyecandy
         /// <summary>
         /// Calculate frequency decibels.
         /// </summary>
-        Decibels = 2
+        Decibels = 2,
+
+        /// <summary>
+        /// Calcualte all frequency representations.
+        /// </summary>
+        All = 999
     }
 
     /// <summary>
@@ -37,6 +42,11 @@ namespace eyecandy
         /// window is controlled by the RMSVolumeMilliseconds property in the capture
         /// configuration object. The default is 300ms.
         /// </summary>
-        RMS = 1
+        RMS = 1,
+
+        /// <summary>
+        /// Calculate all volume representations.
+        /// </summary>
+        All = 999
     }
 }

@@ -25,7 +25,6 @@ namespace eyecandy
         {
             lock (ChannelBufferLock)
             {
-                // TODO optimize the loop to eliminate the green calc
                 for (int x = 0; x < PixelWidth; x++)
                 {
                     int y0green = (x * AudioTextureEngine.RGBAPixelSize) + 1;

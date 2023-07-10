@@ -7,7 +7,7 @@ namespace demo
 {
     public class HistoryWindow : BaseWindow
     {
-        enum AudioTextureType { Wave, Volume, Frequency }
+        enum AudioTextureType { Wave, Volume, FreqMag, FreqDb, Combined }
 
         private AudioTextureType DemoMode = AudioTextureType.Wave;
 
@@ -37,9 +37,12 @@ namespace demo
         {
             Engine = new(audioConfig);
 
-            Engine.Create<AudioTextureFrequencyMagnitudeHistory>("sound", TextureUnit.Texture0);
-            Engine.Create<AudioTextureWaveHistory>("wave", TextureUnit.Texture1);
-            Engine.Create<AudioTextureVolumeHistory>("volume", TextureUnit.Texture2);
+            // the multiplier makes the green easier to see
+            Engine.Create<AudioTextureWaveHistory>("wave", TextureUnit.Texture0, sampleMultiplier: 5.0f);
+            Engine.Create<AudioTextureVolumeHistory>("volume", TextureUnit.Texture1, sampleMultiplier: 1.0f);
+            Engine.Create<AudioTextureFrequencyMagnitudeHistory>("fmag", TextureUnit.Texture2, sampleMultiplier: 5.0f);
+            Engine.Create<AudioTextureFrequencyDecibelHistory>("fdb", TextureUnit.Texture3, sampleMultiplier: 1.0f);
+            Engine.Create<AudioTexture4ChannelHistory>("combined", TextureUnit.Texture4, sampleMultiplier: 1.0f);
         }
 
         protected override void OnLoad()
@@ -88,14 +91,18 @@ namespace demo
             {
                 AudioTextureType.Wave => Engine.Get<AudioTextureWaveHistory>().Handle,
                 AudioTextureType.Volume => Engine.Get<AudioTextureVolumeHistory>().Handle,
-                AudioTextureType.Frequency => Engine.Get<AudioTextureFrequencyMagnitudeHistory>().Handle,
+                AudioTextureType.FreqMag => Engine.Get<AudioTextureFrequencyMagnitudeHistory>().Handle,
+                AudioTextureType.FreqDb => Engine.Get<AudioTextureFrequencyDecibelHistory>().Handle,
+                AudioTextureType.Combined => Engine.Get<AudioTexture4ChannelHistory>().Handle,
             };
 
             TextureUnit unit = DemoMode switch
             {
                 AudioTextureType.Wave => Engine.Get<AudioTextureWaveHistory>().AssignedTextureUnit,
                 AudioTextureType.Volume => Engine.Get<AudioTextureVolumeHistory>().AssignedTextureUnit,
-                AudioTextureType.Frequency => Engine.Get<AudioTextureFrequencyMagnitudeHistory>().AssignedTextureUnit,
+                AudioTextureType.FreqMag => Engine.Get<AudioTextureFrequencyMagnitudeHistory>().AssignedTextureUnit,
+                AudioTextureType.FreqDb => Engine.Get<AudioTextureFrequencyDecibelHistory>().AssignedTextureUnit,
+                AudioTextureType.Combined => Engine.Get<AudioTexture4ChannelHistory>().AssignedTextureUnit,
             };
 
             // The demo frag shader declares audioTexture; we're disregarding the uniform names
@@ -141,8 +148,22 @@ namespace demo
 
             if (input.IsKeyReleased(Keys.F))
             {
-                Console.WriteLine("--> FREQUENCY");
-                DemoMode = AudioTextureType.Frequency;
+                Console.WriteLine("--> FREQ MAGNITUDE");
+                DemoMode = AudioTextureType.FreqMag;
+                return;
+            }
+
+            if (input.IsKeyReleased(Keys.D))
+            {
+                Console.WriteLine("--> FREQ DB");
+                DemoMode = AudioTextureType.FreqDb;
+                return;
+            }
+
+            if (input.IsKeyReleased(Keys.D4))
+            {
+                Console.WriteLine("--> COMBINED 4CH");
+                DemoMode = AudioTextureType.Combined;
                 return;
             }
         }

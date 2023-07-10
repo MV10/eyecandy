@@ -7,6 +7,8 @@ A trivial shader which only shows the raw history textures mapped to a rectangle
 W - Raw PCM wave data
 V - RMS volume (realtime)
 F - Frequency magnitude
+D - Frequency decibels
+4 - 4-channel data
 
 Hit ESC to exit.
  
@@ -28,6 +30,8 @@ namespace demo
             Console.WriteLine(" W\tRaw PCM wave data");
             Console.WriteLine(" V\tRMS volume (realtime)");
             Console.WriteLine(" F\tFrequency magnitude");
+            Console.WriteLine(" D\tFrequency decibels");
+            Console.WriteLine(" 4\tCombined 4ch buffer");
 
             var audioConfig = new EyeCandyCaptureConfig();
 

@@ -205,10 +205,10 @@ namespace eyecandy
         {
             AudioProcessor.Requirements = new()
             {
-                CalculateVolumeRMS = Textures.Any(t => t.Value.VolumeCalc == VolumeAlgorithm.RMS),
+                CalculateVolumeRMS = Textures.Any(t => t.Value.VolumeCalc == VolumeAlgorithm.RMS || t.Value.VolumeCalc == VolumeAlgorithm.All),
                 CalculateFrequency = !Textures.All(t => t.Value.FrequencyCalc == FrequencyAlgorithm.NotApplicable),
-                CalculateFFTMagnitude = Textures.Any(t => t.Value.FrequencyCalc == FrequencyAlgorithm.Magnitude),
-                CalculateFFTDecibels = Textures.Any(t => t.Value.FrequencyCalc == FrequencyAlgorithm.Decibels),
+                CalculateFFTMagnitude = Textures.Any(t => t.Value.FrequencyCalc == FrequencyAlgorithm.Magnitude || t.Value.FrequencyCalc == FrequencyAlgorithm.All),
+                CalculateFFTDecibels = Textures.Any(t => t.Value.FrequencyCalc == FrequencyAlgorithm.Decibels || t.Value.FrequencyCalc == FrequencyAlgorithm.All),
             };
         }
     }
