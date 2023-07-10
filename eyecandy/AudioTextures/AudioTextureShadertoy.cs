@@ -8,7 +8,8 @@ namespace eyecandy
     /// representation of the audio data in eyecandy is slightly different from
     /// the WebAudio data used by the Shadertoy website. Also, Shadertoy data is
     /// in the x channel, but these textures are RGBA and the data is in the green
-    /// channel (the eyecandy default).
+    /// channel (the eyecandy default). Any SampleMultiplier is only applied to the
+    /// frequency data, the raw PCM data is not altered.
     /// </summary>
     public class AudioTextureShadertoy : AudioTexture
     {
@@ -30,7 +31,7 @@ namespace eyecandy
                     int y0green = (x * AudioTextureEngine.RGBAPixelSize) + 1;
                     int y1green = y0green + BufferWidth;
 
-                    ChannelBuffer[y0green] = (float)audioBuffers.FrequencyMagnitude[x] / (float)AudioCaptureProcessor.Configuration.NormalizeFrequencyMagnitudePeak;
+                    ChannelBuffer[y0green] = (float)audioBuffers.FrequencyMagnitude[x] / (float)AudioCaptureProcessor.Configuration.NormalizeFrequencyMagnitudePeak * SampleMultiplier;
                     ChannelBuffer[y1green] = (float)audioBuffers.Wave[x] / (float)short.MaxValue;
                 }
             }

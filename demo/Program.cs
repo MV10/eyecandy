@@ -6,7 +6,7 @@
 
         static async Task Main(string[] args)
         {
-            //if(args.Length == 0) args = new[]{ "freq" };
+            //if(args.Length == 0) args = new[]{ "frag" };
 
             if(args.Length == 0 || args.Length > 2)
             {

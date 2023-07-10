@@ -23,7 +23,7 @@ namespace eyecandy
             lock(ChannelBufferLock)
             {
                 ScrollHistoryBuffer();
-                var volume = (float)audioBuffers.RealtimeRMSVolume / (float)AudioCaptureProcessor.Configuration.NormalizeRMSVolumePeak;
+                var volume = (float)audioBuffers.RealtimeRMSVolume / (float)AudioCaptureProcessor.Configuration.NormalizeRMSVolumePeak * SampleMultiplier;
                 ChannelBuffer[GreenChannel] = volume;
             }
         }

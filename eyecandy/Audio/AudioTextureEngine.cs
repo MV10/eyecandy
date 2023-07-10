@@ -79,14 +79,14 @@ namespace eyecandy
         /// initialized and ready for use. Normally it isn't necessary to manipulate the AudioTexture objects
         /// directly.
         /// </summary>
-        public void Create<AudioTextureType>(string uniformName, TextureUnit assignedTextureUnit, bool enabled = true)
+        public void Create<AudioTextureType>(string uniformName, TextureUnit assignedTextureUnit, float sampleMultiplier = 1.0f, bool enabled = true)
         where AudioTextureType : AudioTexture
         {
             var type = typeof(AudioTextureType);
             if (Textures.ContainsKey(type)) throw new InvalidOperationException($"Texture of type {type} already exists.");
             if (Textures.Any(t => t.Value.UniformName.Equals(uniformName))) throw new ArgumentException($"Texture uniform name {uniformName} already exists.");
             if (Textures.Any(t => t.Value.AssignedTextureUnit.Equals(assignedTextureUnit))) throw new ArgumentException($"Texture unit {assignedTextureUnit} already assigned.");
-            var texture = AudioTexture.Factory<AudioTextureType>(uniformName, assignedTextureUnit, enabled);
+            var texture = AudioTexture.Factory<AudioTextureType>(uniformName, assignedTextureUnit, sampleMultiplier, enabled);
             Textures.Add(type, texture);
             EvaluateRequirements();
         }
@@ -125,6 +125,17 @@ namespace eyecandy
             if (!Textures.ContainsKey(type)) return;
             Textures[type].Enabled = true;
             EvaluateRequirements();
+        }
+
+        /// <summary>
+        /// Changes the AudioTexture's SampleMultiplier value.
+        /// </summary>
+        public void SetMultiplier<AudioTextureType>(float multiplier)
+        where AudioTextureType : AudioTexture
+        {
+            var type = typeof(AudioTextureType);
+            if (!Textures.ContainsKey(type)) return;
+            Textures[type].SampleMultiplier = multiplier;
         }
 
         /// <summary>

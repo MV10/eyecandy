@@ -25,7 +25,7 @@ namespace eyecandy
                 for (int x = 0; x < PixelWidth; x++)
                 {
                     int green = (x * AudioTextureEngine.RGBAPixelSize) + 1;
-                    ChannelBuffer[green] = (float)audioBuffers.FrequencyMagnitude[x] / (float)AudioCaptureProcessor.Configuration.NormalizeFrequencyMagnitudePeak;
+                    ChannelBuffer[green] = (float)audioBuffers.FrequencyMagnitude[x] / (float)AudioCaptureProcessor.Configuration.NormalizeFrequencyMagnitudePeak * SampleMultiplier;
                 }
             }
         }

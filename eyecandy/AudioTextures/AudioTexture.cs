@@ -33,6 +33,12 @@ namespace eyecandy
         public bool Enabled { get; set; } = true;
 
         /// <summary>
+        /// If the audio texture implementation supports it, this multiplier is applied to
+        /// the audio sample data to either dampen (<1.0) or boost (>1.0) the data.
+        /// </summary>
+        public float SampleMultiplier { get; set; } = 1.0f;
+
+        /// <summary>
         /// The algorithm used to calculate volume, if any.
         /// </summary>
         public VolumeAlgorithm VolumeCalc { get; protected internal set; } = VolumeAlgorithm.NotApplicable;
@@ -78,7 +84,7 @@ namespace eyecandy
         /// AudioTexture objects are not directly creatable. This factory method ensures they are correctly initialized.
         /// The factory method, in turn, is called from the AudioTextureEngine Create<> method.
         /// </summary>
-        internal static AudioTexture Factory<AudioTextureType>(string uniformName, TextureUnit assignedTextureUnit, bool enabled = true)
+        internal static AudioTexture Factory<AudioTextureType>(string uniformName, TextureUnit assignedTextureUnit, float sampleMultiplier = 1.0f, bool enabled = true)
         {
             var texture = Activator.CreateInstance<AudioTextureType>() as AudioTexture;
 
@@ -86,6 +92,7 @@ namespace eyecandy
 
             texture.UniformName = uniformName;
             texture.AssignedTextureUnit = assignedTextureUnit;
+            texture.SampleMultiplier = sampleMultiplier;
             texture.Enabled = enabled;
 
             texture.BufferWidth = texture.PixelWidth * AudioTextureEngine.RGBAPixelSize;
