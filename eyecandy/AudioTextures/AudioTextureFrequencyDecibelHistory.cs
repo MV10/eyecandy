@@ -5,9 +5,9 @@ namespace eyecandy
     /// Represents an audio texture containing FFT frequency decibel
     /// data in row 0, and history data in higher rows.
     /// </summary>
-    public class AudioFrequencyDecibelHistory : AudioTexture
+    public class AudioTextureFrequencyDecibelHistory : AudioTexture
     {
-        public AudioFrequencyDecibelHistory()
+        public AudioTextureFrequencyDecibelHistory()
         {
             PixelWidth = AudioCaptureProcessor.Configuration.SampleSize;
             Rows = AudioCaptureProcessor.Configuration.HistorySize;
