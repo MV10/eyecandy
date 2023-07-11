@@ -1,7 +1,5 @@
-# eyecandy
+# eyecandy [![NuGet](https://img.shields.io/nuget/v/eyecandy.svg)](https://nuget.org/packages/eyecandy)
 **.NET library for processing OpenAL audio captures as OpenGL textures**
-
-_NuGet packaging coming soon..._
 
 If you're interested in audio visualization similar to the old WinAmp plugins (Milk!), or more recently, websites like [Shadertoy](https://www.shadertoy.com/) or [VertexShaderArt](https://www.vertexshaderart.com/), then you've come to the right place.
 
