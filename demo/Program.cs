@@ -6,7 +6,7 @@
 
         static async Task Main(string[] args)
         {
-            //if(args.Length == 0) args = new[]{ "text" };
+            //if(args.Length == 0) args = new[]{ "modes" };
 
             if(args.Length == 0 || args.Length > 2)
             {
@@ -50,6 +50,10 @@
                     await Frag.Demo();
                     break;
 
+                case "modes":
+                    await Modes.Demo();
+                    break;
+
                 case "info":
                     await Info.Demo();
                     break;
@@ -73,6 +77,7 @@
             Console.WriteLine("freq\t\tFrequency magnitude and volume history (multiple shaders)");
             Console.WriteLine("vert\t\tVertexShaderArt-style integer-array vertex shader (no audio)");
             Console.WriteLine("frag\t\tShadertoy-style pixel fragment shader");
+            Console.WriteLine("modes\t\tDifferent OpenGL drawing modes (points, lines, tris, etc)");
             Console.WriteLine("info\t\tOpenAL information (devices, defaults, extensions, etc.)");
 
             Console.WriteLine("\n[options]");

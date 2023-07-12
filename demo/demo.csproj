@@ -31,6 +31,12 @@
     <None Update="History\history.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Modes\modes.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Modes\modes.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Vert\vertdemo.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
