@@ -2,8 +2,7 @@
 
 /*
 
-A simple vertex shader that cycles through the various drawing modes. The
-triangle representation isn't great.
+A simple vertex shader that cycles through the various drawing modes.
 
 points
 line

@@ -16,7 +16,7 @@ namespace demo
             PrimitiveType.Lines,
             PrimitiveType.LineStrip,
             PrimitiveType.LineLoop,
-            PrimitiveType.Triangles,    // viz not great for triangles :(
+            PrimitiveType.Triangles,
             PrimitiveType.TriangleStrip,
             PrimitiveType.TriangleFan,
 
