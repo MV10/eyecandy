@@ -1,5 +1,5 @@
 #version 320 es
-precision mediump float;
+precision highp float;
 
 in vec2 fragCoord;
 uniform vec2 iResolution;

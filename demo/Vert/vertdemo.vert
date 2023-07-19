@@ -1,4 +1,5 @@
 #version 320 es
+
 layout (location = 0) in float vertexId;
 uniform vec2 resolution;
 uniform float vertexCount;
