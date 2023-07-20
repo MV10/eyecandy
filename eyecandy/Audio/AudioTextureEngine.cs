@@ -1,4 +1,5 @@
-﻿using eyecandy.Audio;
+﻿
+using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
 
 namespace eyecandy
@@ -47,7 +48,11 @@ namespace eyecandy
         /// </summary>
         public void BeginAudioProcessing()
         {
-            if (IsCapturing) return;
+            if (IsCapturing)
+            {
+                ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.{nameof(BeginAudioProcessing)}", "Invoked but already capturing audio.", LogLevel.Warning);
+                return;
+            }
             ctsAudioProcessing = new();
             AudioTask = Task.Run(() => AudioProcessor.Capture(ProcessAudioDataCallback, ctsAudioProcessing.Token));
             IsCapturing = true;
@@ -59,7 +64,11 @@ namespace eyecandy
         /// </summary>
         public async Task EndAudioProcessing()
         {
-            if (!IsCapturing) return;
+            if (!IsCapturing)
+            {
+                ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.{nameof(EndAudioProcessing)}", "Invoked while not capturing audio.", LogLevel.Warning);
+                return;
+            }
             ctsAudioProcessing.Cancel();
             IsCapturing = false;
             await AudioTask;
@@ -193,7 +202,16 @@ namespace eyecandy
 
         public void Dispose()
         {
-            if (IsCapturing) throw new InvalidOperationException("Dispose invoked before audio processing was terminated.");
+            if (IsCapturing)
+            {
+                ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.Dispose", "Dispose invoked before audio processing was terminated. Attempting to force termination.");
+                try
+                {
+                    EndAudioProcessing_SynchronousHack();
+                }
+                catch // already bad news, disregard errors
+                {  }
+            }
             AudioProcessor?.Dispose();
         }
 

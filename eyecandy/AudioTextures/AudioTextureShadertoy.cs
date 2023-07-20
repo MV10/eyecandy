@@ -13,6 +13,7 @@ namespace eyecandy
     /// </summary>
     public class AudioTextureShadertoy : AudioTexture
     {
+        /// <inheritdoc/>
         public AudioTextureShadertoy()
         {
             PixelWidth = AudioCaptureProcessor.Configuration.SampleSize;
@@ -21,6 +22,7 @@ namespace eyecandy
             FrequencyCalc = FrequencyAlgorithm.Magnitude;
         }
 
+        /// <inheritdoc/>
         public override void UpdateChannelBuffer(AudioData audioBuffers)
         {
             lock (ChannelBufferLock)

@@ -8,6 +8,7 @@ namespace eyecandy
     /// </summary>
     public class AudioTexture4ChannelHistory : AudioTexture
     {
+        /// <inheritdoc/>
         public AudioTexture4ChannelHistory()
         {
             PixelWidth = AudioCaptureProcessor.Configuration.SampleSize;
@@ -17,6 +18,7 @@ namespace eyecandy
             FrequencyCalc = FrequencyAlgorithm.All;
         }
 
+        /// <inheritdoc/>
         public override void UpdateChannelBuffer(AudioData audioBuffers)
         {
             lock (ChannelBufferLock)

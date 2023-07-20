@@ -10,6 +10,7 @@ namespace eyecandy
     {
         private static readonly int GreenChannel = 1;
 
+        /// <inheritdoc/>
         public AudioTextureVolumeHistory()
         {
             PixelWidth = 1;
@@ -18,6 +19,7 @@ namespace eyecandy
             VolumeCalc = VolumeAlgorithm.RMS;
         }
 
+        /// <inheritdoc/>
         public override void UpdateChannelBuffer(AudioData audioBuffers)
         {
             lock(ChannelBufferLock)

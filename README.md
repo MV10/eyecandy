@@ -7,7 +7,19 @@ This library does all the hard work of capturing live-playback audio and produci
 
 There are many other features and options not covered in this README, but the demos cover all of the important parts, and the public API is fully documented.
 
+#### 2023-07-20 v1.0.1
+* Improved / expanded error-handling and reporting
+* Added `AverageFramesPerSecond` to `BaseWindow.CalculateFPS` method with configurable period
+* Optional standard `ILogger` support (populate via `ErrorLogging.Logger` static field)
+* `BaseWindow.Shader` creation is optional (via `createShaderFromConfig` constructor parameter)
+* OpenGL ES 3.2 made optional (`BaseWindow.ForceOpenGLES3dot2` static field is `true` by default)
+* Demo project forces all error logging to the console and all GL demos output average FPS upon exit
+
 # Demos
+
+See my work-in-progress at the [monkey-hi-hat](https://github.com/MV10/monkey-hi-hat) repository for a complete application using this library.
+
+In terms of the demo project in this repo, here is the help output (run it without args):
 
 ```
 demo [type] [options]

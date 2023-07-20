@@ -99,7 +99,7 @@ namespace demo
             {
                 Engine.EndAudioProcessing_SynchronousHack();
                 Close();
-                Console.WriteLine($"\n\n{FramesPerSecond} FPS");
+                Console.WriteLine($"\n\n{FramesPerSecond} FPS\n{AverageFramesPerSecond} average FPS, last {AverageFPSTimeframeSeconds} seconds");
                 return;
             }
 

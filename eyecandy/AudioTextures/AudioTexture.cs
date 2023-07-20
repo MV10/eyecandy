@@ -82,13 +82,13 @@ namespace eyecandy
 
         /// <summary>
         /// AudioTexture objects are not directly creatable. This factory method ensures they are correctly initialized.
-        /// The factory method, in turn, is called from the AudioTextureEngine Create<> method.
+        /// The factory method, in turn, is called from the AudioTextureEngine.Create method.
         /// </summary>
         internal static AudioTexture Factory<AudioTextureType>(string uniformName, TextureUnit assignedTextureUnit, float sampleMultiplier = 1.0f, bool enabled = true)
         {
             var texture = Activator.CreateInstance<AudioTextureType>() as AudioTexture;
 
-            if (texture.PixelWidth == -1 || texture.Rows == -1) throw new InvalidOperationException($"The {typeof(AudioTextureType)} constructor must set PixelWidth and Rows.");
+            if (texture.PixelWidth == -1 || texture.Rows == -1) throw new InvalidOperationException($"The {texture.GetType()} constructor must set PixelWidth and Rows.");
 
             texture.UniformName = uniformName;
             texture.AssignedTextureUnit = assignedTextureUnit;

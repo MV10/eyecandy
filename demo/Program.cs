@@ -1,4 +1,6 @@
-﻿namespace demo
+﻿using eyecandy;
+
+namespace demo
 {
     internal class Program
     {
@@ -13,6 +15,9 @@
                 Help();
                 Environment.Exit(0);
             }
+
+            // For demo purposes, force all error output to the console.
+            ErrorLogging.Strategy = LoggingStrategy.AlwaysOutputToConsole;
 
             if(args.Length == 2)
             {

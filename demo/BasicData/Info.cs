@@ -12,8 +12,6 @@ namespace demo
     {
         public static async Task Demo()
         {
-            ErrorLogging.StoreErrors = false;
-
             Console.WriteLine("\n\nvvAudioInfo");
 
             var devices = ALC.GetStringList(GetEnumerationStringList.DeviceSpecifier);

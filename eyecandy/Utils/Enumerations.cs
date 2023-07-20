@@ -49,4 +49,27 @@ namespace eyecandy
         /// </summary>
         All = 999
     }
+
+    /// <summary>
+    /// Controls error logging for the library overall and OpenGL/OpenAL error-reporting.
+    /// Errors are always written to an ILogger if one is provided via ErrorLogging.Logger.
+    /// </summary>
+    public enum LoggingStrategy
+    {
+        /// <summary>
+        /// If an ILogger is present, that is the only log output. Otherwise, outputs to
+        /// console when a debugger is attached, or stores if no debugger is attached.
+        /// </summary>
+        Automatic = 0,
+
+        /// <summary>
+        /// Output to console even if an ILogger is available. The ILogger is still used.
+        /// </summary>
+        AlwaysOutputToConsole = 1,
+
+        /// <summary>
+        /// Store even if an ILogger is available. The ILogger is still used.
+        /// </summary>
+        AlwaysStore = 2,
+    }
 }

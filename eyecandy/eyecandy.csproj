@@ -4,7 +4,6 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <ApplicationIcon>Xtras\icon.ico</ApplicationIcon>
     <Title>eyecandy</Title>
     <Description>.NET library for processing OpenAL audio captures as OpenGL textures </Description>
     <PackageProjectUrl>https://github.com/MV10/eyecandy</PackageProjectUrl>
@@ -16,16 +15,12 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>eyecandy</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Authors>Jon McGuire</Authors>
     <Product>eyecandy</Product>
     <Company>Mindmagma</Company>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Include="Xtras\icon.ico" />
-  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\LICENSE" Link="Xtras\LICENSE">
@@ -44,6 +39,7 @@
 
 	<ItemGroup>
     <PackageReference Include="FftSharp" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
     <PackageReference Include="OpenTK" Version="4.7.7" />
   </ItemGroup>
 

@@ -8,12 +8,14 @@ namespace eyecandy
     /// </summary>
     public class AudioTextureWaveHistory : AudioTexture
     {
+        /// <inheritdoc/>
         public AudioTextureWaveHistory()
         {
             PixelWidth = AudioCaptureProcessor.Configuration.SampleSize;
             Rows = AudioCaptureProcessor.Configuration.HistorySize;
         }
 
+        /// <inheritdoc/>
         public override void UpdateChannelBuffer(AudioData audioBuffers)
         {
             lock(ChannelBufferLock)

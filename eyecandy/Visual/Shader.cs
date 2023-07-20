@@ -1,4 +1,6 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿
+using Microsoft.Extensions.Logging;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
 namespace eyecandy
@@ -25,6 +27,9 @@ namespace eyecandy
 
         private bool IsDisposed = false;
 
+        // avoid blasting the log with "ignored" messages from every render pass!
+        private List<string> IgnoredUniformNames = new();
+
         /// <summary>
         /// The constructor compiles a new vertex / fragment shader pair.
         /// </summary>
@@ -46,7 +51,7 @@ namespace eyecandy
             catch (Exception ex)
             {
                 IsValid = false;
-                ErrorLogging.ShaderError($"{nameof(Shader)} ctor Read File", $"{ex}: {ex.Message}");
+                ErrorLogging.LibraryError($"{nameof(Shader)} ctor Read File", $"{ex}: {ex.Message}");
             }
 
             // compile
@@ -56,7 +61,7 @@ namespace eyecandy
                 GL.GetShader(VertexShader, ShaderParameter.CompileStatus, out int vertOk);
                 if (vertOk == 0)
                 {
-                    ErrorLogging.ShaderError($"{nameof(Shader)} ctor Compile Vert", GL.GetShaderInfoLog(VertexShader));
+                    ErrorLogging.LibraryError($"{nameof(Shader)} ctor Compile Vert", GL.GetShaderInfoLog(VertexShader));
                     IsValid = false;
 
                 }
@@ -65,14 +70,14 @@ namespace eyecandy
                 GL.GetShader(FragmentShader, ShaderParameter.CompileStatus, out int fragOk);
                 if (fragOk == 0)
                 {
-                    ErrorLogging.ShaderError($"{nameof(Shader)} ctor Compile Frag", GL.GetShaderInfoLog(VertexShader));
+                    ErrorLogging.LibraryError($"{nameof(Shader)} ctor Compile Frag", GL.GetShaderInfoLog(VertexShader));
                     IsValid = false;
                 }
             }
             catch (Exception ex)
             {
                 IsValid = false;
-                ErrorLogging.ShaderError($"{nameof(Shader)} ctor Compile", $"{ex}: {ex.Message}");
+                ErrorLogging.LibraryError($"{nameof(Shader)} ctor Compile", $"{ex}: {ex.Message}");
             }
 
             // link
@@ -86,13 +91,13 @@ namespace eyecandy
                 if (linkOk == 0)
                 {
                     IsValid = false;
-                    ErrorLogging.ShaderError($"{nameof(Shader)} ctor Linking", GL.GetProgramInfoLog(Handle));
+                    ErrorLogging.LibraryError($"{nameof(Shader)} ctor Linking", GL.GetProgramInfoLog(Handle));
                 }
             }
             catch (Exception ex)
             {
                 IsValid = false;
-                ErrorLogging.ShaderError($"{nameof(Shader)} ctor Linking", $"{ex}: {ex.Message}");
+                ErrorLogging.LibraryError($"{nameof(Shader)} ctor Linking", $"{ex}: {ex.Message}");
             }
 
             // cleanup
@@ -111,6 +116,8 @@ namespace eyecandy
                 var location = GL.GetUniformLocation(Handle, key);
                 UniformLocations.Add(key, location);
             }
+
+            ErrorLogging.OpenGLErrorCheck($"{nameof(Shader)} ctor");
         }
 
         /// <summary>
@@ -119,7 +126,7 @@ namespace eyecandy
         public void Use()
         {
             if (!IsValid || IsDisposed)
-                throw new InvalidOperationException("Shader is invalid (check Error properties) or has been disposed.");
+                throw new InvalidOperationException($"{nameof(Shader)} is invalid (check log output or ErrorLogger properties), or has been disposed.");
 
             GL.UseProgram(Handle);
         }
@@ -144,7 +151,15 @@ namespace eyecandy
         /// </summary>
         public void SetTexture(string name, int handle, TextureUnit unit)
         {
-            if (!UniformLocations.ContainsKey(name)) return;
+            if (!UniformLocations.ContainsKey(name))
+            {
+                if(!IgnoredUniformNames.Contains(name))
+                {
+                    ErrorLogging.LibraryError($"{nameof(SetTexture)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Warning);
+                    IgnoredUniformNames.Add(name);
+                }
+                return;
+            }
             Use();
 
             GL.ActiveTexture(unit);
@@ -161,7 +176,15 @@ namespace eyecandy
         /// </summary>
         public void SetUniform(string name, int data)
         {
-            if (!UniformLocations.ContainsKey(name)) return;
+            if (!UniformLocations.ContainsKey(name))
+            {
+                if (!IgnoredUniformNames.Contains(name))
+                {
+                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Warning);
+                    IgnoredUniformNames.Add(name);
+                }
+                return;
+            }
             Use();
             GL.Uniform1(UniformLocations[name], data);
         }
@@ -171,7 +194,15 @@ namespace eyecandy
         /// </summary>
         public void SetUniform(string name, float data)
         {
-            if (!UniformLocations.ContainsKey(name)) return;
+            if (!UniformLocations.ContainsKey(name))
+            {
+                if (!IgnoredUniformNames.Contains(name))
+                {
+                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Warning);
+                    IgnoredUniformNames.Add(name);
+                }
+                return;
+            }
             Use();
             GL.Uniform1(UniformLocations[name], data);
         }
@@ -181,7 +212,15 @@ namespace eyecandy
         /// </summary>
         public void SetUniform(string name, Matrix4 data)
         {
-            if (!UniformLocations.ContainsKey(name)) return;
+            if (!UniformLocations.ContainsKey(name))
+            {
+                if (!IgnoredUniformNames.Contains(name))
+                {
+                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Warning);
+                    IgnoredUniformNames.Add(name);
+                }
+                return;
+            }
             Use();
             GL.UniformMatrix4(UniformLocations[name], transpose: true, ref data);
         }
@@ -191,7 +230,15 @@ namespace eyecandy
         /// </summary>
         public void SetUniform(string name, Vector2 data)
         {
-            if (!UniformLocations.ContainsKey(name)) return;
+            if (!UniformLocations.ContainsKey(name))
+            {
+                if (!IgnoredUniformNames.Contains(name))
+                {
+                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Warning);
+                    IgnoredUniformNames.Add(name);
+                }
+                return;
+            }
             Use();
             GL.Uniform2(UniformLocations[name], data);
         }
@@ -201,11 +248,20 @@ namespace eyecandy
         /// </summary>
         public void SetUniform(string name, Vector3 data)
         {
-            if (!UniformLocations.ContainsKey(name)) return;
+            if (!UniformLocations.ContainsKey(name))
+            {
+                if (!IgnoredUniformNames.Contains(name))
+                {
+                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Warning);
+                    IgnoredUniformNames.Add(name);
+                }
+                return;
+            }
             Use();
             GL.Uniform3(UniformLocations[name], data);
         }
 
+        /// <summary/>
         protected virtual void Dispose(bool disposing)
         {
             if (!IsDisposed)
@@ -215,17 +271,19 @@ namespace eyecandy
             }
         }
 
+        /// <summary/>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary/>
         ~Shader()
         {
             if (!IsDisposed)
             {
-                throw new InvalidOperationException($"Failed to dispose {nameof(Shader)} object!");
+                throw new InvalidOperationException($"Finalizer: {nameof(Shader)} was not Disposed!");
             }
         }
     }

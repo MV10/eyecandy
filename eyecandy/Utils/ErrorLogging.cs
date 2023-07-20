@@ -1,39 +1,44 @@
-﻿using OpenTK.Audio.OpenAL;
+﻿
+using Microsoft.Extensions.Logging;
+using OpenTK.Audio.OpenAL;
 using OpenTK.Graphics.OpenGL;
+using System.Diagnostics;
 
 namespace eyecandy
 {
     public static class ErrorLogging
     {
         /// <summary>
-        /// If false, errors are immediately written to the Console instead of stored. In Release
-        /// mode this defaults to true. In Debug mode it defaults to false.
+        /// By default, an ILogger is used, otherwise output to the console
+        /// when a debugger is attached, or store when no debugger is attached.
         /// </summary>
-#if DEBUG
-        public static bool StoreErrors = false;
-#else
-        public static bool StoreErrors = true;
-#endif
+        public static LoggingStrategy Strategy = LoggingStrategy.Automatic;
 
         /// <summary>
-        /// Any error messages collected by calls to OpenGLErrorCheck (assuming StoreErrors is true).
+        /// Generally the library should use the LibraryError method instead of directly
+        /// calling the logger.
+        /// </summary>
+        public static ILogger Logger = null;
+
+        /// <summary>
+        /// Any error messages collected by calls to OpenGLErrorCheck (if LoggingStrategy calls for storage).
         /// </summary>
         public static List<string> OpenGLErrors = new();
 
         /// <summary>
-        /// Any error messages collected by calls to OpenALErrorCheck (assuming StoreErrors is true).
+        /// Any error messages collected by calls to OpenALErrorCheck (if LoggingStrategy calls for storage).
         /// </summary>
         public static List<string> OpenALErrors = new();
 
         /// <summary>
-        /// Any file-loading or shader compilation errors (assuming StoreErrors is true). 
+        /// Any errors internal to the library, such as file-loading or shader compilation errors (if LoggingStrategy calls for storage). 
         /// </summary>
-        public static List<string> ShaderErrors = new();
+        public static List<string> LibraryErrors = new();
 
         /// <summary>
         /// True if either OpenGL or OpenAL errors have been collected.
         /// </summary>
-        public static bool HasErrors = (OpenGLErrors.Count > 0 || OpenALErrors.Count > 0 || ShaderErrors.Count > 0);
+        public static bool HasErrors = (OpenGLErrors.Count > 0 || OpenALErrors.Count > 0 || LibraryErrors.Count > 0);
 
         /// <summary>
         /// Writes or stores outstanding OpenGL error messages (depending on the StoreErrors flag).
@@ -56,13 +61,13 @@ namespace eyecandy
             ConsoleMarkerOpen();
             Console.WriteLine("  (Stored errors not necessarily in the sequence listed.)");
             foreach (var e in OpenGLErrors) Console.WriteLine(e);
-            foreach (var e in ShaderErrors) Console.WriteLine(e);
+            foreach (var e in LibraryErrors) Console.WriteLine(e);
             foreach (var e in OpenALErrors) Console.WriteLine(e);
             ConsoleMarkerClose();
             if (purge)
             {
                 OpenGLErrors.Clear();
-                ShaderErrors.Clear();
+                LibraryErrors.Clear();
                 OpenALErrors.Clear();
             }
         }
@@ -76,11 +81,14 @@ namespace eyecandy
             while (!err.Equals(noError))
             {
                 var message = $"  Program stage \"{programStage}\": {err}";
-                if (StoreErrors)
+                Logger?.LogError(message.Trim());
+
+                if (Strategy == LoggingStrategy.AlwaysStore || (Strategy == LoggingStrategy.Automatic && !Debugger.IsAttached))
                 {
                     storage.Add(message);
                 }
-                else
+
+                if(Strategy == LoggingStrategy.AlwaysOutputToConsole || (Strategy == LoggingStrategy.Automatic && Debugger.IsAttached))
                 {
                     if (!consoleMarker)
                     {
@@ -96,18 +104,21 @@ namespace eyecandy
             if (consoleMarker) ConsoleMarkerClose();
         }
 
-        internal static void ShaderError(string programStage, string err)
+        internal static void LibraryError(string programStage, string err, LogLevel logLevel = LogLevel.Error)
         {
             var message = $"  Program stage \"{programStage}\": {err}";
-            if (StoreErrors)
+            Logger?.Log(logLevel, message.Trim());
+
+            if (Strategy == LoggingStrategy.AlwaysStore || (Strategy == LoggingStrategy.Automatic && !Debugger.IsAttached))
             {
-                ShaderErrors.Add(message);
+                LibraryErrors.Add(message);
             }
-            else
+
+            if (Strategy == LoggingStrategy.AlwaysOutputToConsole || (Strategy == LoggingStrategy.Automatic && Debugger.IsAttached))
             {
                 ConsoleMarkerOpen();
-                foreach (var e in ShaderErrors) Console.WriteLine(e);
-                ShaderErrors.Clear();
+                foreach (var e in LibraryErrors) Console.WriteLine(e);
+                LibraryErrors.Clear();
                 Console.WriteLine(message);
                 ConsoleMarkerClose();
             }

@@ -1,4 +1,5 @@
-﻿using FftSharp.Windows;
+﻿
+using FftSharp.Windows;
 using FftSharp;
 using OpenTK.Audio.OpenAL;
 using eyecandy.Audio;
@@ -87,7 +88,7 @@ namespace eyecandy
 
             IsCapturing = true;
             ALC.CaptureStart(CaptureDevice);
-            ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.{nameof(Capture)}");
+            ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.{nameof(ALC.CaptureStart)}");
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -114,7 +115,7 @@ namespace eyecandy
             }
 
             ALC.CaptureStop(CaptureDevice);
-            ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.{nameof(Capture)}");
+            ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.{nameof(ALC.CaptureStop)}");
 
             IsCapturing = false;
             Buffers.Timestamp = DateTime.MaxValue;
@@ -123,12 +124,17 @@ namespace eyecandy
 
         public void Dispose()
         {
-            if (IsCapturing) throw new InvalidOperationException("Dispose invoked before audio processing was terminated.");
+            if (IsCapturing)
+            {
+                ErrorLogging.LibraryError($"{nameof(AudioCaptureProcessor)}.Dispose", "Dispose invoked before audio processing was terminated.");
+            }
 
             ALC.CaptureCloseDevice(CaptureDevice);
             ALC.MakeContextCurrent(ALContext.Null);
             ALC.DestroyContext(Context);
             ALC.CloseDevice(Device);
+
+            ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.Dispose");
         }
 
         private void Connect()
@@ -157,7 +163,7 @@ namespace eyecandy
             ALC.MakeContextCurrent(Context);
             CaptureDevice = ALC.CaptureOpenDevice(captureDeviceName, SampleRate, SampleFormat, SampleSize);
 
-            ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)} ctor");
+            ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.{nameof(Connect)}");
         }
 
         private void ProcessSamples()
