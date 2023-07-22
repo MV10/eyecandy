@@ -2,7 +2,6 @@
 using FftSharp.Windows;
 using FftSharp;
 using OpenTK.Audio.OpenAL;
-using eyecandy.Audio;
 
 namespace eyecandy
 {
@@ -57,6 +56,9 @@ namespace eyecandy
         private int[] BufferRMSVolume;
         private int RmsPointer = 0;
         private int RmsSum = 0;
+
+        private bool IsSilent = false;
+        private DateTime SilenceStarted = DateTime.MaxValue;
 
         /// <summary>
         /// The constructor requries a configuration object. This object is stored and is accessible
@@ -217,7 +219,30 @@ namespace eyecandy
                 if (RmsPointer == RmsBufferLength) RmsPointer = 0;
             }
 
-            InternalBuffers.RealtimeRMSVolume = Math.Sqrt((double)RmsSum / (double)RmsBufferLength);
+            var volumeRMS = Math.Sqrt((double)RmsSum / (double)RmsBufferLength);
+            InternalBuffers.RealtimeRMSVolume = volumeRMS;
+
+            // Silence detection
+            if(Configuration.DetectSilence)
+            {
+                if (IsSilent)
+                {
+                    if (volumeRMS > Configuration.MaximumSilenceRMS)
+                    {
+                        IsSilent = false;
+                        SilenceStarted = DateTime.MaxValue;
+                    }
+                }
+                else
+                {
+                    if (volumeRMS <= Configuration.MaximumSilenceRMS)
+                    {
+                        IsSilent = true;
+                        SilenceStarted = DateTime.Now;
+                    }
+                }
+                InternalBuffers.SilenceStarted = SilenceStarted;
+            }
         }
     }
 }

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "demo": {
+      "commandName": "Project",
+      "commandLineArgs": "silence"
+    }
+  }
+}

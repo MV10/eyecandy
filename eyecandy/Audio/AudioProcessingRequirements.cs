@@ -1,5 +1,5 @@
 ﻿
-namespace eyecandy.Audio
+namespace eyecandy
 {
     /// <summary>
     /// Convenience storage identifying which post-processing calculations

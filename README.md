@@ -7,6 +7,12 @@ This library does all the hard work of capturing live-playback audio and produci
 
 There are many other features and options not covered in this README, but the demos cover all of the important parts, and the public API is fully documented.
 
+#### 2023-07-22 v1.0.2
+* Added silence-detection settings to config (DetectSilence, MaximumSilenceRMS)
+* Added silence-detection to buffers (SilenceStarted timestamp)
+* Added "silence" demo
+* Changed Shader to log unknown uniform names as Info level rather than Warn
+
 #### 2023-07-20 v1.0.1
 * Improved / expanded error-handling and reporting
 * Added `AverageFramesPerSecond` to `BaseWindow.CalculateFPS` method with configurable period

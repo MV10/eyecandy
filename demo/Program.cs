@@ -35,6 +35,10 @@ namespace demo
                     await Text.Demo();
                     break;
 
+                case "silence":
+                    await Silence.Demo();
+                    break;
+
                 case "history":
                     await History.Demo();
                     break;
@@ -77,6 +81,7 @@ namespace demo
             Console.WriteLine("\n[type]");
             Console.WriteLine("peaks\t\tPeak audio capture values (use for configuration)");
             Console.WriteLine("text\t\tText-based audio visualizations");
+            Console.WriteLine("silence\t\tSilence-detection testing");
             Console.WriteLine("history\t\tRaw history-texture dumps");
             Console.WriteLine("wave\t\tRaw PCM wave audio visualization");
             Console.WriteLine("freq\t\tFrequency magnitude and volume history (multiple shaders)");

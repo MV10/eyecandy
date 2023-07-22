@@ -62,5 +62,15 @@ namespace eyecandy
         /// option to analyze audio that is typical for your usage.
         /// </summary>
         public double NormalizeFrequencyDecibelsPeak { get; set; } = 90;
+
+        /// <summary>
+        /// When true, RMS volume is calculated even if no volume texture is enabled.
+        /// </summary>
+        public bool DetectSilence { get; set; } = true;
+
+        /// <summary>
+        /// Maximum RMS volume for slience-detection.
+        /// </summary>
+        public double MaximumSilenceRMS { get; set; } = 1.5;
     }
 }

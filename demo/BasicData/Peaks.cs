@@ -16,6 +16,7 @@ namespace demo
         static AudioCaptureProcessor audio;
 
         static short maxWave = short.MinValue;
+        static double minRMSVolume = double.MaxValue;
         static double maxRMSVolume = double.MinValue;
         static double maxFreqMagnitude = double.MinValue;
         static double maxFreqDecibels = double.MinValue;
@@ -57,13 +58,14 @@ namespace demo
             audio.Dispose();
 
             Console.Clear();
-            Console.WriteLine("\n\nCapture ended. Maximum values:\n");
+            Console.WriteLine("\n\nCapture ended. Final values:\n");
             Report();
             Console.WriteLine();
         }
 
         static void CheckSamples()
         {
+            minRMSVolume = Math.Min(minRMSVolume, audio.Buffers.RealtimeRMSVolume);
             maxRMSVolume = Math.Max(maxRMSVolume, audio.Buffers.RealtimeRMSVolume);
 
             for (int i = 0; i < config.SampleSize; i++)
@@ -76,10 +78,11 @@ namespace demo
 
         static void Report()
         {
-            Console.WriteLine($"Raw PCM wave (short):\t{maxWave,11:0.0000}");
-            Console.WriteLine($"RMS volume (double):\t{maxRMSVolume,11:0.0000}");
-            Console.WriteLine($"Freq magnitude (double)\t{maxFreqMagnitude,11:0.0000}");
-            Console.WriteLine($"Freq decibels (double)\t{maxFreqDecibels,11:0.0000}");
+            Console.WriteLine($"Raw PCM wave (short):\t\t{maxWave,11:0.0000}");
+            Console.WriteLine($"Min RMS volume (double):\t{minRMSVolume,11:0.0000}");
+            Console.WriteLine($"Max RMS volume (double):\t{maxRMSVolume,11:0.0000}");
+            Console.WriteLine($"Freq magnitude (double):\t{maxFreqMagnitude,11:0.0000}");
+            Console.WriteLine($"Freq decibels (double):\t\t{maxFreqDecibels,11:0.0000}");
         }
     }
 }

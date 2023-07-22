@@ -33,6 +33,11 @@ namespace eyecandy
         public double RealtimeRMSVolume = 0;
 
         /// <summary>
+        /// The amount of time silence has been detected. If MaxValue, not currently silent.
+        /// </summary>
+        public DateTime SilenceStarted = DateTime.MaxValue;
+
+        /// <summary>
         /// The constructor allocates the buffer arrays according to the configured sample size.
         /// </summary>
         public AudioData()
@@ -41,5 +46,11 @@ namespace eyecandy
             FrequencyMagnitude = new double[AudioCaptureProcessor.Configuration.SampleSize];
             FrequencyDecibels = new double[AudioCaptureProcessor.Configuration.SampleSize];
         }
+
+        /// <summary>
+        /// How long silence has been detected (only accurate since latest Timestamp update).
+        /// </summary>
+        public TimeSpan SilenceDuration()
+            => SilenceStarted == DateTime.MaxValue ? TimeSpan.Zero : DateTime.Now.Subtract(SilenceStarted);
     }
 }

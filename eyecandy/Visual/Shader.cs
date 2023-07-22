@@ -155,7 +155,7 @@ namespace eyecandy
             {
                 if(!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{nameof(SetTexture)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Warning);
+                    ErrorLogging.LibraryError($"{nameof(SetTexture)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Information);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -180,7 +180,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Warning);
+                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Information);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -198,7 +198,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Warning);
+                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Information);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -216,7 +216,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Warning);
+                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Information);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -234,7 +234,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Warning);
+                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Information);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -252,7 +252,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Warning);
+                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Information);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
