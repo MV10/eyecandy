@@ -136,7 +136,8 @@ namespace eyecandy
             ALC.DestroyContext(Context);
             ALC.CloseDevice(Device);
 
-            ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.Dispose");
+            // This is fine on Windows but crashes the Raspberry Pi...
+            // ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.Dispose");
         }
 
         private void Connect()

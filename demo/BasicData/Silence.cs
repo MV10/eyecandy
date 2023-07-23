@@ -34,7 +34,11 @@ namespace demo
             Console.WriteLine("\n\nStart playback and press any key to begin capturing audio....");
             Console.ReadKey(true);
 
-            config = new EyeCandyCaptureConfig();
+            config = new EyeCandyCaptureConfig()
+            {
+                DetectSilence = true,
+            };
+
             audio = new AudioCaptureProcessor(config)
             {
                 Requirements = new()
