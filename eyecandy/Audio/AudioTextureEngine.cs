@@ -25,6 +25,11 @@ namespace eyecandy
         /// </summary>
         public DateTime TexturesUpdatedTimestamp = DateTime.MaxValue;
 
+        /// <summary>
+        /// Exposes capture buffers from the internal AudioCaptureProcessor instance.
+        /// </summary>
+        public AudioData AudioBuffers { get => AudioProcessor?.Buffers; }
+
         private Dictionary<Type, AudioTexture> Textures = new();
         private bool TextureHandlesAllocated = false;
 
