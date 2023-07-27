@@ -3,40 +3,52 @@ using eyecandy; // for error logging only
 
 using OpenTK.Audio.OpenAL.Extensions.Creative.EnumerateAll;
 using OpenTK.Audio.OpenAL;
+using Serilog;
+using Serilog.Extensions.Logging;
 using System.Diagnostics;
-
+using Microsoft.Extensions.Logging;
 
 namespace demo
 {
     internal class Info
     {
+        public static bool UseLogging = false;
+
+        private static Microsoft.Extensions.Logging.ILogger Logger;
+
         public static async Task Demo()
         {
             Console.WriteLine("\n\nvvAudioInfo");
 
+            if(UseLogging)
+            {
+                Console.WriteLine("\n\nWriting device info to ./demo.log");
+                ConfigureLogging();
+            }
+
             var devices = ALC.GetStringList(GetEnumerationStringList.DeviceSpecifier);
-            Console.WriteLine($"\n\nDrivers:\n  {string.Join("\n  ", devices)}");
+            Output($"\n\nDrivers:\n  {string.Join("\n  ", devices)}");
 
             var deviceName = ALC.GetString(ALDevice.Null, AlcGetString.DefaultDeviceSpecifier);
-            Console.WriteLine($"\n\nDefault driver:\n  {deviceName}");
+            Output($"\n\nDefault driver:\n  {deviceName}");
             foreach (var d in devices)
             {
                 if (d.Contains("OpenAL Soft"))
                 {
                     deviceName = d;
-                    Console.WriteLine($"  Using: \"{deviceName}\"");
+                    Output($"  Using: \"{deviceName}\"");
                 }
             }
 
             var allDevices = EnumerateAll.GetStringList(GetEnumerateAllContextStringList.AllDevicesSpecifier);
-            Console.WriteLine($"\n\nPlayback devices:\n  {string.Join("\n  ", allDevices)}");
+            Output($"\n\nPlayback devices:\n  {string.Join("\n  ", allDevices)}");
 
             var list = ALC.GetStringList(GetEnumerationStringList.CaptureDeviceSpecifier);
-            Console.WriteLine($"\n\nCapture devices:\n  {string.Join("\n  ", list)}");
+            Output($"\n\nCapture devices:\n  {string.Join("\n  ", list)}");
 
             var defaultPlayback = ALC.GetString(ALDevice.Null, AlcGetString.DefaultAllDevicesSpecifier);
             var defaultCapture = ALC.GetString(ALDevice.Null, AlcGetString.CaptureDefaultDeviceSpecifier);
-            Console.WriteLine($"\n\nDefault  devices:\n  Playback: {defaultPlayback}\n  Capture: {defaultCapture}");
+            Output($"\n\nDefault  devices:\n  Playback: {defaultPlayback}\n  Capture: {defaultCapture}");
 
             var device = ALC.OpenDevice(deviceName);
             var context = ALC.CreateContext(device, (int[])null);
@@ -45,7 +57,7 @@ namespace demo
             ErrorLogging.OpenALErrorCheck("Startup");
 
             var attrs = ALC.GetContextAttributes(device);
-            Console.WriteLine($"\n\nOpenAL Context attributes:\n  {attrs}");
+            Output($"\n\nOpenAL Context attributes:\n  {attrs}");
 
             ALC.GetInteger(device, AlcGetInteger.MajorVersion, 1, out int alcMajorVersion);
             ALC.GetInteger(device, AlcGetInteger.MinorVersion, 1, out int alcMinorVersion);
@@ -54,7 +66,14 @@ namespace demo
             string rend = AL.Get(ALGetString.Renderer);
             string vend = AL.Get(ALGetString.Vendor);
             string vers = AL.Get(ALGetString.Version);
-            Console.WriteLine($"\n\nOpenAL Context extensions:\n  Vendor: {vend}\n  Version: {vers}\n  Renderer: {rend}\n  Extensions:\n    {string.Join("\n    ", exts.Split(" "))}\n  ALC Version: {alcMajorVersion}.{alcMinorVersion}\n  ALC Extensions:\n    {string.Join("\n    ", alcExts.Split(" "))}");
+            Output($"\n\nOpenAL Context extensions:\n  Vendor: {vend}\n  Version: {vers}\n  Renderer: {rend}\n  Extensions:\n    {string.Join("\n    ", exts.Split(" "))}\n  ALC Version: {alcMajorVersion}.{alcMinorVersion}\n  ALC Extensions:\n    {string.Join("\n    ", alcExts.Split(" "))}");
+
+            if(UseLogging)
+            {
+                Console.WriteLine("\n\nLogging output finished.");
+                Log.CloseAndFlush();
+                goto ExitProgram;
+            }
 
             Console.WriteLine("\n\nESC      - Exit utility\nSpacebar - Test recording and playback");
             while (true)
@@ -180,6 +199,35 @@ namespace demo
             ALC.MakeContextCurrent(ALContext.Null);
             ALC.DestroyContext(context);
             ALC.CloseDevice(device);
+        }
+
+        private static void Output(string message)
+        {
+            if (UseLogging)
+            {
+                Logger.LogInformation(message);
+            }
+            else
+            {
+                Console.WriteLine(message);
+            }
+        }
+
+        private static void ConfigureLogging()
+        {
+            var logPath = Path.GetFullPath("./demo.log");
+            if (File.Exists(logPath)) File.Delete(logPath);
+
+            Console.WriteLine($"Logging to: {logPath}");
+
+            var cfg = new LoggerConfiguration()
+                    .MinimumLevel.Verbose()
+                    .WriteTo.Async(a => a.File(logPath, shared: true))
+                    .WriteTo.Console();
+
+            Log.Logger = cfg.CreateLogger();
+
+            Logger = new SerilogLoggerFactory().CreateLogger("eyecandy-demo");
         }
     }
 }

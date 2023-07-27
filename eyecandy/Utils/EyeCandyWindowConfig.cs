@@ -42,6 +42,11 @@ namespace eyecandy
         // https://github.com/opentk/opentk/issues/1591
 
         /// <summary>
+        /// Only applies to the application window (including full-screen).
+        /// </summary>
+        public bool HideMousePointer { get; set; } = true;
+
+        /// <summary>
         /// When true, any shader compile error writes an error to the console and aborts.
         /// Default is true. When false, check the Shader object's IsValid property and
         /// the ErrorLogging.ShaderError list before use.

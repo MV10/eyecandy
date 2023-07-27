@@ -57,7 +57,9 @@ namespace eyecandy
         private int[] FPSBuffer;
         private int FPSBufferIndex = 0;
 
-        private bool InitialFullScreenApplied;
+        private bool InitialConfigurationApplied = false;
+        private bool StartFullScreen;
+        private bool HideMousePointer;
 
         // used to modify the settings passed to the base constructor
         private static NativeWindowSettings ForceOpenGLES(NativeWindowSettings nativeWindowSettings)
@@ -81,7 +83,8 @@ namespace eyecandy
         {
             Configuration = configuration;
             if(createShaderFromConfig) SetShader(configuration.VertexShaderPathname, configuration.FragmentShaderPathname);
-            InitialFullScreenApplied = !Configuration.StartFullScreen;
+            StartFullScreen = Configuration.StartFullScreen;
+            HideMousePointer = Configuration.HideMousePointer;
             FPSBuffer = new int[AverageFPSTimeframeSeconds];
         }
 
@@ -120,10 +123,11 @@ namespace eyecandy
         {
             base.OnUpdateFrame(e);
 
-            if (!InitialFullScreenApplied)
+            if (!InitialConfigurationApplied)
             {
-                WindowState = WindowState.Fullscreen;
-                InitialFullScreenApplied = true;
+                if (StartFullScreen) WindowState = WindowState.Fullscreen;
+                if (HideMousePointer) CursorState = CursorState.Hidden;
+                InitialConfigurationApplied = true;
             }
         }
 

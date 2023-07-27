@@ -67,6 +67,11 @@ namespace demo
                     await Info.Demo();
                     break;
 
+                case "logging":
+                    Info.UseLogging = true;
+                    await Info.Demo();
+                    break;
+
                 default:
                     Help();
                     break;
@@ -89,6 +94,7 @@ namespace demo
             Console.WriteLine("frag\t\tShadertoy-style pixel fragment shader");
             Console.WriteLine("modes\t\tDifferent OpenGL drawing modes (points, lines, tris, etc)");
             Console.WriteLine("info\t\tOpenAL information (devices, defaults, extensions, etc.)");
+            Console.WriteLine("logging\tWrites system details like \"info\" to demo.log");
 
             Console.WriteLine("\n[options]");
             Console.WriteLine("F\t\tFull-screen mode");
