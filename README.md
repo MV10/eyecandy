@@ -7,6 +7,10 @@ This library does all the hard work of capturing live-playback audio and produci
 
 There are many other features and options not covered in this README, but the demos cover all of the important parts, and the public API is fully documented.
 
+#### 2023-07-27 v1.0.4
+* HideMousePointer option
+* Converted storage class to record
+
 #### 2023-07-23 v1.0.3
 * Squash a Linux bug: can't call AL.GetError after closing all devices...
 
