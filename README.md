@@ -11,7 +11,7 @@ There are many other features and options not covered in this README, but the de
 * HideMousePointer option
 * Converted storage class to record
 * Improved error logging, added some debug-level log output
-* Expose AudioCaptureProcessor AudioData buffers
+* Engine-level silence detection support
 
 #### 2023-07-23 v1.0.3
 * Squash a Linux bug: can't call AL.GetError after closing all devices...

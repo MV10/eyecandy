@@ -26,9 +26,22 @@ namespace eyecandy
         public DateTime TexturesUpdatedTimestamp = DateTime.MaxValue;
 
         /// <summary>
-        /// Exposes capture buffers from the internal AudioCaptureProcessor instance.
+        /// True if the capture engine is currently detecting silence.
         /// </summary>
-        public AudioData AudioBuffers { get => AudioProcessor?.Buffers; }
+        public bool IsSilent = false;
+
+        /// <summary>
+        /// Start time of the most recently-detected slient period. If no silence has been
+        /// detected yet, this will be DateTime.MaxValue.
+        /// </summary>
+        public DateTime SilenceStarted = DateTime.MaxValue;
+
+        /// <summary>
+        /// When IsSilent is false, the end time of the most recently-detected silent period.
+        /// During active silent periods, or if no slience has been detected yet, this will
+        /// be DateTime.MinValue.
+        /// </summary>
+        public DateTime SilenceEnded = DateTime.MinValue;
 
         private Dictionary<Type, AudioTexture> Textures = new();
         private bool TextureHandlesAllocated = false;
@@ -198,6 +211,24 @@ namespace eyecandy
             foreach (var t in Textures)
             {
                 if (t.Value.Enabled) t.Value.UpdateChannelBuffer(AudioProcessor.Buffers);
+            }
+
+            if (IsSilent)
+            {
+                if(AudioProcessor.Buffers.SilenceStarted == DateTime.MaxValue)
+                {
+                    SilenceEnded = DateTime.Now;
+                    IsSilent = false;
+                }
+            }
+            else
+            {
+                if(AudioProcessor.Buffers.SilenceStarted != DateTime.MaxValue)
+                {
+                    SilenceStarted = AudioProcessor.Buffers.SilenceStarted;
+                    SilenceEnded = DateTime.MinValue;
+                    IsSilent = true;
+                }
             }
         }
 
