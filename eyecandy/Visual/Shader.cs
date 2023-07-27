@@ -35,6 +35,9 @@ namespace eyecandy
         /// </summary>
         public Shader(string vertexPathname, string fragmentPathname)
         {
+            ErrorLogging.Logger?.LogDebug($"Shader constructor loading:\n  {vertexPathname}\n  {fragmentPathname}");
+            ErrorLogging.Logger?.LogDebug($"");
+
             int VertexShader = 0;
             int FragmentShader = 0;
 
@@ -47,6 +50,7 @@ namespace eyecandy
                 GL.ShaderSource(VertexShader, VertexShaderSource);
                 FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
                 GL.ShaderSource(FragmentShader, FragmentShaderSource);
+                ErrorLogging.Logger?.LogDebug($"Shader constructor: file-read completed");
             }
             catch (Exception ex)
             {
@@ -73,6 +77,8 @@ namespace eyecandy
                     ErrorLogging.LibraryError($"{nameof(Shader)} ctor Compile Frag", GL.GetShaderInfoLog(VertexShader));
                     IsValid = false;
                 }
+
+                ErrorLogging.Logger?.LogDebug($"Shader constructor: compilation completed");
             }
             catch (Exception ex)
             {
@@ -93,6 +99,7 @@ namespace eyecandy
                     IsValid = false;
                     ErrorLogging.LibraryError($"{nameof(Shader)} ctor Linking", GL.GetProgramInfoLog(Handle));
                 }
+                ErrorLogging.Logger?.LogDebug($"Shader constructor: linking completed");
             }
             catch (Exception ex)
             {
@@ -110,11 +117,13 @@ namespace eyecandy
             // are not "active" and will not be listed even though they're declared, thus
             // the SetUniform overrides ignore any uniform key-name not in the cache
             GL.GetProgram(Handle, GetProgramParameterName.ActiveUniforms, out var uniformCount);
+            ErrorLogging.Logger?.LogDebug($"Shader constructor: {uniformCount} active uniforms reported");
             for (var i = 0; i < uniformCount; i++)
             {
                 var key = GL.GetActiveUniform(Handle, i, out _, out _);
                 var location = GL.GetUniformLocation(Handle, key);
                 UniformLocations.Add(key, location);
+                ErrorLogging.Logger?.LogDebug($"Shader constructor: caching uniform {key} at location {location}");
             }
 
             ErrorLogging.OpenGLErrorCheck($"{nameof(Shader)} ctor");

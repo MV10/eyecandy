@@ -40,6 +40,7 @@ namespace eyecandy
         public AudioTextureEngine(EyeCandyCaptureConfig configuration)
         {
             AudioProcessor = new(configuration);
+            ErrorLogging.Logger?.LogDebug($"AudioTextureEngine: constructor completed");
         }
 
         /// <summary>
@@ -48,6 +49,8 @@ namespace eyecandy
         /// </summary>
         public void BeginAudioProcessing()
         {
+            ErrorLogging.Logger?.LogDebug($"AudioTextureEngine: BeginAudioProcessing");
+
             if (IsCapturing)
             {
                 ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.{nameof(BeginAudioProcessing)}", "Invoked but already capturing audio.", LogLevel.Warning);
@@ -64,6 +67,8 @@ namespace eyecandy
         /// </summary>
         public async Task EndAudioProcessing()
         {
+            ErrorLogging.Logger?.LogDebug($"AudioTextureEngine: EndAudioProcessing");
+
             if (!IsCapturing)
             {
                 ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.{nameof(EndAudioProcessing)}", "Invoked while not capturing audio.", LogLevel.Warning);
@@ -98,6 +103,7 @@ namespace eyecandy
             var texture = AudioTexture.Factory<AudioTextureType>(uniformName, assignedTextureUnit, sampleMultiplier, enabled);
             Textures.Add(type, texture);
             EvaluateRequirements();
+            ErrorLogging.Logger?.LogDebug($"AudioTextureEngine: Created {type}");
         }
 
         /// <summary>
@@ -122,6 +128,7 @@ namespace eyecandy
             if (!Textures.ContainsKey(type)) return;
             Textures.Remove(type);
             EvaluateRequirements();
+            ErrorLogging.Logger?.LogDebug($"AudioTextureEngine: Destroyed {type}");
         }
 
         /// <summary>

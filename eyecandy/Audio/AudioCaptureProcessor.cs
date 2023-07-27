@@ -1,6 +1,7 @@
 ﻿
 using FftSharp.Windows;
 using FftSharp;
+using Microsoft.Extensions.Logging;
 using OpenTK.Audio.OpenAL;
 
 namespace eyecandy
@@ -77,6 +78,8 @@ namespace eyecandy
             SampleSize = Configuration.SampleSize;
             BufferFFTSource = new double[SampleSize * 2];
             BufferRMSVolume = new int[RmsBufferLength];
+
+            ErrorLogging.Logger?.LogDebug($"AudioCaptureProcessor: constructor completed");
         }
 
         /// <summary>
@@ -86,6 +89,7 @@ namespace eyecandy
         /// </summary>
         public void Capture(Action newAudioDataCallback, CancellationToken cancellationToken)
         {
+            ErrorLogging.Logger?.LogDebug($"AudioCaptureProcessor: Capture starting");
             Connect();
 
             IsCapturing = true;
@@ -116,6 +120,8 @@ namespace eyecandy
 
             }
 
+            ErrorLogging.Logger?.LogDebug($"AudioCaptureProcessor: Capture ending");
+
             ALC.CaptureStop(CaptureDevice);
             ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.{nameof(ALC.CaptureStop)}");
 
@@ -142,6 +148,8 @@ namespace eyecandy
 
         private void Connect()
         {
+            ErrorLogging.Logger?.LogDebug($"AudioCaptureProcessor: Connect");
+
             var targetDriver = string.IsNullOrEmpty(AudioCaptureProcessor.Configuration.DriverName) 
                 ? "OpenAL Soft" 
                 : AudioCaptureProcessor.Configuration.DriverName;

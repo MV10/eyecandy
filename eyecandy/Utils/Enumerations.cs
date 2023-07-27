@@ -58,7 +58,7 @@ namespace eyecandy
     {
         /// <summary>
         /// If an ILogger is present, that is the only log output. Otherwise, outputs to
-        /// console when a debugger is attached, or stores if no debugger is attached.
+        /// console.
         /// </summary>
         Automatic = 0,
 

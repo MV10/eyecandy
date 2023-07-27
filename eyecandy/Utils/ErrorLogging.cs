@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using OpenTK.Audio.OpenAL;
 using OpenTK.Graphics.OpenGL;
-using System.Diagnostics;
 
 namespace eyecandy
 {
@@ -58,12 +57,10 @@ namespace eyecandy
         public static void WriteToConsole(bool purge = true)
         {
             if (!HasErrors) return;
-            ConsoleMarkerOpen();
             Console.WriteLine("  (Stored errors not necessarily in the sequence listed.)");
             foreach (var e in OpenGLErrors) Console.WriteLine(e);
             foreach (var e in LibraryErrors) Console.WriteLine(e);
             foreach (var e in OpenALErrors) Console.WriteLine(e);
-            ConsoleMarkerClose();
             if (purge)
             {
                 OpenGLErrors.Clear();
@@ -76,58 +73,49 @@ namespace eyecandy
         private static void ErrorCheck<T>(string programStage, Func<T> errorMethod, List<string> storage, T noError)
         where T : Enum
         {
-            bool consoleMarker = false;
+            bool consoleOutput = Strategy == LoggingStrategy.AlwaysOutputToConsole
+                || (Strategy == LoggingStrategy.Automatic && Logger is null);
+
             var err = errorMethod.Invoke();
             while (!err.Equals(noError))
             {
                 var message = $"  Program stage \"{programStage}\": {err}";
                 Logger?.LogError(message.Trim());
 
-                if (Strategy == LoggingStrategy.AlwaysStore || (Strategy == LoggingStrategy.Automatic && !Debugger.IsAttached))
+                if (Strategy == LoggingStrategy.AlwaysStore)
                 {
                     storage.Add(message);
                 }
 
-                if(Strategy == LoggingStrategy.AlwaysOutputToConsole || (Strategy == LoggingStrategy.Automatic && Debugger.IsAttached))
+                if(consoleOutput)
                 {
-                    if (!consoleMarker)
-                    {
-                        ConsoleMarkerOpen();
-                        foreach (var e in storage) Console.WriteLine(e);
-                        storage.Clear();
-                        consoleMarker = true;
-                    }
+                    foreach (var e in storage) Console.WriteLine(e);
+                    storage.Clear();
                     Console.WriteLine(message);
                 }
                 err = errorMethod.Invoke();
             }
-            if (consoleMarker) ConsoleMarkerClose();
         }
 
         internal static void LibraryError(string programStage, string err, LogLevel logLevel = LogLevel.Error)
         {
+            bool consoleOutput = Strategy == LoggingStrategy.AlwaysOutputToConsole
+                || (Strategy == LoggingStrategy.Automatic && Logger is null);
+
             var message = $"  Program stage \"{programStage}\": {err}";
             Logger?.Log(logLevel, message.Trim());
 
-            if (Strategy == LoggingStrategy.AlwaysStore || (Strategy == LoggingStrategy.Automatic && !Debugger.IsAttached))
+            if (Strategy == LoggingStrategy.AlwaysStore)
             {
                 LibraryErrors.Add(message);
             }
 
-            if (Strategy == LoggingStrategy.AlwaysOutputToConsole || (Strategy == LoggingStrategy.Automatic && Debugger.IsAttached))
+            if (consoleOutput)
             {
-                ConsoleMarkerOpen();
                 foreach (var e in LibraryErrors) Console.WriteLine(e);
                 LibraryErrors.Clear();
                 Console.WriteLine(message);
-                ConsoleMarkerClose();
             }
         }
-
-        private static void ConsoleMarkerOpen()
-            => Console.WriteLine("\n\nERROR ".PadRight(54, '*'));
-
-        private static void ConsoleMarkerClose()
-            => Console.WriteLine("\n\n".PadLeft(60, '*'));
     }
 }
