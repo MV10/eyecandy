@@ -7,9 +7,9 @@ This library does all the hard work of capturing live-playback audio and produci
 
 Please refer to the repository [wiki](https://github.com/MV10/eyecandy/wiki) for usage, configuration, and other details. The `demo` project is also a good reference, and the library's public API is fully documented.
 
-# Demos
+## Demos
 
-In terms of the demo project in this repo, here is the help output (run it without args):
+The repository's demo project has a lot of useful utilities, and illustrates different ways to use the library. Here is the help output (run the demo program without args to see this):
 
 ```
 demo [type] [options]
