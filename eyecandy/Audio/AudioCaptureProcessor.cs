@@ -201,7 +201,12 @@ namespace eyecandy
             // Next, copy new PCM data to the second half of the FFT buffer:
             Array.Copy(InternalBuffers.Wave, 0, BufferFFTSource, SampleSize, SampleSize);
 
-            var window = new Hanning();
+            // Although the FftSharp site notes the Hanning window is probably the
+            // most commonly-used, apparently the W3C WebAudio API specification
+            // recommends the use of the Blackman window, so v1.1.0 makes this change.
+            //var window = new Hanning();
+            var window = new Blackman();
+
             double[] windowed = window.Apply(BufferFFTSource);
             double[] zeroPadded = Pad.ZeroPad(windowed);
 
@@ -211,8 +216,52 @@ namespace eyecandy
             if (Requirements.CalculateFFTMagnitude) 
                 InternalBuffers.FrequencyMagnitude = FFT.Magnitude(spectrum);
 
-            if(Requirements.CalculateFFTDecibels) 
+            if (Requirements.CalculateFFTDecibels)
                 InternalBuffers.FrequencyDecibels = FFT.Power(spectrum);
+
+            if (Requirements.CalculateFFTWebAudioDecibels)
+                InternalBuffers.FrequencyWebAudioDecibels = WebAudioDecibels(spectrum);
+        }
+
+        private double[] WebAudioDecibels(System.Numerics.Complex[] spectrum, bool positiveOnly = true)
+        {
+            /*
+            In FftSharp, decibels are calculated the normal way:
+
+            public static double[] Power(System.Numerics.Complex[] spectrum, bool positiveOnly = true)
+            {
+                double[] output = Magnitude(spectrum, positiveOnly);
+                for (int i = 0; i < output.Length; i++)
+                    output[i] = 20 * Math.Log10(output[i]);
+                return output;
+            }
+
+            But the WebAudio API spec has an additional "smoothing" step as well as clamping and scaling,
+            although applying the clamping and scaling ends up looking NOTHING like Shadertoy data:
+            https://gist.github.com/soulthreads/2efe50da4be1fb5f7ab60ff14ca434b8
+            
+            Compare this repo's "demo frag" with this viz: https://www.shadertoy.com/view/mdScDh
+            */
+
+            double[] output = FFT.Magnitude(spectrum, positiveOnly);
+
+            double k = 0.8d;
+            double v_prev = 0d;
+
+            for (int i = 0; i < output.Length; i++)
+            {
+                // smoothing
+                output[i] = k * v_prev + (1 - k) * output[i];
+                v_prev = output[i];
+
+                // the normal Decibels calculation
+                output[i] = 20 * Math.Log10(output[i]);
+
+                // screw it, not doing the clamping/scaling, we're just generating WebAudio-smoothed dBs
+                // output[i] = 255d * (Math.Clamp(output[i] - 30d, 0d, 70d) / 70d);
+            }
+
+            return output;
         }
 
         private void ProcessVolume()

@@ -14,9 +14,9 @@ float plot(float uvy, float liney, float lineWidth)
 
 void main()
 {
-	vec2 uv = fragCoord.xy; // / iResolution.xy;
+	vec2 uv = fragCoord;
     float timeDomain = texture(iChannel0, vec2(uv.x, 0.75)).g;
-    float frequencyDomain = texture(iChannel0, vec2(uv.x, 0.25)).g * 5.0;
+    float frequencyDomain = texture(iChannel0, vec2(uv.x, 0.25)).g;
     float t = plot(uv.y*2.0 - 1.0, timeDomain, 0.02);
     float f = plot(uv.y*2.0, frequencyDomain, 0.05);
  	fragColor = vec4(t, f, 0.0, 1.0);

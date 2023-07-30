@@ -22,6 +22,12 @@ namespace eyecandy
         Decibels = 2,
 
         /// <summary>
+        /// Calculate frequency decibels the WebAudio API way (smoothed, with a
+        /// 70dB window between -30dB and -100dB, and scaled 0 to 255)
+        /// </summary>
+        WebAudioDecibels = 3,
+
+        /// <summary>
         /// Calcualte all frequency representations.
         /// </summary>
         All = 999

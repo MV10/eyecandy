@@ -35,7 +35,7 @@ namespace demo
         {
             Engine = new(audioConfig);
 
-            Engine.Create<AudioTextureShadertoy>("iChannel0", TextureUnit.Texture0, sampleMultiplier: 1.75f);
+            Engine.Create<AudioTextureShadertoy>("iChannel0", TextureUnit.Texture0, sampleMultiplier: 1.0f);
         }
 
         protected override void OnLoad()

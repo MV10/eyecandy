@@ -32,6 +32,12 @@ namespace eyecandy
         public bool CalculateFFTDecibels { get; init; } = false;
 
         /// <summary>
+        /// When true, FFT Decibel data is populated in the AudioData buffer using the
+        /// WebAudio API alogorithm on top of the standard FFT Magnitude/Power calc.
+        /// </summary>
+        public bool CalculateFFTWebAudioDecibels { get; init; } = false;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public AudioProcessingRequirements()

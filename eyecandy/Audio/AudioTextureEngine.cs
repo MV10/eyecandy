@@ -270,6 +270,7 @@ namespace eyecandy
                 CalculateFrequency = !Textures.All(t => t.Value.FrequencyCalc == FrequencyAlgorithm.NotApplicable),
                 CalculateFFTMagnitude = Textures.Any(t => t.Value.FrequencyCalc == FrequencyAlgorithm.Magnitude || t.Value.FrequencyCalc == FrequencyAlgorithm.All),
                 CalculateFFTDecibels = Textures.Any(t => t.Value.FrequencyCalc == FrequencyAlgorithm.Decibels || t.Value.FrequencyCalc == FrequencyAlgorithm.All),
+                CalculateFFTWebAudioDecibels = Textures.Any(t => t.Value.FrequencyCalc == FrequencyAlgorithm.WebAudioDecibels || t.Value.FrequencyCalc == FrequencyAlgorithm.All),
             };
         }
     }
