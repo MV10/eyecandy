@@ -34,7 +34,7 @@ namespace eyecandy
 
         /// <summary>
         /// If the audio texture implementation supports it, this multiplier is applied to
-        /// the audio sample data to either dampen (<1.0) or boost (>1.0) the data.
+        /// the audio sample data to either dampen (below 1.0) or boost (above 1.0) the data.
         /// </summary>
         public float SampleMultiplier { get; set; } = 1.0f;
 
