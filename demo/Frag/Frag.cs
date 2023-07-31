@@ -10,9 +10,6 @@ https://www.shadertoy.com/view/mdScDh
 
 Hit ESC to exit.
  
-Stick with 16:9 aspect-ratio resolutions for consistency when going full-screen
-https://www.studio1productions.com/Articles/16x9-Resolution.htm
-
 */
 
 namespace demo
@@ -27,7 +24,8 @@ namespace demo
 
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Fragment / Pixel Shader";
-            windowConfig.OpenTKNativeWindowSettings.Size = (960, 540);
+            //windowConfig.OpenTKNativeWindowSettings.Size = (960, 540);
+            windowConfig.OpenTKNativeWindowSettings.Size = (640, 360); // match Shadertoy preview size for easy comparison
             windowConfig.StartFullScreen = Program.StartFullScreen;
 
             // remember Linux is case-sensitive...

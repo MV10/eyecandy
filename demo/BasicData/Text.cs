@@ -48,7 +48,6 @@ namespace demo
                 Requirements = new()
                 {
                     CalculateVolumeRMS = true,
-                    CalculateFrequency = true,
                     CalculateFFTMagnitude = true,
                     CalculateFFTDecibels = true,
                 }

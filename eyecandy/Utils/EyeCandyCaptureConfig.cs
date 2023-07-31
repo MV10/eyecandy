@@ -51,17 +51,30 @@ namespace eyecandy
 
         /// <summary>
         /// Texture data is normalized (values range from 0.0 to 1.0). This defines the divisor
-        /// for the raw FFT Frequency data to produce the normalized range. Use the demo "peaks"
+        /// for the Frequency Magnitude data to produce the normalized range. Use the demo "peaks"
         /// option to analyze audio that is typical for your usage.
         /// </summary>
         public double NormalizeFrequencyMagnitudePeak { get; set; } = 6500;
 
         /// <summary>
         /// Texture data is normalized (values range from 0.0 to 1.0). This defines the divisor
-        /// for the raw FFT Frequency data to produce the normalized range. Use the demo "peaks"
+        /// for the Frequency Decibels data to produce the normalized range. Use the demo "peaks"
         /// option to analyze audio that is typical for your usage.
         /// </summary>
         public double NormalizeFrequencyDecibelsPeak { get; set; } = 90;
+
+        /// <summary>
+        /// Texture data is normalized (values range from 0.0 to 1.0). This defines the divisor
+        /// for the WebAudio data to produce the normalized range. Unlike the other normalization
+        /// divisors, this was produced by visually comparing eyecandy data to Shadertoy output.
+        /// </summary>
+        public double NormalizeWebAudioPeak { get; set; } = 60;
+
+        /// <summary>
+        /// WebAudio applies a strange time-domain smoothing of the Frequency Magnitude data
+        /// used to derive the Decibels output. The API specification defaults to 0.8.
+        /// </summary>
+        public double WebAudioSmoothingFactor { get; set; } = 0.8;
 
         /// <summary>
         /// When true, RMS volume is calculated even if no volume texture is enabled.

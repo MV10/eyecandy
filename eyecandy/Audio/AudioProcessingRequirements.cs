@@ -15,14 +15,9 @@ namespace eyecandy
         public bool CalculateVolumeRMS { get; init; } = false;
 
         /// <summary>
-        /// When true, Fast Fourier Transform data is collected and processed. FFT
-        /// data is not directly exposed, but it is used to generate other AudioData
-        /// buffers and sound textures.
-        /// </summary>
-        public bool CalculateFrequency { get; init; } = false;
-        
-        /// <summary>
-        /// When true, FFT Magnitude data is populated in the AudioData buffer.
+        /// When true, FFT Magnitude data is populated in the AudioData buffer. Since Magnitude
+        /// is used to calculate Decibels and WebAudio's weird pseudo-decibel data, this is
+        /// true if either of those are requested, too.
         /// </summary>
         public bool CalculateFFTMagnitude { get; init; } = false;
 

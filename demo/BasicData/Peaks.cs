@@ -38,7 +38,6 @@ namespace demo
                 Requirements = new()
                 {
                     CalculateVolumeRMS = true,
-                    CalculateFrequency = true,
                     CalculateFFTMagnitude = true,
                     CalculateFFTDecibels = true,
                     CalculateFFTWebAudioDecibels = true,
@@ -77,12 +76,12 @@ namespace demo
             for (int i = 0; i < config.SampleSize; i++)
             {
                 minFreqDecibels = Math.Min(minFreqDecibels, Math.Abs(audio.Buffers.FrequencyDecibels[i]));
-                minFreqWebAudio = Math.Min(minFreqWebAudio, Math.Abs(audio.Buffers.FrequencyWebAudioDecibels[i]));
+                minFreqWebAudio = Math.Min(minFreqWebAudio, Math.Abs(audio.Buffers.FrequencyWebAudio[i]));
 
                 maxWave = Math.Max(maxWave, Math.Abs(audio.Buffers.Wave[i]));
                 maxFreqMagnitude = Math.Max(maxFreqMagnitude, Math.Abs(audio.Buffers.FrequencyMagnitude[i]));
                 maxFreqDecibels = Math.Max(maxFreqDecibels, Math.Abs(audio.Buffers.FrequencyDecibels[i]));
-                maxFreqWebAudio = Math.Max(maxFreqWebAudio, Math.Abs(audio.Buffers.FrequencyWebAudioDecibels[i]));
+                maxFreqWebAudio = Math.Max(maxFreqWebAudio, Math.Abs(audio.Buffers.FrequencyWebAudio[i]));
             }
         }
 
@@ -91,7 +90,7 @@ namespace demo
             Console.WriteLine($"Raw PCM wave (short):\t\t{maxWave,11:0.0000}");
             Console.WriteLine($"Min RMS volume (double):\t{minRMSVolume,11:0.0000}");
             Console.WriteLine($"Max RMS volume (double):\t{maxRMSVolume,11:0.0000}");
-            Console.WriteLine($"Max freq mag (double):\t{maxFreqMagnitude,11:0.0000}");
+            Console.WriteLine($"Max freq mag (double):\t\t{maxFreqMagnitude,11:0.0000}");
             Console.WriteLine($"Min freq dBs (double):\t\t{minFreqDecibels,11:0.0000}");
             Console.WriteLine($"Max freq dBs (double):\t\t{maxFreqDecibels,11:0.0000}");
             Console.WriteLine($"Min WebAudio (double):\t\t{minFreqWebAudio,11:0.0000}");

@@ -22,6 +22,7 @@ wave            Raw PCM wave audio visualization
 freq            Frequency magnitude and volume history (multiple shaders)
 vert            VertexShaderArt-style integer-array vertex shader (no audio)
 frag            Shadertoy-style pixel fragment shader
+webaudio        Compares WebAudio pseudo-Decibels to pure FFT Decibels
 info            OpenAL information (devices, defaults, extensions, etc.)
 
 [options]

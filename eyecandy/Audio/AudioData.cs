@@ -27,9 +27,9 @@ namespace eyecandy
         public double[] FrequencyDecibels;
 
         /// <summary>
-        /// Frequency data in decibels with WebAudio API smoothing and clamping applied.
+        /// Frequency data in WebAudio-style pseudo-decibels (time-domain smoothing, etc.)
         /// </summary>
-        public double[] FrequencyWebAudioDecibels;
+        public double[] FrequencyWebAudio;
 
         /// <summary>
         /// A simplistic approximation of current volume based on a Root Mean Square 
@@ -50,7 +50,7 @@ namespace eyecandy
             Wave = new short[AudioCaptureProcessor.Configuration.SampleSize];
             FrequencyMagnitude = new double[AudioCaptureProcessor.Configuration.SampleSize];
             FrequencyDecibels = new double[AudioCaptureProcessor.Configuration.SampleSize];
-            FrequencyWebAudioDecibels = new double[AudioCaptureProcessor.Configuration.SampleSize];
+            FrequencyWebAudio = new double[AudioCaptureProcessor.Configuration.SampleSize];
         }
 
         /// <summary>
