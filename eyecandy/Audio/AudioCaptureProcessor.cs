@@ -45,8 +45,10 @@ namespace eyecandy
         // internal
         private int RmsBufferLength;
 
-        private ALDevice Device;
-        private ALContext Context;
+        // v1.0.81 unnecessary for capture-only
+        //private ALDevice Device;
+        //private ALContext Context;
+
         private ALCaptureDevice CaptureDevice;
         private bool IsCapturing = false;
 
@@ -108,9 +110,8 @@ namespace eyecandy
                     newAudioDataCallback.Invoke();
                     samplesAvailable -= SampleSize;
                 }
-                // Relative FPS results using different methods with "demo freq" (worst-performer)
-                // tested on Win10x64 debug build in IDE (Ryzen 9 3900XT / GeForce RTX 2060); very
-                // little difference on the Raspberry Pi4B, however: ~50 FPS improves to ~60 FPS.
+                // Relative FPS results using different methods with "demo freq" (worst-performer).
+                // FPS for Win10x64 debug build in IDE with a Ryzen 9 3900XT and GeForce RTX 2060.
                 Thread.Sleep(0);        // 4750     cede control to any thread of equal priority
                 // spinWait.SpinOnce(); // 4100     periodically yields (default is 10 iterations)
                 // Thread.Sleep(1);     // 3900     cede control to any thread of OS choice
@@ -140,9 +141,11 @@ namespace eyecandy
             }
 
             ALC.CaptureCloseDevice(CaptureDevice);
-            ALC.MakeContextCurrent(ALContext.Null);
-            ALC.DestroyContext(Context);
-            ALC.CloseDevice(Device);
+
+            // v1.0.81 unnecessary for capture-only
+            //ALC.MakeContextCurrent(ALContext.Null);
+            //ALC.DestroyContext(Context);
+            //ALC.CloseDevice(Device);
 
             // This is fine on Windows but crashes the Raspberry Pi...
             // ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.Dispose");
@@ -152,29 +155,38 @@ namespace eyecandy
         {
             ErrorLogging.Logger?.LogDebug($"AudioCaptureProcessor: Connect");
 
-            var targetDriver = string.IsNullOrEmpty(AudioCaptureProcessor.Configuration.DriverName) 
-                ? "OpenAL Soft" 
-                : AudioCaptureProcessor.Configuration.DriverName;
+            // v1.0.81 unnecessary for capture-only
+            //var targetDriver = string.IsNullOrEmpty(AudioCaptureProcessor.Configuration.DriverName) 
+            //    ? "OpenAL Soft" 
+            //    : AudioCaptureProcessor.Configuration.DriverName;
 
             var captureDeviceName = string.IsNullOrEmpty(AudioCaptureProcessor.Configuration.CaptureDeviceName)
-                ? ALC.GetString(Device, AlcGetString.CaptureDefaultDeviceSpecifier)
+                ? ALC.GetString(ALDevice.Null, AlcGetString.CaptureDefaultDeviceSpecifier)
                 : AudioCaptureProcessor.Configuration.CaptureDeviceName;
 
-            var devices = ALC.GetStringList(GetEnumerationStringList.DeviceSpecifier);
-            var driverDeviceName = ALC.GetString(ALDevice.Null, AlcGetString.DefaultDeviceSpecifier);
-            foreach (var d in devices)
-            {
-                if (d.Contains(targetDriver))
-                {
-                    driverDeviceName = d;
-                    break;
-                }
-            }
+            // v1.0.81 unnecessary for capture-only
+            //var devices = ALC.GetStringList(GetEnumerationStringList.DeviceSpecifier);
+            //var driverDeviceName = ALC.GetString(ALDevice.Null, AlcGetString.DefaultDeviceSpecifier);
+            //foreach (var d in devices)
+            //{
+            //    if (d.Contains(targetDriver))
+            //    {
+            //        driverDeviceName = d;
+            //        break;
+            //    }
+            //}
 
-            Device = ALC.OpenDevice(driverDeviceName);
-            Context = ALC.CreateContext(Device, (int[])null);
-            ALC.MakeContextCurrent(Context);
+            // v1.0.81 unnecessary for capture-only
+            //Device = ALC.OpenDevice(driverDeviceName);
+            //Context = ALC.CreateContext(Device, (int[])null);
+            //ALC.MakeContextCurrent(Context);
             CaptureDevice = ALC.CaptureOpenDevice(captureDeviceName, SampleRate, SampleFormat, SampleSize);
+
+            // NOTE: If we end up supporting surround capture and the driver can't handle it, the
+            // OpenAL Soft error looks like this. (Creative's OpenAL does not return an error and the
+            // CaptureSamples call will crash with an Access Violation exception.)
+            // [ALSOFT] (EE) Failed to match format, wanted: 5.1 Surround Int16 44100hz, got: 0x00000003 mask 2 channels 32-bit 44100hz
+            // https://github.com/kcat/openal-soft/issues/893
 
             ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.{nameof(Connect)}");
         }

@@ -18,8 +18,6 @@ namespace demo
 
         public static async Task Demo()
         {
-            Console.WriteLine("\n\nvvAudioInfo");
-
             if(UseLogging)
             {
                 Console.WriteLine("\n\nWriting device info to ./demo.log");
