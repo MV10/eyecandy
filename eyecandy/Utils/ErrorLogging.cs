@@ -5,6 +5,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace eyecandy
 {
+    /// <summary/>
     public static class ErrorLogging
     {
         /// <summary>

@@ -15,11 +15,12 @@ namespace eyecandy
     public abstract class BaseWindow : GameWindow, IDisposable
     {
         /// <summary>
+        /// As of version 2.0.0 the default is false.
         /// The Raspberry Pi4B requires OpenGL ES 3.2; when true, the NativeWindowSettings
         /// are forced to the OpenGLES API version 3.1, Core profile. When false, you can
         /// pass whatever settings you want.
         /// </summary>
-        public static bool ForceOpenGLES3dot2 = true;
+        public static bool ForceOpenGLES3dot2 = false;
 
         /// <summary>
         /// The compiled and linked vertex and fragment shaders. Check the IsValid property

@@ -44,6 +44,8 @@ namespace eyecandy
         public DateTime SilenceEnded = DateTime.MinValue;
 
         private Dictionary<Type, AudioTexture> Textures = new();
+        private Dictionary<Type, int> TextureUnitAssignments = new();
+        private int MaximumTextureUnitNumber;
         private bool TextureHandlesInitialized = false;
 
         private AudioCaptureProcessor AudioProcessor;
@@ -59,6 +61,15 @@ namespace eyecandy
         /// </summary>
         public AudioTextureEngine(EyeCandyCaptureConfig configuration)
         {
+            // Instead of requiring the library consumer to manage TextureUnit assignments, query the
+            // driver for the highest possible TU count, and hard-assign AudioTexture types to TUs in
+            // descending order. The TU assignment is cached by type, so if a texture is created,
+            // destroyed, and later created again, it will get the same TU assignment.
+            GL.GetInteger(GetPName.MaxCombinedTextureImageUnits, out MaximumTextureUnitNumber);
+
+            // TextureUnit is 0-based
+            MaximumTextureUnitNumber = MaximumTextureUnitNumber - 1;
+
             AudioProcessor = new(configuration);
             ErrorLogging.Logger?.LogTrace($"AudioTextureEngine: constructor completed");
         }
@@ -113,13 +124,37 @@ namespace eyecandy
         /// initialized and ready for use. Normally it isn't necessary to manipulate the AudioTexture objects
         /// directly.
         /// </summary>
-        public void Create<AudioTextureType>(string uniformName, TextureUnit assignedTextureUnit, float sampleMultiplier = 1.0f, bool enabled = true)
+        public void Create<AudioTextureType>(string uniformName, float sampleMultiplier = 1.0f, bool enabled = true)
         where AudioTextureType : AudioTexture
         {
             var type = typeof(AudioTextureType);
-            if (Textures.ContainsKey(type)) throw new InvalidOperationException($"Texture of type {type} already exists.");
-            if (Textures.Any(t => t.Value.UniformName.Equals(uniformName))) throw new ArgumentException($"Texture uniform name {uniformName} already exists.");
-            if (Textures.Any(t => t.Value.AssignedTextureUnit.Equals(assignedTextureUnit))) throw new ArgumentException($"Texture unit {assignedTextureUnit} already assigned.");
+
+            if (Textures.ContainsKey(type))
+            {
+                var existingUniform = Textures[type].UniformName;
+                if (uniformName.Equals(existingUniform, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    ErrorLogging.Logger?.LogWarning($"{nameof(AudioTextureEngine.Create)}: AudioTexture of type {type} already exists.");
+                    return;
+                }
+
+                throw new InvalidOperationException($"AudioTexture of type {type} already exists with a different uniform name ({existingUniform}), can't create as {uniformName}.");
+            }
+
+            if (Textures.Any(t => t.Value.UniformName.Equals(uniformName))) throw new ArgumentException($"AudioTexture uniform name {uniformName} already exists.");
+
+            int assignedTextureUnit = 0;
+            if(TextureUnitAssignments.ContainsKey(type))
+            {
+                assignedTextureUnit = TextureUnitAssignments[type];
+            }
+            else
+            {
+                assignedTextureUnit = MaximumTextureUnitNumber - TextureUnitAssignments.Count;
+                TextureUnitAssignments.Add(type, assignedTextureUnit);
+                ErrorLogging.Logger?.LogDebug($"Assigned {type} to TextureUnit {assignedTextureUnit}");
+            }
+
             var texture = AudioTexture.Factory<AudioTextureType>(uniformName, assignedTextureUnit, sampleMultiplier, enabled);
             Textures.Add(type, texture);
             EvaluateRequirements();

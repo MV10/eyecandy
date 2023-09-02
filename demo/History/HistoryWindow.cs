@@ -40,12 +40,12 @@ namespace demo
             Engine = new(audioConfig);
 
             // the multiplier makes the green easier to see
-            Engine.Create<AudioTextureWaveHistory>("wave", TextureUnit.Texture0, sampleMultiplier: 5.0f);
-            Engine.Create<AudioTextureVolumeHistory>("volume", TextureUnit.Texture1, sampleMultiplier: 1.0f);
-            Engine.Create<AudioTextureFrequencyMagnitudeHistory>("fmag", TextureUnit.Texture2, sampleMultiplier: 5.0f);
-            Engine.Create<AudioTextureFrequencyDecibelHistory>("fdb", TextureUnit.Texture3, sampleMultiplier: 1.0f);
-            Engine.Create<AudioTexture4ChannelHistory>("combined", TextureUnit.Texture4, sampleMultiplier: 1.0f);
-            Engine.Create<AudioTextureWebAudioHistory>("webaudio", TextureUnit.Texture5, sampleMultiplier: 1.0f);
+            Engine.Create<AudioTextureWaveHistory>("wave", sampleMultiplier: 5.0f);
+            Engine.Create<AudioTextureVolumeHistory>("volume", sampleMultiplier: 1.0f);
+            Engine.Create<AudioTextureFrequencyMagnitudeHistory>("fmag", sampleMultiplier: 5.0f);
+            Engine.Create<AudioTextureFrequencyDecibelHistory>("fdb", sampleMultiplier: 1.0f);
+            Engine.Create<AudioTexture4ChannelHistory>("combined", sampleMultiplier: 1.0f);
+            Engine.Create<AudioTextureWebAudioHistory>("webaudio", sampleMultiplier: 1.0f);
         }
 
         protected override void OnLoad()
@@ -90,7 +90,7 @@ namespace demo
 
             GL.BindVertexArray(VertexArrayObject);
 
-            int handle = DemoMode switch
+            int textureHandle = DemoMode switch
             {
                 AudioTextureType.Wave => Engine.Get<AudioTextureWaveHistory>().Handle,
                 AudioTextureType.Volume => Engine.Get<AudioTextureVolumeHistory>().Handle,
@@ -100,7 +100,7 @@ namespace demo
                 AudioTextureType.WebAudio => Engine.Get<AudioTextureWebAudioHistory>().Handle,
             };
 
-            TextureUnit unit = DemoMode switch
+            int textureUnit = DemoMode switch
             {
                 AudioTextureType.Wave => Engine.Get<AudioTextureWaveHistory>().AssignedTextureUnit,
                 AudioTextureType.Volume => Engine.Get<AudioTextureVolumeHistory>().AssignedTextureUnit,
@@ -112,7 +112,7 @@ namespace demo
 
             // The demo frag shader declares audioTexture; we're disregarding the uniform names
             // defined in the constructor and assigned to each AudioTexture data object.
-            Shader.SetTexture("audioTexture", handle, unit);
+            Shader.SetTexture("audioTexture", textureHandle, textureUnit);
 
             GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
 

@@ -1,4 +1,6 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿
+using eyecandy.Utils;
+using OpenTK.Graphics.OpenGL;
 
 namespace eyecandy
 {
@@ -23,7 +25,7 @@ namespace eyecandy
         /// <summary>
         /// The unit where the texture definition is stored.
         /// </summary>
-        public TextureUnit AssignedTextureUnit { get; private set; } = TextureUnit.Texture0;
+        public int AssignedTextureUnit { get; private set; } = (int)TextureUnit.Texture0;
 
         /// <summary>
         /// Do not set this directly. Call Enable/Disable in AudioTextureEngine, which
@@ -84,7 +86,7 @@ namespace eyecandy
         /// AudioTexture objects are not directly creatable. This factory method ensures they are correctly initialized.
         /// The factory method, in turn, is called from the AudioTextureEngine.Create method.
         /// </summary>
-        internal static AudioTexture Factory<AudioTextureType>(string uniformName, TextureUnit assignedTextureUnit, float sampleMultiplier = 1.0f, bool enabled = true)
+        internal static AudioTexture Factory<AudioTextureType>(string uniformName, int assignedTextureUnit, float sampleMultiplier = 1.0f, bool enabled = true)
         {
             var texture = Activator.CreateInstance<AudioTextureType>() as AudioTexture;
 
@@ -127,7 +129,7 @@ namespace eyecandy
 
             if (!Enabled) return;
 
-            GL.ActiveTexture(AssignedTextureUnit);
+            GL.ActiveTexture(AssignedTextureUnit.ToTextureUnitEnum());
             GL.BindTexture(TextureTarget.Texture2D, Handle);
 
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);

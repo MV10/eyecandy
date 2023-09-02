@@ -1,4 +1,5 @@
 ﻿
+using eyecandy.Utils;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -159,10 +160,16 @@ namespace eyecandy
         /// Assigns a texture to a shader uniform.
         /// </summary>
         public void SetTexture(string name, int handle, TextureUnit unit)
+            => SetTexture(name, handle, unit.ToOrdinal());
+
+        /// <summary>
+        /// Assigns a texture to a shader uniform.
+        /// </summary>
+        public void SetTexture(string name, int handle, int unit)
         {
             if (!UniformLocations.ContainsKey(name))
             {
-                if(!IgnoredUniformNames.Contains(name))
+                if (!IgnoredUniformNames.Contains(name))
                 {
                     ErrorLogging.LibraryError($"{nameof(SetTexture)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Information);
                     IgnoredUniformNames.Add(name);
@@ -171,13 +178,9 @@ namespace eyecandy
             }
             Use();
 
-            GL.ActiveTexture(unit);
+            GL.ActiveTexture(unit.ToTextureUnitEnum());
             GL.BindTexture(TextureTarget.Texture2D, handle);
-
-            // Texture0 is 33984, Texture1 is 33985 etc; we want 0, 1, 2, etc.
-            int unitOrdinal = (int)unit - (int)TextureUnit.Texture0;
-
-            GL.Uniform1(UniformLocations[name], unitOrdinal);
+            GL.Uniform1(UniformLocations[name], unit);
         }
 
         /// <summary>

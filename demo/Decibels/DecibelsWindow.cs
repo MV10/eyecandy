@@ -35,8 +35,8 @@ namespace demo
         {
             Engine = new(audioConfig);
 
-            Engine.Create<AudioTextureFrequencyDecibelHistory>("fftdb", TextureUnit.Texture0, sampleMultiplier: 1.0f);
-            Engine.Create<AudioTextureWebAudioHistory>("webaudio", TextureUnit.Texture1, sampleMultiplier: 1.0f);
+            Engine.Create<AudioTextureFrequencyDecibelHistory>("fftdb", sampleMultiplier: 1.0f);
+            Engine.Create<AudioTextureWebAudioHistory>("webaudio", sampleMultiplier: 1.0f);
         }
 
         protected override void OnLoad()

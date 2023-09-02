@@ -24,8 +24,8 @@ namespace demo
         {
             Engine = new(audioConfig);
 
-            Engine.Create<AudioTextureWaveHistory>("wave", TextureUnit.Texture0);
-            Engine.Create<AudioTextureVolumeHistory>("volume", TextureUnit.Texture1);
+            Engine.Create<AudioTextureWaveHistory>("wave");
+            Engine.Create<AudioTextureVolumeHistory>("volume");
 
             VertexIds = new float[VertexCount];
             for (var i = 0; i < VertexCount; i++)

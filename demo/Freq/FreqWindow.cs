@@ -28,8 +28,8 @@ namespace demo
         {
             Engine = new(audioConfig);
 
-            Engine.Create<AudioTextureFrequencyMagnitudeHistory>("sound", TextureUnit.Texture0);
-            Engine.Create<AudioTextureVolumeHistory>("volume", TextureUnit.Texture1);
+            Engine.Create<AudioTextureFrequencyMagnitudeHistory>("sound");
+            Engine.Create<AudioTextureVolumeHistory>("volume");
 
             VertexIds = new float[VertexCount];
             for (var i = 0; i < VertexCount; i++)
