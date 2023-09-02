@@ -2,12 +2,13 @@
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.ComponentModel;
 
 namespace demo
 {
     public class HistoryWindow : BaseWindow
     {
-        enum AudioTextureType { Wave, Volume, FreqMag, FreqDb, Combined }
+        enum AudioTextureType { Wave, Volume, FreqMag, FreqDb, Combined, WebAudio }
 
         private AudioTextureType DemoMode = AudioTextureType.Wave;
 
@@ -44,6 +45,7 @@ namespace demo
             Engine.Create<AudioTextureFrequencyMagnitudeHistory>("fmag", TextureUnit.Texture2, sampleMultiplier: 5.0f);
             Engine.Create<AudioTextureFrequencyDecibelHistory>("fdb", TextureUnit.Texture3, sampleMultiplier: 1.0f);
             Engine.Create<AudioTexture4ChannelHistory>("combined", TextureUnit.Texture4, sampleMultiplier: 1.0f);
+            Engine.Create<AudioTextureWebAudioHistory>("webaudio", TextureUnit.Texture5, sampleMultiplier: 1.0f);
         }
 
         protected override void OnLoad()
@@ -95,6 +97,7 @@ namespace demo
                 AudioTextureType.FreqMag => Engine.Get<AudioTextureFrequencyMagnitudeHistory>().Handle,
                 AudioTextureType.FreqDb => Engine.Get<AudioTextureFrequencyDecibelHistory>().Handle,
                 AudioTextureType.Combined => Engine.Get<AudioTexture4ChannelHistory>().Handle,
+                AudioTextureType.WebAudio => Engine.Get<AudioTextureWebAudioHistory>().Handle,
             };
 
             TextureUnit unit = DemoMode switch
@@ -104,6 +107,7 @@ namespace demo
                 AudioTextureType.FreqMag => Engine.Get<AudioTextureFrequencyMagnitudeHistory>().AssignedTextureUnit,
                 AudioTextureType.FreqDb => Engine.Get<AudioTextureFrequencyDecibelHistory>().AssignedTextureUnit,
                 AudioTextureType.Combined => Engine.Get<AudioTexture4ChannelHistory>().AssignedTextureUnit,
+                AudioTextureType.WebAudio => Engine.Get<AudioTextureWebAudioHistory>().AssignedTextureUnit,
             };
 
             // The demo frag shader declares audioTexture; we're disregarding the uniform names
@@ -127,15 +131,18 @@ namespace demo
 
             if (input.IsKeyReleased(Keys.Escape))
             {
+                Console.WriteLine("update engine end");
                 Engine.EndAudioProcessing_SynchronousHack();
+                Console.WriteLine("update Close()");
                 Close();
                 Console.WriteLine($"\n\n{FramesPerSecond} FPS\n{AverageFramesPerSecond} average FPS, last {AverageFPSTimeframeSeconds} seconds");
+                Console.WriteLine("update return");
                 return;
             }
 
-            if (input.IsKeyReleased(Keys.W))
+            if (input.IsKeyReleased(Keys.P))
             {
-                Console.WriteLine("--> WAVE");
+                Console.WriteLine("--> PCM / WAVE");
                 DemoMode = AudioTextureType.Wave;
                 return;
             }
@@ -165,6 +172,13 @@ namespace demo
             {
                 Console.WriteLine("--> COMBINED 4CH");
                 DemoMode = AudioTextureType.Combined;
+                return;
+            }
+
+            if (input.IsKeyReleased(Keys.W))
+            {
+                Console.WriteLine("--> WEBAUDIO (SMOOTHED DB FREQ)");
+                DemoMode = AudioTextureType.WebAudio;
                 return;
             }
         }

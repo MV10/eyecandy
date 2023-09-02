@@ -271,29 +271,13 @@ namespace eyecandy
         }
 
         /// <summary/>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!IsDisposed)
-            {
-                GL.DeleteProgram(Handle);
-                IsDisposed = true;
-            }
-        }
-
-        /// <summary/>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+            if (IsDisposed) return;
 
-        /// <summary/>
-        ~Shader()
-        {
-            if (!IsDisposed)
-            {
-                throw new InvalidOperationException($"Finalizer: {nameof(Shader)} was not Disposed!");
-            }
+            GL.DeleteProgram(Handle);
+            IsDisposed = true;
+            GC.SuppressFinalize(this);
         }
     }
 }

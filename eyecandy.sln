@@ -3,15 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eyecandy", "eyecandy\eyecandy.csproj", "{B33B4F91-070C-477D-B869-7BB33F5D9F71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "eyecandy", "eyecandy\eyecandy.csproj", "{B33B4F91-070C-477D-B869-7BB33F5D9F71}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RepoFiles", "RepoFiles", "{A6677941-D128-4E41-AD77-E49365604BF8}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE = LICENSE
 		README.md = README.md
+		unreleased_changes.md = unreleased_changes.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "demo", "demo\demo.csproj", "{9725222D-9B47-4111-8DDE-FF84128E3912}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "demo", "demo\demo.csproj", "{9725222D-9B47-4111-8DDE-FF84128E3912}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

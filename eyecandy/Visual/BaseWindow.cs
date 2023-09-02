@@ -2,6 +2,7 @@
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using System.Reflection.Metadata;
 
 namespace eyecandy
 {
@@ -73,6 +74,8 @@ namespace eyecandy
             return nativeWindowSettings;
         }
 
+        private bool IsDisposed = false;
+
         /// <summary>
         /// The constructor requries a configuration object. This object is stored and is accessible
         /// but should not be altered during program execution. Some settings are cached elsewhere
@@ -86,14 +89,6 @@ namespace eyecandy
             StartFullScreen = Configuration.StartFullScreen;
             HideMousePointer = Configuration.HideMousePointer;
             FPSBuffer = new int[AverageFPSTimeframeSeconds];
-        }
-
-        // GameWindow is also disposable, but it cannot be overridden.
-        /// <inheritdoc/>
-        protected new void Dispose()
-        {
-            base.Dispose();
-            Shader?.Dispose();
         }
 
         /// <inheritdoc/>
@@ -167,6 +162,18 @@ namespace eyecandy
                 FPSBufferIndex++;
                 if (FPSBufferIndex == AverageFPSTimeframeSeconds) FPSBufferIndex = 0;
             }
+        }
+
+        // GameWindow is also disposable, but it cannot be overridden.
+        /// <inheritdoc/>
+        protected new void Dispose()
+        {
+            if (IsDisposed) return;
+
+            base.Dispose();
+            Shader?.Dispose();
+            IsDisposed = true;
+            GC.SuppressFinalize(this);
         }
     }
 }

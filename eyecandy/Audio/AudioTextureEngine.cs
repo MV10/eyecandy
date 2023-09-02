@@ -44,11 +44,13 @@ namespace eyecandy
         public DateTime SilenceEnded = DateTime.MinValue;
 
         private Dictionary<Type, AudioTexture> Textures = new();
-        private bool TextureHandlesAllocated = false;
+        private bool TextureHandlesInitialized = false;
 
         private AudioCaptureProcessor AudioProcessor;
         private Task AudioTask;
         private CancellationTokenSource ctsAudioProcessing;
+
+        private bool IsDisposed = false;
 
         /// <summary>
         /// The constructor requries a configuration object. This object is stored and is accessible
@@ -58,7 +60,7 @@ namespace eyecandy
         public AudioTextureEngine(EyeCandyCaptureConfig configuration)
         {
             AudioProcessor = new(configuration);
-            ErrorLogging.Logger?.LogDebug($"AudioTextureEngine: constructor completed");
+            ErrorLogging.Logger?.LogTrace($"AudioTextureEngine: constructor completed");
         }
 
         /// <summary>
@@ -67,7 +69,7 @@ namespace eyecandy
         /// </summary>
         public void BeginAudioProcessing()
         {
-            ErrorLogging.Logger?.LogDebug($"AudioTextureEngine: BeginAudioProcessing");
+            ErrorLogging.Logger?.LogTrace($"AudioTextureEngine: BeginAudioProcessing");
 
             if (IsCapturing)
             {
@@ -85,7 +87,7 @@ namespace eyecandy
         /// </summary>
         public async Task EndAudioProcessing()
         {
-            ErrorLogging.Logger?.LogDebug($"AudioTextureEngine: EndAudioProcessing");
+            ErrorLogging.Logger?.LogTrace($"AudioTextureEngine: EndAudioProcessing");
 
             if (!IsCapturing)
             {
@@ -121,6 +123,7 @@ namespace eyecandy
             var texture = AudioTexture.Factory<AudioTextureType>(uniformName, assignedTextureUnit, sampleMultiplier, enabled);
             Textures.Add(type, texture);
             EvaluateRequirements();
+            if(IsCapturing) TextureHandlesInitialized = false;
             ErrorLogging.Logger?.LogDebug($"AudioTextureEngine: Created {type}");
         }
 
@@ -192,14 +195,14 @@ namespace eyecandy
         public void UpdateTextures()
         {
             // Short-circuit if the audio buffers haven't changed yet AND we've already generated textures at least once.
-            if (AudioProcessor.Buffers.Timestamp < TexturesUpdatedTimestamp && TextureHandlesAllocated) return;
+            if (AudioProcessor.Buffers.Timestamp < TexturesUpdatedTimestamp && TextureHandlesInitialized) return;
 
             foreach(var tex in Textures)
             {
                 tex.Value.GenerateTexture();
             }
 
-            TextureHandlesAllocated = true;
+            TextureHandlesInitialized = true;
             TexturesUpdatedTimestamp = DateTime.Now;
         }
 
@@ -243,21 +246,6 @@ namespace eyecandy
             }
         }
 
-        public void Dispose()
-        {
-            if (IsCapturing)
-            {
-                ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.Dispose", "Dispose invoked before audio processing was terminated. Attempting to force termination.");
-                try
-                {
-                    EndAudioProcessing_SynchronousHack();
-                }
-                catch // already bad news, disregard errors
-                {  }
-            }
-            AudioProcessor?.Dispose();
-        }
-
         /// <summary>
         /// Generates an updated AudioProcessingRequirements structure and applies it to the AudioCaptureProcessor.
         /// This is primarily used internally when an AudioTexture is created, deleted, or the enabled state changes.
@@ -271,6 +259,29 @@ namespace eyecandy
                 CalculateFFTDecibels = Textures.Any(t => t.Value.FrequencyCalc == FrequencyAlgorithm.Decibels || t.Value.FrequencyCalc == FrequencyAlgorithm.All),
                 CalculateFFTWebAudioDecibels = Textures.Any(t => t.Value.FrequencyCalc == FrequencyAlgorithm.WebAudioDecibels || t.Value.FrequencyCalc == FrequencyAlgorithm.All),
             };
+        }
+
+        /// <summary/>
+        public void Dispose()
+        {
+            if (IsDisposed) return;
+
+            if (IsCapturing)
+            {
+                ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.Dispose", "Dispose invoked before audio processing was terminated. Attempting to force termination.");
+                try
+                {
+                    EndAudioProcessing_SynchronousHack();
+                }
+                catch (Exception ex)
+                {
+                    ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.Dispose", $"{ex.GetType()}: {ex.Message}");
+                }
+            }
+
+            AudioProcessor?.Dispose();
+            IsDisposed = true;
+            GC.SuppressFinalize(this);
         }
     }
 }

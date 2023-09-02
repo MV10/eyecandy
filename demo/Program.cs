@@ -80,6 +80,9 @@ namespace demo
                     Help();
                     break;
             }
+
+            // give the console time to output everything :(
+            await Task.Delay(250);
         }
 
         static void Help()
@@ -96,7 +99,7 @@ namespace demo
             Console.WriteLine("freq\t\tFrequency magnitude and volume history (multiple shaders)");
             Console.WriteLine("vert\t\tVertexShaderArt-style integer-array vertex shader (no audio)");
             Console.WriteLine("frag\t\tShadertoy-style pixel fragment shader");
-            Console.WriteLine("webaudio\t\tCompares WebAudio pseudo-Decibels to pure FFT Decibels");
+            Console.WriteLine("webaudio\tCompares WebAudio pseudo-Decibels to pure FFT Decibels");
             Console.WriteLine("modes\t\tDifferent OpenGL drawing modes (points, lines, tris, etc)");
             Console.WriteLine("info\t\tOpenAL information (devices, defaults, extensions, etc.)");
             Console.WriteLine("logging\tWrites system details like \"info\" to demo.log");

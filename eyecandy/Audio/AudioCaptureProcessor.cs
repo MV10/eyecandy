@@ -64,6 +64,8 @@ namespace eyecandy
         private bool IsSilent = false;
         private DateTime SilenceStarted = DateTime.MaxValue;
 
+        private bool IsDisposed = false;
+
         /// <summary>
         /// The constructor requries a configuration object. This object is stored and is accessible
         /// but should not be altered during program execution. Some settings are cached elsewhere
@@ -83,7 +85,7 @@ namespace eyecandy
             BufferWebAudioSmoothing = new double[SampleSize];
             BufferRMSVolume = new int[RmsBufferLength];
 
-            ErrorLogging.Logger?.LogDebug($"AudioCaptureProcessor: constructor completed");
+            ErrorLogging.Logger?.LogTrace($"AudioCaptureProcessor: constructor completed");
         }
 
         /// <summary>
@@ -133,27 +135,9 @@ namespace eyecandy
             InternalBuffers.Timestamp = DateTime.MaxValue;
         }
 
-        public void Dispose()
-        {
-            if (IsCapturing)
-            {
-                ErrorLogging.LibraryError($"{nameof(AudioCaptureProcessor)}.Dispose", "Dispose invoked before audio processing was terminated.");
-            }
-
-            ALC.CaptureCloseDevice(CaptureDevice);
-
-            // v1.0.81 unnecessary for capture-only
-            //ALC.MakeContextCurrent(ALContext.Null);
-            //ALC.DestroyContext(Context);
-            //ALC.CloseDevice(Device);
-
-            // This is fine on Windows but crashes the Raspberry Pi...
-            // ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.Dispose");
-        }
-
         private void Connect()
         {
-            ErrorLogging.Logger?.LogDebug($"AudioCaptureProcessor: Connect");
+            ErrorLogging.Logger?.LogTrace($"AudioCaptureProcessor: Connect");
 
             // v1.0.81 unnecessary for capture-only
             //var targetDriver = string.IsNullOrEmpty(AudioCaptureProcessor.Configuration.DriverName) 
@@ -326,6 +310,29 @@ namespace eyecandy
                 }
                 InternalBuffers.SilenceStarted = SilenceStarted;
             }
+        }
+
+        /// <summary/>
+        public void Dispose()
+        {
+            if (IsDisposed) return;
+
+            if (IsCapturing)
+            {
+                ErrorLogging.LibraryError($"{nameof(AudioCaptureProcessor)}.Dispose", "Dispose invoked before audio processing was terminated.");
+            }
+
+            ALC.CaptureCloseDevice(CaptureDevice);
+            IsDisposed = true;
+            GC.SuppressFinalize(this);
+
+            // v1.0.81 unnecessary for capture-only
+            //ALC.MakeContextCurrent(ALContext.Null);
+            //ALC.DestroyContext(Context);
+            //ALC.CloseDevice(Device);
+
+            // This is fine on Windows but crashes the Raspberry Pi...
+            // ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.Dispose");
         }
     }
 }
