@@ -30,16 +30,16 @@ namespace eyecandy
                     int chan = (x * AudioTextureEngine.RGBAPixelSize);
 
                     // Red - RMS volume
-                    ChannelBuffer[chan + 0] = (float)audioBuffers.RealtimeRMSVolume / (float)AudioCaptureProcessor.Configuration.NormalizeRMSVolumePeak * SampleMultiplier;
+                    ChannelBuffer[chan + 0] = (float)audioBuffers.RealtimeRMSVolume / (float)AudioCaptureProcessor.Configuration.NormalizeRMSVolumePeak;
 
                     // Green - raw PCM wave
-                    ChannelBuffer[chan + 1] = (float)audioBuffers.Wave[x] / (float)short.MaxValue * SampleMultiplier;
+                    ChannelBuffer[chan + 1] = (float)audioBuffers.Wave[x] / (float)short.MaxValue;
 
                     // Blue - frequency magnitude
-                    ChannelBuffer[chan + 2] = (float)audioBuffers.FrequencyMagnitude[x] / (float)AudioCaptureProcessor.Configuration.NormalizeFrequencyMagnitudePeak * SampleMultiplier;
+                    ChannelBuffer[chan + 2] = (float)audioBuffers.FrequencyMagnitude[x] / (float)AudioCaptureProcessor.Configuration.NormalizeFrequencyMagnitudePeak;
 
                     // Alpha - frequency decibels
-                    ChannelBuffer[chan + 3] = (float)audioBuffers.FrequencyDecibels[x] / (float)AudioCaptureProcessor.Configuration.NormalizeFrequencyDecibelsPeak * SampleMultiplier;
+                    ChannelBuffer[chan + 3] = (float)audioBuffers.FrequencyDecibels[x] / (float)AudioCaptureProcessor.Configuration.NormalizeFrequencyDecibelsPeak;
                 }
             }
         }

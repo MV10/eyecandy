@@ -127,7 +127,7 @@ namespace eyecandy
         /// initialized and ready for use. Normally it isn't necessary to manipulate the AudioTexture objects
         /// directly.
         /// </summary>
-        public void Create<AudioTextureType>(string uniformName, float sampleMultiplier = 1.0f, bool enabled = true)
+        public void Create<AudioTextureType>(string uniformName, bool enabled = true)
         where AudioTextureType : AudioTexture
         {
             var type = typeof(AudioTextureType);
@@ -158,7 +158,7 @@ namespace eyecandy
                 ErrorLogging.Logger?.LogDebug($"Assigned {type} to TextureUnit {assignedTextureUnit}");
             }
 
-            var texture = AudioTexture.Factory<AudioTextureType>(uniformName, assignedTextureUnit, sampleMultiplier, enabled);
+            var texture = AudioTexture.Factory<AudioTextureType>(uniformName, assignedTextureUnit, enabled);
             Textures.Add(type, texture);
             EvaluateRequirements();
             if(IsCapturing) TextureHandlesInitialized = false;
@@ -201,17 +201,6 @@ namespace eyecandy
             if (!Textures.ContainsKey(type)) return;
             Textures[type].Enabled = true;
             EvaluateRequirements();
-        }
-
-        /// <summary>
-        /// Changes the AudioTexture's SampleMultiplier value.
-        /// </summary>
-        public void SetMultiplier<AudioTextureType>(float multiplier)
-        where AudioTextureType : AudioTexture
-        {
-            var type = typeof(AudioTextureType);
-            if (!Textures.ContainsKey(type)) return;
-            Textures[type].SampleMultiplier = multiplier;
         }
 
         /// <summary>

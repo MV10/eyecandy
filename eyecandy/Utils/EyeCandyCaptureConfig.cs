@@ -6,14 +6,6 @@ namespace eyecandy
     /// </summary>
     public class EyeCandyCaptureConfig
     {
-        // v1.0.81 unnecessary for capture-only
-        ///// <summary>
-        ///// The audio driver to use. Defaults to "OpenAL Soft" which is normally what
-        ///// you want, but "Generic Driver" is how the old Creative driver appears if
-        ///// OpenAL Soft is not installed for some reason.
-        ///// </summary>
-        //public string DriverName { get; set; } = "OpenAL Soft";
-
         /// <summary>
         /// Provide a device name or leave it empty to use the default device. On Linux the
         /// device may not be available unless playback is already running. It may be possible

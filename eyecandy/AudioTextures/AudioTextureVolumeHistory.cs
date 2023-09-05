@@ -26,7 +26,7 @@ namespace eyecandy
             {
                 ScrollHistoryBuffer();
 
-                ChannelBuffer[GreenChannel] = (float)audioBuffers.RealtimeRMSVolume / (float)AudioCaptureProcessor.Configuration.NormalizeRMSVolumePeak * SampleMultiplier;
+                ChannelBuffer[GreenChannel] = (float)audioBuffers.RealtimeRMSVolume / (float)AudioCaptureProcessor.Configuration.NormalizeRMSVolumePeak;
             }
         }
     }

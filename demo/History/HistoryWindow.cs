@@ -40,12 +40,12 @@ namespace demo
             Engine = new(audioConfig);
 
             // the multiplier makes the green easier to see
-            Engine.Create<AudioTextureWaveHistory>("wave", sampleMultiplier: 5.0f);
-            Engine.Create<AudioTextureVolumeHistory>("volume", sampleMultiplier: 1.0f);
-            Engine.Create<AudioTextureFrequencyMagnitudeHistory>("fmag", sampleMultiplier: 5.0f);
-            Engine.Create<AudioTextureFrequencyDecibelHistory>("fdb", sampleMultiplier: 1.0f);
-            Engine.Create<AudioTexture4ChannelHistory>("combined", sampleMultiplier: 1.0f);
-            Engine.Create<AudioTextureWebAudioHistory>("webaudio", sampleMultiplier: 1.0f);
+            Engine.Create<AudioTextureWaveHistory>("wave");
+            Engine.Create<AudioTextureVolumeHistory>("volume");
+            Engine.Create<AudioTextureFrequencyMagnitudeHistory>("fmag");
+            Engine.Create<AudioTextureFrequencyDecibelHistory>("fdb");
+            Engine.Create<AudioTexture4ChannelHistory>("combined");
+            Engine.Create<AudioTextureWebAudioHistory>("webaudio");
         }
 
         protected override void OnLoad()
@@ -110,9 +110,20 @@ namespace demo
                 AudioTextureType.WebAudio => Engine.Get<AudioTextureWebAudioHistory>().AssignedTextureUnit,
             };
 
-            // The demo frag shader declares audioTexture; we're disregarding the uniform names
-            // defined in the constructor and assigned to each AudioTexture data object.
+            // The demo frag shader declares uniform "audioTexture"; we're disregarding the uniform
+            // names passed from the constructor and assigned to each AudioTexture data object.
             Shader.SetTexture("audioTexture", textureHandle, textureUnit);
+
+            // Prior to v2 each audio texture had a multiplier associated with it to "strengthen" the
+            // signal in the data. This is better handled at the individual shader level. For example,
+            // multi-pass shaders may re-use the same audio texture data, but have different requirements.
+            float multiplier = DemoMode switch
+            {
+                AudioTextureType.Wave => 5f,
+                AudioTextureType.FreqMag => 5f,
+                _ => 1f
+            };
+            Shader.SetUniform("multiplier", multiplier);
 
             GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
 
