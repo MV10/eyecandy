@@ -10,7 +10,7 @@ namespace eyecandy
     /// in their constructors, and provide an UpdateChannelBuffer implementation to copy audio 
     /// buffer data to the ChannelBuffer used to generate textures.
     /// </summary>
-    public abstract class AudioTexture
+    public abstract class AudioTexture : IDisposable
     {
         /// <summary>
         /// The Handle is set to this until GenerateTexture has been called.
@@ -122,6 +122,8 @@ namespace eyecandy
         /// </summary>
         public virtual void GenerateTexture()
         {
+            if (IsDisposed) return;
+
             if (Handle == UninitializedTexture)
             {
                 Handle = GL.GenTexture();
@@ -152,5 +154,18 @@ namespace eyecandy
         /// </summary>
         protected internal void ScrollHistoryBuffer()
             => Array.Copy(ChannelBuffer, 0, ChannelBuffer, BufferWidth, ChannelBuffer.Length - BufferWidth);
+
+        /// <summary/>
+        public virtual void Dispose()
+        {
+            if (IsDisposed) return;
+
+            if (Handle != UninitializedTexture) GL.DeleteTexture(Handle);
+            Handle = UninitializedTexture;
+
+            IsDisposed = true;
+            GC.SuppressFinalize(this);
+        }
+        internal bool IsDisposed = false;
     }
 }

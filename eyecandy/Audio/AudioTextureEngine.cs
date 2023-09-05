@@ -52,8 +52,6 @@ namespace eyecandy
         private Task AudioTask;
         private CancellationTokenSource ctsAudioProcessing;
 
-        private bool IsDisposed = false;
-
         /// <summary>
         /// The constructor requries a configuration object. This object is stored and is accessible
         /// but should not be altered during program execution. Some settings are cached elsewhere
@@ -81,6 +79,11 @@ namespace eyecandy
         public void BeginAudioProcessing()
         {
             ErrorLogging.Logger?.LogTrace($"AudioTextureEngine: BeginAudioProcessing");
+            if(IsDisposed)
+            {
+                ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.{nameof(BeginAudioProcessing)}", "Aborting, object has been disposed", LogLevel.Error);
+                return;
+            }
 
             if (IsCapturing)
             {
@@ -182,6 +185,7 @@ namespace eyecandy
         {
             var type = typeof(AudioTextureType);
             if (!Textures.ContainsKey(type)) return;
+            (Textures[type] as IDisposable).Dispose();
             Textures.Remove(type);
             EvaluateRequirements();
             ErrorLogging.Logger?.LogDebug($"AudioTextureEngine: Destroyed {type}");
@@ -229,6 +233,8 @@ namespace eyecandy
         /// </summary>
         public void UpdateTextures()
         {
+            if (IsDisposed) return;
+
             // Short-circuit if the audio buffers haven't changed yet AND we've already generated textures at least once.
             if (AudioProcessor.Buffers.Timestamp < TexturesUpdatedTimestamp && TextureHandlesInitialized) return;
 
@@ -246,6 +252,8 @@ namespace eyecandy
         /// </summary>
         public void ProcessAudioDataCallback()
         {
+            if (IsDisposed) return;
+
             foreach (var t in Textures)
             {
                 if (t.Value.Enabled) t.Value.UpdateChannelBuffer(AudioProcessor.Buffers);
@@ -275,6 +283,8 @@ namespace eyecandy
         /// </summary>
         public void SetTextureUniforms(Shader shader)
         {
+            if (IsDisposed) return;
+
             foreach (var t in Textures)
             {
                 if (t.Value.Enabled) shader.SetTexture(t.Value);
@@ -314,9 +324,17 @@ namespace eyecandy
                 }
             }
 
+            foreach(var kvp in Textures)
+            {
+                (kvp.Value as IDisposable).Dispose();
+            }
+            Textures.Clear();
+
             AudioProcessor?.Dispose();
+
             IsDisposed = true;
             GC.SuppressFinalize(this);
         }
+        private bool IsDisposed = false;
     }
 }

@@ -45,10 +45,6 @@ namespace eyecandy
         // internal
         private int RmsBufferLength;
 
-        // v1.0.81 unnecessary for capture-only
-        //private ALDevice Device;
-        //private ALContext Context;
-
         private ALCaptureDevice CaptureDevice;
         private bool IsCapturing = false;
 
@@ -63,8 +59,6 @@ namespace eyecandy
 
         private bool IsSilent = false;
         private DateTime SilenceStarted = DateTime.MaxValue;
-
-        private bool IsDisposed = false;
 
         /// <summary>
         /// The constructor requries a configuration object. This object is stored and is accessible
@@ -96,6 +90,12 @@ namespace eyecandy
         public void Capture(Action newAudioDataCallback, CancellationToken cancellationToken)
         {
             ErrorLogging.Logger?.LogDebug($"AudioCaptureProcessor: Capture starting");
+            if (IsDisposed)
+            {
+                ErrorLogging.LibraryError($"{nameof(AudioCaptureProcessor)}.{nameof(Capture)}", "Aborting, object has been disposed", LogLevel.Error);
+                return;
+            }
+
             Connect();
 
             IsCapturing = true;
@@ -139,31 +139,10 @@ namespace eyecandy
         {
             ErrorLogging.Logger?.LogTrace($"AudioCaptureProcessor: Connect");
 
-            // v1.0.81 unnecessary for capture-only
-            //var targetDriver = string.IsNullOrEmpty(AudioCaptureProcessor.Configuration.DriverName) 
-            //    ? "OpenAL Soft" 
-            //    : AudioCaptureProcessor.Configuration.DriverName;
-
             var captureDeviceName = string.IsNullOrEmpty(AudioCaptureProcessor.Configuration.CaptureDeviceName)
                 ? ALC.GetString(ALDevice.Null, AlcGetString.CaptureDefaultDeviceSpecifier)
                 : AudioCaptureProcessor.Configuration.CaptureDeviceName;
 
-            // v1.0.81 unnecessary for capture-only
-            //var devices = ALC.GetStringList(GetEnumerationStringList.DeviceSpecifier);
-            //var driverDeviceName = ALC.GetString(ALDevice.Null, AlcGetString.DefaultDeviceSpecifier);
-            //foreach (var d in devices)
-            //{
-            //    if (d.Contains(targetDriver))
-            //    {
-            //        driverDeviceName = d;
-            //        break;
-            //    }
-            //}
-
-            // v1.0.81 unnecessary for capture-only
-            //Device = ALC.OpenDevice(driverDeviceName);
-            //Context = ALC.CreateContext(Device, (int[])null);
-            //ALC.MakeContextCurrent(Context);
             CaptureDevice = ALC.CaptureOpenDevice(captureDeviceName, SampleRate, SampleFormat, SampleSize);
 
             // NOTE: If we end up supporting surround capture and the driver can't handle it, the
@@ -323,16 +302,13 @@ namespace eyecandy
             }
 
             ALC.CaptureCloseDevice(CaptureDevice);
-            IsDisposed = true;
-            GC.SuppressFinalize(this);
-
-            // v1.0.81 unnecessary for capture-only
-            //ALC.MakeContextCurrent(ALContext.Null);
-            //ALC.DestroyContext(Context);
-            //ALC.CloseDevice(Device);
 
             // This is fine on Windows but crashes the Raspberry Pi...
             // ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.Dispose");
+
+            IsDisposed = true;
+            GC.SuppressFinalize(this);
         }
+        private bool IsDisposed = false;
     }
 }
