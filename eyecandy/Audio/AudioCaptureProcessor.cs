@@ -104,7 +104,7 @@ namespace eyecandy
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                int samplesAvailable = ALC.GetAvailableSamples(CaptureDevice);
+                int samplesAvailable = ALC.GetInteger(CaptureDevice, AlcGetInteger.CaptureSamples);
                 while (samplesAvailable >= SampleSize)
                 {
                     ProcessSamples();

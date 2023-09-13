@@ -1,7 +1,6 @@
 ﻿
 using eyecandy; // for error logging only
 
-using OpenTK.Audio.OpenAL.Extensions.Creative.EnumerateAll;
 using OpenTK.Audio.OpenAL;
 using Serilog;
 using Serilog.Extensions.Logging;
@@ -38,7 +37,7 @@ namespace demo
                 }
             }
 
-            var allDevices = EnumerateAll.GetStringList(GetEnumerateAllContextStringList.AllDevicesSpecifier);
+            var allDevices = ALC.EnumerateAll.GetStringList(GetEnumerateAllContextStringList.AllDevicesSpecifier);
             Output($"\n\nPlayback devices:\n  {string.Join("\n  ", allDevices)}");
 
             var list = ALC.GetStringList(GetEnumerationStringList.CaptureDeviceSpecifier);
@@ -105,7 +104,7 @@ namespace demo
                         lastElapsed = secs;
                     }
 
-                    int samplesAvailable = ALC.GetAvailableSamples(captureDevice);
+                    int samplesAvailable = ALC.GetInteger(captureDevice, AlcGetInteger.CaptureSamples);
                     if (samplesAvailable > 512)
                     {
                         int samplesToRead = Math.Min(samplesAvailable, audio.Length - current);
@@ -156,7 +155,7 @@ namespace demo
             lastElapsed = 0;
             ticktock.Restart();
 
-            while (AL.GetSourceState(alSource) == ALSourceState.Playing)
+            while ((ALSourceState)AL.GetSource(alSource, ALGetSourcei.SourceState) == ALSourceState.Playing)
             {
                 // These stats are extremely noisy...
 
