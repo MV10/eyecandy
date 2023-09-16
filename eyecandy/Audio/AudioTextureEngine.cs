@@ -299,10 +299,11 @@ namespace eyecandy
         public void Dispose()
         {
             if (IsDisposed) return;
+            ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
 
             if (IsCapturing)
             {
-                ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.Dispose", "Dispose invoked before audio processing was terminated. Attempting to force termination.");
+                ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.Dispose", "Dispose invoked before audio processing was terminated. Attempting to force termination syncrhonously.");
                 try
                 {
                     EndAudioProcessing_SynchronousHack();
@@ -313,12 +314,14 @@ namespace eyecandy
                 }
             }
 
-            foreach(var kvp in Textures)
+            foreach (var kvp in Textures)
             {
+                ErrorLogging.Logger?.LogTrace($"  {GetType()}.Dispose() AudioTexture");
                 (kvp.Value as IDisposable).Dispose();
             }
             Textures.Clear();
 
+            ErrorLogging.Logger?.LogTrace($"  {GetType()}.Dispose() AudioProcessor");
             AudioProcessor?.Dispose();
 
             IsDisposed = true;

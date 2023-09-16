@@ -1,8 +1,8 @@
 ﻿
+using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using System.Reflection.Metadata;
 
 namespace eyecandy
 {
@@ -170,9 +170,16 @@ namespace eyecandy
         protected new void Dispose()
         {
             if (IsDisposed) return;
+            ErrorLogging.Logger?.LogTrace("BaseWindow.Dispose() ----------------------------");
 
             base.Dispose();
-            Shader?.Dispose();
+
+            if(Shader is not null)
+            {
+                ErrorLogging.Logger?.LogTrace($"  BaseWindow.Dispose() Shader");
+                Shader.Dispose();
+            }
+
             IsDisposed = true;
             GC.SuppressFinalize(this);
         }

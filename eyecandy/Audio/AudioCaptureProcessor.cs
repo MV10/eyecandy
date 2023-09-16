@@ -295,15 +295,17 @@ namespace eyecandy
         public void Dispose()
         {
             if (IsDisposed) return;
+            ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
 
             if (IsCapturing)
             {
                 ErrorLogging.LibraryError($"{nameof(AudioCaptureProcessor)}.Dispose", "Dispose invoked before audio processing was terminated.");
             }
 
+            ErrorLogging.Logger?.LogTrace($"  {GetType()}.Dispose() ALC.CaptureCloseDevice");
             ALC.CaptureCloseDevice(CaptureDevice);
 
-            // This is fine on Windows but crashes the Raspberry Pi...
+            // This is fine on Windows but crashes Linux Pulse Audio.
             // ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.Dispose");
 
             IsDisposed = true;

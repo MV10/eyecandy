@@ -26,7 +26,8 @@ namespace eyecandy
         /// </summary>
         public bool IsValid { private set; get; } = true;
 
-        private bool IsDisposed = false;
+        // used for logging
+        private string SourceFiles;
 
         // avoid blasting the log with "ignored" messages from every render pass!
         private List<string> IgnoredUniformNames = new();
@@ -38,6 +39,8 @@ namespace eyecandy
         {
             ErrorLogging.Logger?.LogDebug($"Shader constructor loading:\n  {vertexPathname}\n  {fragmentPathname}");
             ErrorLogging.Logger?.LogDebug($"");
+
+            SourceFiles = $"{Path.GetFileName(vertexPathname)} / {Path.GetFileName(fragmentPathname)}";
 
             int VertexShader = 0;
             int FragmentShader = 0;
@@ -277,10 +280,14 @@ namespace eyecandy
         public void Dispose()
         {
             if (IsDisposed) return;
+            ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
 
+            ErrorLogging.Logger?.LogTrace($"  {GetType()}.Dispose() DeleteProgram for {SourceFiles}");
             GL.DeleteProgram(Handle);
+
             IsDisposed = true;
             GC.SuppressFinalize(this);
         }
+        private bool IsDisposed = false;
     }
 }

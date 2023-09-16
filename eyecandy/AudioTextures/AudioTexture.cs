@@ -1,5 +1,6 @@
 ﻿
 using eyecandy.Utils;
+using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
 
 namespace eyecandy
@@ -152,9 +153,14 @@ namespace eyecandy
         public virtual void Dispose()
         {
             if (IsDisposed) return;
+            ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
 
-            if (Handle != UninitializedTexture) GL.DeleteTexture(Handle);
-            Handle = UninitializedTexture;
+            if (Handle != UninitializedTexture)
+            {
+                ErrorLogging.Logger?.LogTrace($"  {GetType()}.Dispose() DeleteTexture {UniformName}");
+                GL.DeleteTexture(Handle);
+                Handle = UninitializedTexture;
+            }
 
             IsDisposed = true;
             GC.SuppressFinalize(this);
