@@ -38,7 +38,6 @@ namespace eyecandy
         public Shader(string vertexPathname, string fragmentPathname)
         {
             ErrorLogging.Logger?.LogDebug($"Shader constructor loading:\n  {vertexPathname}\n  {fragmentPathname}");
-            ErrorLogging.Logger?.LogDebug($"");
 
             SourceFiles = $"{Path.GetFileName(vertexPathname)} / {Path.GetFileName(fragmentPathname)}";
 
@@ -78,7 +77,7 @@ namespace eyecandy
                 GL.GetShader(FragmentShader, ShaderParameter.CompileStatus, out int fragOk);
                 if (fragOk == 0)
                 {
-                    ErrorLogging.LibraryError($"{nameof(Shader)} ctor Compile Frag", GL.GetShaderInfoLog(VertexShader));
+                    ErrorLogging.LibraryError($"{nameof(Shader)} ctor Compile Frag", GL.GetShaderInfoLog(FragmentShader));
                     IsValid = false;
                 }
 
@@ -174,7 +173,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{nameof(SetTexture)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Information);
+                    ErrorLogging.LibraryError($"{SourceFiles} {nameof(SetTexture)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -195,7 +194,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Information);
+                    ErrorLogging.LibraryError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -213,7 +212,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Information);
+                    ErrorLogging.LibraryError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -231,7 +230,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Information);
+                    ErrorLogging.LibraryError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -249,7 +248,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Information);
+                    ErrorLogging.LibraryError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -267,7 +266,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Information);
+                    ErrorLogging.LibraryError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -285,7 +284,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Information);
+                    ErrorLogging.LibraryError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
