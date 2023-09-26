@@ -18,7 +18,7 @@ namespace eyecandy
         /// <summary>
         /// When true, the engine is actively capturing and processing audio.
         /// </summary>
-        public bool IsCapturing { get; private set; } = false;
+        public bool IsCapturing { get => (AudioProcessor?.IsCapturing ?? 0) == 1; }
 
         /// <summary>
         /// DateTime.Now value when the texture data was updated from the underlying audio buffers.
@@ -92,35 +92,27 @@ namespace eyecandy
             }
             ctsAudioProcessing = new();
             AudioTask = Task.Run(() => AudioProcessor.Capture(ProcessAudioDataCallback, ctsAudioProcessing.Token));
-            IsCapturing = true;
         }
 
         /// <summary>
-        /// Cancels the AudioCaptureProcessor background thread. Callers should await this to
-        /// ensure clean shutdown of the wrapping task before calling Dispose.
+        /// Cancels the AudioCaptureProcessor background thread. The return value indicates
+        /// whether this has completed within the specified timeout (default is 1000ms). Typically
+        /// cancellation is nearly immediate (a few milliseconds). If it doesn't happen, callers
+        /// can continue checking IsCapturing, which is a pass-through to the underlying state of
+        /// AudioCaptureProcessor. The async Task based method was removed (instead of being marked
+        /// obsolete) to avoid ambiguity.
         /// </summary>
-        public async Task EndAudioProcessing()
+        public bool EndAudioProcessing(int timeoutMS = 1000)
         {
             ErrorLogging.Logger?.LogTrace($"AudioTextureEngine: EndAudioProcessing");
 
-            if (!IsCapturing)
-            {
-                ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.{nameof(EndAudioProcessing)}", "Invoked while not capturing audio.", LogLevel.Warning);
-                return;
-            }
+            if (!IsCapturing) return true;
             ctsAudioProcessing.Cancel();
-            IsCapturing = false;
-            await AudioTask;
+            using var ctsTimer = new CancellationTokenSource();
+            ctsTimer.CancelAfter(timeoutMS);
+            while (IsCapturing && ctsTimer.IsCancellationRequested) Thread.Sleep(0);
+            return !ctsTimer.IsCancellationRequested;
         }
-
-        /// <summary>
-        /// Not recommended, safer to correctly await the EndAudioProcessing task.
-        /// Added because the OpenTK window events like OnUpdateFrame are synchronous.
-        /// Pitfalls described here: 
-        /// https://learn.microsoft.com/en-us/archive/msdn-magazine/2015/july/async-programming-brownfield-async-development#the-blocking-hack
-        /// </summary>
-        public void EndAudioProcessing_SynchronousHack()
-            => EndAudioProcessing().GetAwaiter().GetResult();
 
         /// <summary>
         /// AudioTexture objects can't be created directly. This factory method ensures they are properly
@@ -328,5 +320,9 @@ namespace eyecandy
             GC.SuppressFinalize(this);
         }
         private bool IsDisposed = false;
+
+        [Obsolete("Use the synchronous EndAudioProcessing method.")]
+        public void EndAudioProcessing_SynchronousHack()
+            => EndAudioProcessing();
     }
 }

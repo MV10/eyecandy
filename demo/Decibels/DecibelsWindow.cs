@@ -98,7 +98,7 @@ namespace demo
 
             if (input.IsKeyReleased(Keys.Escape))
             {
-                Engine.EndAudioProcessing_SynchronousHack();
+                Engine.EndAudioProcessing();
                 Close();
                 Console.WriteLine($"\n\n{FramesPerSecond} FPS\n{AverageFramesPerSecond} average FPS, last {AverageFPSTimeframeSeconds} seconds");
                 return;

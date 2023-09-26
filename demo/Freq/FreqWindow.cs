@@ -86,7 +86,7 @@ namespace demo
 
             if (input.IsKeyDown(Keys.Escape))
             {
-                Engine.EndAudioProcessing_SynchronousHack();
+                Engine.EndAudioProcessing();
                 Close();
                 Console.WriteLine($"\n\n{FramesPerSecond} FPS\n{AverageFramesPerSecond} average FPS, last {AverageFPSTimeframeSeconds} seconds");
                 return;

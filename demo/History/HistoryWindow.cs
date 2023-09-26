@@ -143,7 +143,7 @@ namespace demo
             if (input.IsKeyReleased(Keys.Escape))
             {
                 Console.WriteLine("update engine end");
-                Engine.EndAudioProcessing_SynchronousHack();
+                Engine.EndAudioProcessing();
                 Console.WriteLine("update Close()");
                 Close();
                 Console.WriteLine($"\n\n{FramesPerSecond} FPS\n{AverageFramesPerSecond} average FPS, last {AverageFPSTimeframeSeconds} seconds");

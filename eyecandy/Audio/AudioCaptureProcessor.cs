@@ -39,6 +39,12 @@ namespace eyecandy
         /// </summary>
         public AudioProcessingRequirements Requirements = new();
 
+        /// <summary>
+        /// Capture is active when the value is 1. (Capture is normally on a background thread,
+        /// and Booleans aren't supported by Interlocked.Exchange thread-safe updates.)
+        /// </summary>
+        public int IsCapturing = 0;
+
         // used with Interlock.Exchange to expose a thread-safe copy in the public Buffers field
         private AudioData InternalBuffers;
 
@@ -46,7 +52,6 @@ namespace eyecandy
         private int RmsBufferLength;
 
         private ALCaptureDevice CaptureDevice;
-        private bool IsCapturing = false;
 
         // private copy because we frequently read it inside another thread in the Capture method
         private int SampleSize;
@@ -98,7 +103,7 @@ namespace eyecandy
 
             Connect();
 
-            IsCapturing = true;
+            Interlocked.Exchange(ref IsCapturing, 1);
             ALC.CaptureStart(CaptureDevice);
             ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.{nameof(ALC.CaptureStart)}");
 
@@ -130,7 +135,7 @@ namespace eyecandy
             ALC.CaptureStop(CaptureDevice);
             ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.{nameof(ALC.CaptureStop)}");
 
-            IsCapturing = false;
+            Interlocked.Exchange(ref IsCapturing, 0);
             Buffers.Timestamp = DateTime.MaxValue;
             InternalBuffers.Timestamp = DateTime.MaxValue;
         }
@@ -297,7 +302,7 @@ namespace eyecandy
             if (IsDisposed) return;
             ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
 
-            if (IsCapturing)
+            if (IsCapturing == 1)
             {
                 ErrorLogging.LibraryError($"{nameof(AudioCaptureProcessor)}.Dispose", "Dispose invoked before audio processing was terminated.");
             }
