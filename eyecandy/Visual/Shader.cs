@@ -276,6 +276,24 @@ namespace eyecandy
             GL.Uniform3(UniformLocations[name], data);
         }
 
+        /// <summary>
+        /// Assigns a value to a shader uniform.
+        /// </summary>
+        public void SetUniform(string name, Vector4 data)
+        {
+            if (!UniformLocations.ContainsKey(name))
+            {
+                if (!IgnoredUniformNames.Contains(name))
+                {
+                    ErrorLogging.LibraryError($"{nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Information);
+                    IgnoredUniformNames.Add(name);
+                }
+                return;
+            }
+            Use();
+            GL.Uniform4(UniformLocations[name], data);
+        }
+
         /// <summary/>
         public void Dispose()
         {

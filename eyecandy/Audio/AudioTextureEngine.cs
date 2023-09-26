@@ -295,10 +295,10 @@ namespace eyecandy
 
             if (IsCapturing)
             {
-                ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.Dispose", "Dispose invoked before audio processing was terminated. Attempting to force termination syncrhonously.");
+                ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.Dispose", "Dispose invoked before audio processing was terminated. Attempting to force termination.");
                 try
                 {
-                    EndAudioProcessing_SynchronousHack();
+                    if(!EndAudioProcessing()) ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.Dispose", "Audio processing did not terminate within the default 1000ms timeout.");
                 }
                 catch (Exception ex)
                 {
