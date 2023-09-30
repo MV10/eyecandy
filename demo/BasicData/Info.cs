@@ -20,7 +20,7 @@ namespace demo
             if(UseLogging)
             {
                 Console.WriteLine("\n\nWriting device info to ./demo.log");
-                ConfigureLogging();
+                Program.ConfigureLogging(Logger);
             }
 
             var devices = ALC.GetStringList(GetEnumerationStringList.DeviceSpecifier);
@@ -65,12 +65,14 @@ namespace demo
             string vers = AL.Get(ALGetString.Version);
             Output($"\n\nOpenAL Context extensions:\n  Vendor: {vend}\n  Version: {vers}\n  Renderer: {rend}\n  Extensions:\n    {string.Join("\n    ", exts.Split(" "))}\n  ALC Version: {alcMajorVersion}.{alcMinorVersion}\n  ALC Extensions:\n    {string.Join("\n    ", alcExts.Split(" "))}");
 
-            if(UseLogging)
-            {
-                Console.WriteLine("\n\nLogging output finished.");
-                Log.CloseAndFlush();
-                goto ExitProgram;
-            }
+
+
+            //
+            // Logged output ends here
+            //
+            if (UseLogging) goto ExitProgram;
+
+
 
             Console.WriteLine("\n\nESC      - Exit utility\nSpacebar - Test recording and playback");
             while (true)
@@ -208,23 +210,6 @@ namespace demo
             {
                 Console.WriteLine(message);
             }
-        }
-
-        private static void ConfigureLogging()
-        {
-            var logPath = Path.GetFullPath("./demo.log");
-            if (File.Exists(logPath)) File.Delete(logPath);
-
-            Console.WriteLine($"Logging to: {logPath}");
-
-            var cfg = new LoggerConfiguration()
-                    .MinimumLevel.Verbose()
-                    .WriteTo.Async(a => a.File(logPath, shared: true))
-                    .WriteTo.Console();
-
-            Log.Logger = cfg.CreateLogger();
-
-            Logger = new SerilogLoggerFactory().CreateLogger("eyecandy-demo");
         }
     }
 }

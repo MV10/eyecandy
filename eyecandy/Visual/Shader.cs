@@ -59,6 +59,7 @@ namespace eyecandy
             {
                 IsValid = false;
                 ErrorLogging.LibraryError($"{nameof(Shader)} ctor Read File", $"{ex}: {ex.Message}");
+                return;
             }
 
             // compile
@@ -70,7 +71,7 @@ namespace eyecandy
                 {
                     ErrorLogging.LibraryError($"{nameof(Shader)} ctor Compile Vert", GL.GetShaderInfoLog(VertexShader));
                     IsValid = false;
-
+                    return;
                 }
 
                 GL.CompileShader(FragmentShader);
@@ -79,6 +80,7 @@ namespace eyecandy
                 {
                     ErrorLogging.LibraryError($"{nameof(Shader)} ctor Compile Frag", GL.GetShaderInfoLog(FragmentShader));
                     IsValid = false;
+                    return;
                 }
 
                 ErrorLogging.Logger?.LogDebug($"Shader constructor: compilation completed");
@@ -87,6 +89,7 @@ namespace eyecandy
             {
                 IsValid = false;
                 ErrorLogging.LibraryError($"{nameof(Shader)} ctor Compile", $"{ex}: {ex.Message}");
+                return;
             }
 
             // link
@@ -101,6 +104,7 @@ namespace eyecandy
                 {
                     IsValid = false;
                     ErrorLogging.LibraryError($"{nameof(Shader)} ctor Linking", GL.GetProgramInfoLog(Handle));
+                    return;
                 }
                 ErrorLogging.Logger?.LogDebug($"Shader constructor: linking completed");
             }
@@ -108,6 +112,7 @@ namespace eyecandy
             {
                 IsValid = false;
                 ErrorLogging.LibraryError($"{nameof(Shader)} ctor Linking", $"{ex}: {ex.Message}");
+                return;
             }
 
             // cleanup

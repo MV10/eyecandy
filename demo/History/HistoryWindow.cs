@@ -114,6 +114,9 @@ namespace demo
             // names passed from the constructor and assigned to each AudioTexture data object.
             Shader.SetTexture("audioTexture", textureHandle, textureUnit);
 
+            // Tests the eyecandy Shader class "no uniform" notification
+            Shader.SetTexture("someOtherUniform", textureHandle, textureUnit);
+
             // Prior to v2 each audio texture had a multiplier associated with it to "strengthen" the
             // signal in the data. This is better handled at the individual shader level. For example,
             // multi-pass shaders may re-use the same audio texture data, but have different requirements.

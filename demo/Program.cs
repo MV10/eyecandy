@@ -1,4 +1,6 @@
 ﻿using eyecandy;
+using Serilog.Extensions.Logging;
+using Serilog;
 
 namespace demo
 {
@@ -81,6 +83,8 @@ namespace demo
                     break;
             }
 
+            Log.CloseAndFlush();
+
             // give the console time to output everything :(
             await Task.Delay(250);
         }
@@ -107,6 +111,25 @@ namespace demo
             Console.WriteLine("\n[options]");
             Console.WriteLine("F\t\tFull-screen mode");
             Console.WriteLine("P\t\tOutput Process ID");
+        }
+
+        public static void ConfigureLogging(Microsoft.Extensions.Logging.ILogger logger)
+        {
+            var logPath = Path.GetFullPath("./demo.log");
+            if (File.Exists(logPath)) File.Delete(logPath);
+
+            Console.WriteLine($"Logging to {logPath}");
+
+            var cfg = new LoggerConfiguration()
+                    .MinimumLevel.Verbose()
+                    .WriteTo.Async(a => a.File(logPath, shared: true))
+                    .WriteTo.Console();
+
+            Log.Logger = cfg.CreateLogger();
+
+            logger = new SerilogLoggerFactory().CreateLogger("eyecandy-demo");
+
+            ErrorLogging.Logger = logger;
         }
     }
 }

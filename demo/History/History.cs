@@ -2,6 +2,8 @@
 
 /*
 
+2023-09-30: This is also an example of log-file output (./demo.log)
+
 A trivial shader which only shows the raw history textures mapped to a rectangle.
 
 P - Raw PCM wave data
@@ -22,9 +24,13 @@ namespace demo
 {
     internal class History
     {
+        internal static Microsoft.Extensions.Logging.ILogger Logger;
+
         public static async Task Demo()
         {
             Console.WriteLine("\n\nhistory: Basic audio capture history texture visualization");
+
+            Program.ConfigureLogging(Logger);
 
             Console.WriteLine("\nDuring playback:\n");
             Console.WriteLine("ESC\tEnd program");
