@@ -26,9 +26,12 @@ namespace demo
             windowConfig.OpenTKNativeWindowSettings.Size = (960, 540);
             windowConfig.StartFullScreen = Program.StartFullScreen;
 
-            // remember Linux is case-sensitive...
-            windowConfig.VertexShaderPathname = "Vert/vertdemo.vert";
-            windowConfig.FragmentShaderPathname = "Vert/vertdemo.frag";
+            // This is done in the window constructor to demonstrate library-loading
+            //windowConfig.VertexShaderPathname = "Vert/vertdemo.vert";
+            //windowConfig.FragmentShaderPathname = "Vert/vertdemo.frag";
+
+            // Library-loading requires a newer OpenGL
+            windowConfig.OpenTKNativeWindowSettings.APIVersion = new Version(4, 6);
 
             var win = new VertWindow(windowConfig);
             win.Focus();

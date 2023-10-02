@@ -1,5 +1,5 @@
 ﻿using eyecandy;
-using OpenTK.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -18,8 +18,22 @@ namespace demo
         private Stopwatch Clock = new();
 
         public VertWindow(EyeCandyWindowConfig windowConfig)
-            : base(windowConfig)
+            : base(windowConfig, createShaderFromConfig: false)
         {
+            // remember Linux is case-sensitive...
+            var libraryShaderPathname = "Vert/vertdemo_library.vert";
+            var vertexShaderPathname = "Vert/vertdemo.vert";
+            var fragmentShaderPathname = "Vert/vertdemo.frag";
+
+            var library = new ShaderLibrary(libraryShaderPathname, type: ShaderType.VertexShader);
+            if (!library.IsValid) Environment.Exit(-1);
+
+            Shader = new(vertexShaderPathname, fragmentShaderPathname, library);
+            if (!Shader.IsValid) Environment.Exit(-1);
+
+            // in a real program, we could save this compiled library for use with multiple shaders
+            library.Dispose();
+
             VertexIds = new float[VertexCount];
             for (var i = 0; i < VertexCount; i++)
             {

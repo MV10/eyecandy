@@ -96,6 +96,8 @@ namespace eyecandy
         protected override void OnLoad()
         {
             base.OnLoad();
+            // newer OpenGL versions require this
+            GL.Enable(EnableCap.ProgramPointSize);
             GL.ClearColor(Configuration.BackgroundColor);
         }
 

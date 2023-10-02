@@ -200,6 +200,7 @@ namespace demo
         public new void Dispose()
         {
             base.Dispose();
+            Engine.EndAudioProcessing();
             Engine.Dispose();
         }
     }

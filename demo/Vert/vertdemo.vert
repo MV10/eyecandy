@@ -1,4 +1,4 @@
-#version 320 es
+#version 460
 
 layout (location = 0) in float vertexId;
 uniform vec2 resolution;
@@ -6,14 +6,8 @@ uniform float vertexCount;
 uniform float time;
 out vec4 v_color;
 
-// lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl
-vec3 hsv2rgb(vec3 c)
-{
-    c = vec3(c.x, clamp(c.yz, 0.0, 1.0));
-    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-}
+// Declaration; requires vertdemo_library.vert for function definition.
+vec3 hsv2rgb(vec3 c);
 
 void main()
 {

@@ -52,10 +52,13 @@
     <None Update="Modes\modes.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Vert\vertdemo.frag">
+    <None Update="Vert\vertdemo.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Vert\vertdemo.vert">
+    <None Update="Vert\vertdemo_library.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Vert\vertdemo.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Freq\freq.frag">
