@@ -110,7 +110,7 @@ namespace eyecandy
             ctsAudioProcessing.Cancel();
             using var ctsTimer = new CancellationTokenSource();
             ctsTimer.CancelAfter(timeoutMS);
-            while (IsCapturing && ctsTimer.IsCancellationRequested) Thread.Sleep(0);
+            while (IsCapturing && !ctsTimer.IsCancellationRequested) Thread.Sleep(0);
             return !ctsTimer.IsCancellationRequested;
         }
 
