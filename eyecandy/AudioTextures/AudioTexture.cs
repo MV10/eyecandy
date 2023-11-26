@@ -125,20 +125,23 @@ namespace eyecandy
 
             if (!Enabled) return;
 
-            GL.ActiveTexture(AssignedTextureUnit.ToTextureUnitEnum());
-            GL.BindTexture(TextureTarget.Texture2D, Handle);
-
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-
-            lock (ChannelBufferLock)
+            lock (AudioTextureEngine.GLTextureLock)
             {
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, PixelWidth, Rows, 0, PixelFormat.Rgba, PixelType.Float, ChannelBuffer);
-            }
+                GL.ActiveTexture(AssignedTextureUnit.ToTextureUnitEnum());
+                GL.BindTexture(TextureTarget.Texture2D, Handle);
 
-            ErrorLogging.OpenGLErrorCheck($"{GetType()}.{nameof(GenerateTexture)}");
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+
+                lock (ChannelBufferLock)
+                {
+                    GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, PixelWidth, Rows, 0, PixelFormat.Rgba, PixelType.Float, ChannelBuffer);
+                }
+
+                ErrorLogging.OpenGLErrorCheck($"{GetType()}.{nameof(GenerateTexture)}");
+            }
         }
 
         /// <summary>

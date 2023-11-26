@@ -16,6 +16,11 @@ namespace eyecandy
         public static readonly int RGBAPixelSize = 4;
 
         /// <summary>
+        /// Lock-section object for protecting access to GL texture-binding commands.
+        /// </summary>
+        public static object GLTextureLock = new();
+
+        /// <summary>
         /// When true, the engine is actively capturing and processing audio.
         /// </summary>
         public bool IsCapturing { get => (AudioProcessor?.IsCapturing ?? 0) == 1; }
@@ -321,6 +326,7 @@ namespace eyecandy
         }
         private bool IsDisposed = false;
 
+        /// <summary/>
         [Obsolete("Use the synchronous EndAudioProcessing method.")]
         public void EndAudioProcessing_SynchronousHack()
             => EndAudioProcessing();

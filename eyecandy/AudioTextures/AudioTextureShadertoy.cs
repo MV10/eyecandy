@@ -7,9 +7,9 @@ namespace eyecandy
     /// the frag shader sampler, use 0.25 and 0.75 to hit the middle of these rows.
     /// Shadertoy data is in the red channel (some code reads this via "x" instead),
     /// but these textures are RGBA and the data is in the green channel, as with all
-    /// other single-element eyecandy textures. Any SampleMultiplier is only applied
-    /// to the frequency data, the raw PCM data is not altered. Like the real Shadertoy
-    /// data, only half of the frequency data range is available (0-11025Hz).
+    /// other single-element eyecandy textures. Like the real Shadertoy data, only
+    /// half of the frequency data range is available (0-11025Hz). PCM wave data is
+    /// represented as a normalized (0.0 to 1.0) range, with 0.5 representing silence.
     /// </summary>
     public class AudioTextureShadertoy : AudioTexture
     {
@@ -47,7 +47,7 @@ namespace eyecandy
                     ChannelBuffer[y0green] = sample / (float)AudioCaptureProcessor.Configuration.NormalizeWebAudioPeak;
 
                     int y1green = y0green + BufferWidth;
-                    ChannelBuffer[y1green] = (float)audioBuffers.Wave[x] / (float)short.MaxValue;
+                    ChannelBuffer[y1green] = ((float)audioBuffers.Wave[x] / (float)short.MaxValue) / 2f + 0.5f;
                 }
             }
         }
