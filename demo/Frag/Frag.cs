@@ -24,8 +24,8 @@ namespace demo
 
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Fragment / Pixel Shader";
-            //windowConfig.OpenTKNativeWindowSettings.Size = (960, 540);
-            windowConfig.OpenTKNativeWindowSettings.Size = (640, 360); // match Shadertoy preview size for easy comparison
+            //windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
+            windowConfig.OpenTKNativeWindowSettings.ClientSize = (640, 360); // match Shadertoy preview size for easy comparison
             windowConfig.StartFullScreen = Program.StartFullScreen;
 
             // remember Linux is case-sensitive...

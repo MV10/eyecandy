@@ -28,7 +28,7 @@ namespace demo
 
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Decibels / WebAudio comparison";
-            windowConfig.OpenTKNativeWindowSettings.Size = (960, 540);
+            windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
             windowConfig.StartFullScreen = Program.StartFullScreen;
 
             // remember Linux is case-sensitive...

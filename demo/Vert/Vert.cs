@@ -23,7 +23,7 @@ namespace demo
 
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Vert Int-Stream Shader";
-            windowConfig.OpenTKNativeWindowSettings.Size = (960, 540);
+            windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
             windowConfig.StartFullScreen = Program.StartFullScreen;
 
             // This is done in the window constructor to demonstrate library-loading
