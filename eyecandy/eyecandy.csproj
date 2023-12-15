@@ -15,7 +15,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>eyecandy</PackageId>
-    <Version>2.0.6</Version>
+    <Version>2.0.7</Version>
     <Authors>Jon McGuire</Authors>
     <Product>eyecandy</Product>
     <Company>Mindmagma</Company>

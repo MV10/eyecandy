@@ -73,6 +73,10 @@ namespace demo
                     await Info.Demo();
                     break;
 
+                case "uniforms":
+                    await ResetUniforms.Demo();
+                    break;
+
                 case "logging":
                     Info.UseLogging = true;
                     await Info.Demo();
@@ -106,6 +110,7 @@ namespace demo
             Console.WriteLine("webaudio\tCompares WebAudio pseudo-Decibels to pure FFT Decibels");
             Console.WriteLine("modes\t\tDifferent OpenGL drawing modes (points, lines, tris, etc)");
             Console.WriteLine("info\t\tOpenAL information (devices, defaults, extensions, etc.)");
+            Console.WriteLine("uniforms\tTesting the Shader.ResetUniforms call");
             Console.WriteLine("logging\tWrites system details like \"info\" to demo.log");
 
             Console.WriteLine("\n[options]");

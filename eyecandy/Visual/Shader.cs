@@ -19,7 +19,7 @@ namespace eyecandy
         /// <summary>
         /// Querying uniforms is slow, so they are cached at startup.
         /// </summary>
-        public Dictionary<string, int> UniformLocations = new();
+        public Dictionary<string, Uniform> Uniforms;
 
         /// <summary>
         /// True if no load, compile, or link errors occurred.
@@ -160,12 +160,15 @@ namespace eyecandy
             // the SetUniform overrides ignore any uniform key-name not in the cache
             GL.GetProgram(Handle, GetProgramParameterName.ActiveUniforms, out var uniformCount);
             ErrorLogging.Logger?.LogDebug($"Shader constructor: {uniformCount} active uniforms reported");
+            Uniforms = new(uniformCount);
             for (var i = 0; i < uniformCount; i++)
             {
-                var key = GL.GetActiveUniform(Handle, i, out _, out _);
+                var key = GL.GetActiveUniform(Handle, i, out var size, out var type);
                 var location = GL.GetUniformLocation(Handle, key);
-                UniformLocations.Add(key, location);
-                ErrorLogging.Logger?.LogDebug($"Shader constructor: caching uniform {key} at location {location}");
+                var value = GetUniform(location, type);
+                var uniform = new Uniform(key, location, size, type, value);
+                Uniforms.Add(key, uniform);
+                ErrorLogging.Logger?.LogDebug($"Shader constructor: caching uniform {key} at location {location}, type {type}, default value {value}");
             }
 
             ErrorLogging.OpenGLErrorCheck($"{nameof(Shader)} ctor");
@@ -208,7 +211,7 @@ namespace eyecandy
         /// </summary>
         public void SetTexture(string name, int handle, int unit)
         {
-            if (!UniformLocations.ContainsKey(name))
+            if (!Uniforms.ContainsKey(name))
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
@@ -221,7 +224,7 @@ namespace eyecandy
 
             GL.ActiveTexture(unit.ToTextureUnitEnum());
             GL.BindTexture(TextureTarget.Texture2D, handle);
-            GL.Uniform1(UniformLocations[name], unit);
+            GL.Uniform1(Uniforms[name].Location, unit);
         }
 
         /// <summary>
@@ -229,7 +232,7 @@ namespace eyecandy
         /// </summary>
         public void SetUniform(string name, int data)
         {
-            if (!UniformLocations.ContainsKey(name))
+            if (!Uniforms.ContainsKey(name))
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
@@ -239,7 +242,7 @@ namespace eyecandy
                 return;
             }
             Use();
-            GL.Uniform1(UniformLocations[name], data);
+            GL.Uniform1(Uniforms[name].Location, data);
         }
 
         /// <summary>
@@ -247,7 +250,7 @@ namespace eyecandy
         /// </summary>
         public void SetUniform(string name, float data)
         {
-            if (!UniformLocations.ContainsKey(name))
+            if (!Uniforms.ContainsKey(name))
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
@@ -257,7 +260,7 @@ namespace eyecandy
                 return;
             }
             Use();
-            GL.Uniform1(UniformLocations[name], data);
+            GL.Uniform1(Uniforms[name].Location, data);
         }
 
         /// <summary>
@@ -265,7 +268,7 @@ namespace eyecandy
         /// </summary>
         public void SetUniform(string name, Matrix4 data)
         {
-            if (!UniformLocations.ContainsKey(name))
+            if (!Uniforms.ContainsKey(name))
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
@@ -275,7 +278,7 @@ namespace eyecandy
                 return;
             }
             Use();
-            GL.UniformMatrix4(UniformLocations[name], transpose: true, ref data);
+            GL.UniformMatrix4(Uniforms[name].Location, transpose: true, ref data);
         }
 
         /// <summary>
@@ -283,7 +286,7 @@ namespace eyecandy
         /// </summary>
         public void SetUniform(string name, Vector2 data)
         {
-            if (!UniformLocations.ContainsKey(name))
+            if (!Uniforms.ContainsKey(name))
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
@@ -293,7 +296,7 @@ namespace eyecandy
                 return;
             }
             Use();
-            GL.Uniform2(UniformLocations[name], data);
+            GL.Uniform2(Uniforms[name].Location, data);
         }
 
         /// <summary>
@@ -301,7 +304,7 @@ namespace eyecandy
         /// </summary>
         public void SetUniform(string name, Vector2i data)
         {
-            if (!UniformLocations.ContainsKey(name))
+            if (!Uniforms.ContainsKey(name))
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
@@ -311,7 +314,7 @@ namespace eyecandy
                 return;
             }
             Use();
-            GL.Uniform2(UniformLocations[name], data);
+            GL.Uniform2(Uniforms[name].Location, data);
         }
 
         /// <summary>
@@ -319,7 +322,7 @@ namespace eyecandy
         /// </summary>
         public void SetUniform(string name, Vector3 data)
         {
-            if (!UniformLocations.ContainsKey(name))
+            if (!Uniforms.ContainsKey(name))
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
@@ -329,7 +332,7 @@ namespace eyecandy
                 return;
             }
             Use();
-            GL.Uniform3(UniformLocations[name], data);
+            GL.Uniform3(Uniforms[name].Location, data);
         }
 
         /// <summary>
@@ -337,7 +340,7 @@ namespace eyecandy
         /// </summary>
         public void SetUniform(string name, Vector4 data)
         {
-            if (!UniformLocations.ContainsKey(name))
+            if (!Uniforms.ContainsKey(name))
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
@@ -347,7 +350,58 @@ namespace eyecandy
                 return;
             }
             Use();
-            GL.Uniform4(UniformLocations[name], data);
+            GL.Uniform4(Uniforms[name].Location, data);
+        }
+
+        /// <summary>
+        /// Retrieves the current value of a shader uniform. Currently only
+        /// float data types are supported by this functionality.
+        /// </summary>
+        public object GetUniform(string name)
+        {
+            if (!Uniforms.ContainsKey(name) || Uniforms[name].DataType != ActiveUniformType.Float) return null;
+            return GetUniform(Uniforms[name].Location, Uniforms[name].DataType);
+        }
+
+        /// <summary>
+        /// Retrieves the current value of a shader uniform. Currently only
+        /// float data types are supported by this functionality.
+        /// </summary>
+        public object GetUniform(int location, ActiveUniformType type)
+        {
+            switch(type)
+            {
+                case ActiveUniformType.Float:
+                    GL.GetUniform(Handle, location, out float f);
+                    return f;
+
+                default:
+                    return null;
+            }
+        }
+
+        /// <summary>
+        /// Resets uniforms to their original values loaded in the constructor after linking.
+        /// Currently only floats are supported.
+        /// </summary>
+        public void ResetUniforms()
+        {
+            foreach(var kvp in Uniforms)
+            {
+                var u = kvp.Value;
+                if(u.DefaultValue is not null)
+                {
+                    switch (u.DataType)
+                    {
+                        case ActiveUniformType.Float:
+                            SetUniform(u.Name, (float)u.DefaultValue);
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            }
         }
 
         /// <summary/>

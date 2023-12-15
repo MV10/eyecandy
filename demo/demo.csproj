@@ -52,6 +52,12 @@
     <None Update="Modes\modes.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="ResetUniforms\uniforms.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ResetUniforms\uniforms.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Vert\vertdemo.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
