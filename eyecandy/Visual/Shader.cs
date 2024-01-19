@@ -182,8 +182,13 @@ namespace eyecandy
             if (!IsValid || IsDisposed)
                 throw new InvalidOperationException($"{nameof(Shader)} is invalid (check log output or ErrorLogger properties), or has been disposed.");
 
-            GL.UseProgram(Handle);
+            if(ActiveShader != this)
+            {
+                GL.UseProgram(Handle);
+                ActiveShader = this;
+            }
         }
+        private static Shader ActiveShader;
 
         /// <summary>
         /// Returns the location handle for a given attribute.
@@ -412,6 +417,8 @@ namespace eyecandy
 
             ErrorLogging.Logger?.LogTrace($"  {GetType()}.Dispose() DeleteProgram for {SourceFiles}");
             GL.DeleteProgram(Handle);
+
+            if (ActiveShader == this) ActiveShader = null;
 
             IsDisposed = true;
             GC.SuppressFinalize(this);
