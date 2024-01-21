@@ -39,9 +39,10 @@ namespace eyecandy
         /// </summary>
         public Shader(string vertexPathname, string fragmentPathname, params ShaderLibrary[] libs)
         {
-            ErrorLogging.Logger?.LogDebug($"Shader constructor loading:\n  {vertexPathname}\n  {fragmentPathname}\n  {libs.Length} libraries");
-
             SourceFiles = $"{Path.GetFileName(vertexPathname)} / {Path.GetFileName(fragmentPathname)}";
+            var loggerInfo = $"{nameof(Shader)} ctor ({SourceFiles})";
+
+            ErrorLogging.Logger?.LogDebug($"{loggerInfo} loading with {libs.Length} libraries");
 
             int VertexShader = 0;
             int FragmentShader = 0;
@@ -52,7 +53,7 @@ namespace eyecandy
                 if(!lib.IsValid)
                 {
                     IsValid = false;
-                    ErrorLogging.LibraryError($"{nameof(Shader)} ctor Library Validation", $"Library {lib.Pathname} is not valid");
+                    ErrorLogging.LibraryError($"{loggerInfo} Library Validation", $"Library {lib.Pathname} is not valid");
                     return;
                 }
             }
@@ -66,12 +67,12 @@ namespace eyecandy
                 GL.ShaderSource(VertexShader, VertexShaderSource);
                 FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
                 GL.ShaderSource(FragmentShader, FragmentShaderSource);
-                ErrorLogging.Logger?.LogDebug($"Shader constructor: file-read completed");
+                ErrorLogging.Logger?.LogDebug($"{loggerInfo} file-read completed");
             }
             catch (Exception ex)
             {
                 IsValid = false;
-                ErrorLogging.LibraryError($"{nameof(Shader)} ctor Read File", $"{ex}: {ex.Message}");
+                ErrorLogging.LibraryError($"{loggerInfo} Read File", $"{ex}: {ex.Message}");
                 return;
             }
 
@@ -91,7 +92,7 @@ namespace eyecandy
                     GL.GetShader(VertexShader, ShaderParameter.CompileStatus, out int vertOk);
                     if (vertOk == 0)
                     {
-                        ErrorLogging.LibraryError($"{nameof(Shader)} ctor Compile Vert", GL.GetShaderInfoLog(VertexShader));
+                        ErrorLogging.LibraryError($"{loggerInfo} Compile Vert", GL.GetShaderInfoLog(VertexShader));
                         IsValid = false;
                         return;
                     }
@@ -100,7 +101,7 @@ namespace eyecandy
                     GL.GetShader(FragmentShader, ShaderParameter.CompileStatus, out int fragOk);
                     if (fragOk == 0)
                     {
-                        ErrorLogging.LibraryError($"{nameof(Shader)} ctor Compile Frag", GL.GetShaderInfoLog(FragmentShader));
+                        ErrorLogging.LibraryError($"{loggerInfo} Compile Frag", GL.GetShaderInfoLog(FragmentShader));
                         IsValid = false;
                         foreach (var lib in libs) GL.DetachShader(Handle, lib.Handle);
                         GL.DeleteProgram(Handle);
@@ -108,12 +109,12 @@ namespace eyecandy
                         return;
                     }
 
-                    ErrorLogging.Logger?.LogDebug($"Shader constructor: compilation completed");
+                    ErrorLogging.Logger?.LogDebug($"{loggerInfo} compilation completed");
                 }
                 catch (Exception ex)
                 {
                     IsValid = false;
-                    ErrorLogging.LibraryError($"{nameof(Shader)} ctor Compile", $"{ex}: {ex.Message}");
+                    ErrorLogging.LibraryError($"{loggerInfo} Compile", $"{ex}: {ex.Message}");
                     return;
                 }
 
@@ -125,15 +126,15 @@ namespace eyecandy
                     if (linkOk == 0)
                     {
                         IsValid = false;
-                        ErrorLogging.LibraryError($"{nameof(Shader)} ctor Linking", GL.GetProgramInfoLog(Handle));
+                        ErrorLogging.LibraryError($"{loggerInfo} Linking", GL.GetProgramInfoLog(Handle));
                         return;
                     }
-                    ErrorLogging.Logger?.LogDebug($"Shader constructor: linking completed");
+                    ErrorLogging.Logger?.LogDebug($"{loggerInfo} linking completed");
                 }
                 catch (Exception ex)
                 {
                     IsValid = false;
-                    ErrorLogging.LibraryError($"{nameof(Shader)} ctor Linking", $"{ex}: {ex.Message}");
+                    ErrorLogging.LibraryError($"{loggerInfo} Linking", $"{ex}: {ex.Message}");
                     return;
                 }
             }
@@ -159,7 +160,7 @@ namespace eyecandy
             // are not "active" and will not be listed even though they're declared, thus
             // the SetUniform overrides ignore any uniform key-name not in the cache
             GL.GetProgram(Handle, GetProgramParameterName.ActiveUniforms, out var uniformCount);
-            ErrorLogging.Logger?.LogDebug($"Shader constructor: {uniformCount} active uniforms reported");
+            ErrorLogging.Logger?.LogDebug($"{loggerInfo} {uniformCount} active uniforms reported");
             Uniforms = new(uniformCount);
             for (var i = 0; i < uniformCount; i++)
             {
@@ -168,10 +169,10 @@ namespace eyecandy
                 var value = GetUniform(location, type);
                 var uniform = new Uniform(key, location, size, type, value);
                 Uniforms.Add(key, uniform);
-                ErrorLogging.Logger?.LogDebug($"Shader constructor: caching uniform {key} at location {location}, type {type}, default value {value}");
+                ErrorLogging.Logger?.LogDebug($"{loggerInfo} caching uniform {key} at location {location}, type {type}, default value {value}");
             }
 
-            ErrorLogging.OpenGLErrorCheck($"{nameof(Shader)} ctor");
+            ErrorLogging.OpenGLErrorCheck(loggerInfo);
         }
 
         /// <summary>
