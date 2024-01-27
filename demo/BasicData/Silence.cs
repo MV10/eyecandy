@@ -16,7 +16,7 @@ namespace demo
     internal class Silence
     {
         static EyeCandyCaptureConfig config;
-        static AudioCaptureProcessor audio;
+        static AudioCaptureBase audio;
 
         static double nowRMSVolume = double.MinValue;
         static double minRMSVolume = double.MaxValue;
@@ -39,12 +39,10 @@ namespace demo
                 DetectSilence = true,
             };
 
-            audio = new AudioCaptureProcessor(config)
+            audio = AudioCaptureBase.Factory(config);
+            audio.Requirements = new()
             {
-                Requirements = new()
-                {
-                    CalculateVolumeRMS = true,
-                }
+                CalculateVolumeRMS = true,
             };
 
             var defaultThreshold = config.MaximumSilenceRMS;
@@ -72,15 +70,15 @@ namespace demo
                         break;
 
                     case ConsoleKey.UpArrow:
-                        AudioCaptureProcessor.Configuration.MaximumSilenceRMS += 0.25d;
+                        AudioCaptureBase.Configuration.MaximumSilenceRMS += 0.25d;
                         break;
 
                     case ConsoleKey.DownArrow:
-                        AudioCaptureProcessor.Configuration.MaximumSilenceRMS = Math.Min(0, AudioCaptureProcessor.Configuration.MaximumSilenceRMS - 0.25);
+                        AudioCaptureBase.Configuration.MaximumSilenceRMS = Math.Min(0, AudioCaptureBase.Configuration.MaximumSilenceRMS - 0.25);
                         break;
 
                     case ConsoleKey.Spacebar:
-                        AudioCaptureProcessor.Configuration.MaximumSilenceRMS = defaultThreshold;
+                        AudioCaptureBase.Configuration.MaximumSilenceRMS = defaultThreshold;
                         IsSilent = false;
                         SilenceStarted = DateTime.MaxValue;
                         SilenceEnded = DateTime.MinValue;
@@ -130,7 +128,7 @@ namespace demo
             Console.WriteLine($"Silence started:\t{(SilenceStarted == DateTime.MaxValue ? "(never)" : SilenceStarted)}");
             Console.WriteLine($"Silence ended:\t\t{(SilenceEnded == DateTime.MinValue ? (IsSilent ? "(ongoing)" : "(never)") : SilenceEnded)}");
             Console.WriteLine($"Silence duration:\t{(SilenceStarted == DateTime.MaxValue ? "(n/a)" : (SilenceEnded == DateTime.MinValue ? DateTime.Now.Subtract(SilenceStarted).TotalSeconds : SilenceEnded.Subtract(SilenceStarted).TotalSeconds))} sec.");
-            Console.WriteLine($"Silence RMS max (double):\t{AudioCaptureProcessor.Configuration.MaximumSilenceRMS,11:0.0000}");
+            Console.WriteLine($"Silence RMS max (double):\t{AudioCaptureBase.Configuration.MaximumSilenceRMS,11:0.0000}");
             Console.WriteLine($"RMS volume now (double):\t{nowRMSVolume,11:0.0000}");
             Console.WriteLine($"Min RMS volume (double):\t{minRMSVolume,11:0.0000}");
             Console.WriteLine($"Max RMS volume (double):\t{maxRMSVolume,11:0.0000}");

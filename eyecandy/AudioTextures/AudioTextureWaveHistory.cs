@@ -11,8 +11,8 @@ namespace eyecandy
         /// <inheritdoc/>
         public AudioTextureWaveHistory()
         {
-            PixelWidth = AudioCaptureProcessor.Configuration.SampleSize;
-            Rows = AudioCaptureProcessor.Configuration.HistorySize;
+            PixelWidth = AudioCaptureBase.Configuration.SampleSize;
+            Rows = AudioCaptureBase.Configuration.HistorySize;
         }
 
         /// <inheritdoc/>

@@ -31,6 +31,7 @@ namespace demo
             Console.WriteLine("\nPress spacebar to cycle through the modes.");
 
             var audioConfig = new EyeCandyCaptureConfig();
+            if (Program.WindowsUseOpenALSoft) audioConfig.LoopbackApi = LoopbackApi.OpenALSoft;
 
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: OpenGL Drawing Modes";

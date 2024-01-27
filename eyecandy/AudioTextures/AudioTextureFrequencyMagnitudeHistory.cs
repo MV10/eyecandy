@@ -10,8 +10,8 @@ namespace eyecandy
         /// <inheritdoc/>
         public AudioTextureFrequencyMagnitudeHistory()
         {
-            PixelWidth = AudioCaptureProcessor.Configuration.SampleSize;
-            Rows = AudioCaptureProcessor.Configuration.HistorySize;
+            PixelWidth = AudioCaptureBase.Configuration.SampleSize;
+            Rows = AudioCaptureBase.Configuration.HistorySize;
 
             FrequencyCalc = FrequencyAlgorithm.Magnitude;
         }
@@ -26,7 +26,7 @@ namespace eyecandy
                 for (int x = 0; x < PixelWidth; x++)
                 {
                     int green = (x * AudioTextureEngine.RGBAPixelSize) + 1;
-                    ChannelBuffer[green] = (float)audioBuffers.FrequencyMagnitude[x] / (float)AudioCaptureProcessor.Configuration.NormalizeFrequencyMagnitudePeak;
+                    ChannelBuffer[green] = (float)audioBuffers.FrequencyMagnitude[x] / (float)AudioCaptureBase.Configuration.NormalizeFrequencyMagnitudePeak;
                 }
             }
         }

@@ -13,7 +13,7 @@ namespace demo
     internal static class Peaks
     {
         static EyeCandyCaptureConfig config;
-        static AudioCaptureProcessor audio;
+        static AudioCaptureBase audio;
 
         static short minWave = short.MaxValue;
         static short maxWave = short.MinValue;
@@ -35,15 +35,13 @@ namespace demo
             Console.ReadKey(true);
 
             config = new EyeCandyCaptureConfig();
-            audio = new AudioCaptureProcessor(config)
+            audio = AudioCaptureBase.Factory(config);
+            audio.Requirements = new()
             {
-                Requirements = new()
-                {
-                    CalculateVolumeRMS = true,
-                    CalculateFFTMagnitude = true,
-                    CalculateFFTDecibels = true,
-                    CalculateFFTWebAudioDecibels = true,
-                }
+                CalculateVolumeRMS = true,
+                CalculateFFTMagnitude = true,
+                CalculateFFTDecibels = true,
+                CalculateFFTWebAudioDecibels = true,
             };
 
             Console.Clear();

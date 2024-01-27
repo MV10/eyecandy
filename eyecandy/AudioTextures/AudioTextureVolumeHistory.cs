@@ -14,7 +14,7 @@ namespace eyecandy
         public AudioTextureVolumeHistory()
         {
             PixelWidth = 1;
-            Rows = AudioCaptureProcessor.Configuration.HistorySize;
+            Rows = AudioCaptureBase.Configuration.HistorySize;
 
             VolumeCalc = VolumeAlgorithm.RMS;
         }
@@ -26,7 +26,7 @@ namespace eyecandy
             {
                 ScrollHistoryBuffer();
 
-                ChannelBuffer[GreenChannel] = (float)audioBuffers.RealtimeRMSVolume / (float)AudioCaptureProcessor.Configuration.NormalizeRMSVolumePeak;
+                ChannelBuffer[GreenChannel] = (float)audioBuffers.RealtimeRMSVolume / (float)AudioCaptureBase.Configuration.NormalizeRMSVolumePeak;
             }
         }
     }

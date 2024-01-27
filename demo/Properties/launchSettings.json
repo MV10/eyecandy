@@ -1,8 +1,7 @@
 {
   "profiles": {
     "demo": {
-      "commandName": "Project",
-      "commandLineArgs": "peaks"
+      "commandName": "Project"
     }
   }
 }

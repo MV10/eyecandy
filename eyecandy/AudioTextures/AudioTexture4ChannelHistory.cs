@@ -11,8 +11,8 @@ namespace eyecandy
         /// <inheritdoc/>
         public AudioTexture4ChannelHistory()
         {
-            PixelWidth = AudioCaptureProcessor.Configuration.SampleSize;
-            Rows = AudioCaptureProcessor.Configuration.HistorySize;
+            PixelWidth = AudioCaptureBase.Configuration.SampleSize;
+            Rows = AudioCaptureBase.Configuration.HistorySize;
 
             VolumeCalc = VolumeAlgorithm.All;
             FrequencyCalc = FrequencyAlgorithm.All;
@@ -30,16 +30,16 @@ namespace eyecandy
                     int chan = (x * AudioTextureEngine.RGBAPixelSize);
 
                     // Red - RMS volume
-                    ChannelBuffer[chan + 0] = (float)audioBuffers.RealtimeRMSVolume / (float)AudioCaptureProcessor.Configuration.NormalizeRMSVolumePeak;
+                    ChannelBuffer[chan + 0] = (float)audioBuffers.RealtimeRMSVolume / (float)AudioCaptureBase.Configuration.NormalizeRMSVolumePeak;
 
                     // Green - raw PCM wave
                     ChannelBuffer[chan + 1] = (float)audioBuffers.Wave[x] / (float)short.MaxValue;
 
                     // Blue - frequency magnitude
-                    ChannelBuffer[chan + 2] = (float)audioBuffers.FrequencyMagnitude[x] / (float)AudioCaptureProcessor.Configuration.NormalizeFrequencyMagnitudePeak;
+                    ChannelBuffer[chan + 2] = (float)audioBuffers.FrequencyMagnitude[x] / (float)AudioCaptureBase.Configuration.NormalizeFrequencyMagnitudePeak;
 
                     // Alpha - frequency decibels
-                    ChannelBuffer[chan + 3] = (float)audioBuffers.FrequencyDecibels[x] / (float)AudioCaptureProcessor.Configuration.NormalizeFrequencyDecibelsPeak;
+                    ChannelBuffer[chan + 3] = (float)audioBuffers.FrequencyDecibels[x] / (float)AudioCaptureBase.Configuration.NormalizeFrequencyDecibelsPeak;
                 }
             }
         }

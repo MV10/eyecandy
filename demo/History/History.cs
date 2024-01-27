@@ -42,6 +42,7 @@ namespace demo
             Console.WriteLine(" W\tWebAudio API (time-smooted decibel freq)");
 
             var audioConfig = new EyeCandyCaptureConfig();
+            if (Program.WindowsUseOpenALSoft) audioConfig.LoopbackApi = LoopbackApi.OpenALSoft;
 
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: History Textures";

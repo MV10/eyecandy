@@ -22,7 +22,7 @@ namespace demo
     internal class Text
     {
         static EyeCandyCaptureConfig config;
-        static AudioCaptureProcessor audio;
+        static AudioCaptureBase audio;
 
         static ConsoleKey key = ConsoleKey.W;
 
@@ -43,14 +43,12 @@ namespace demo
             Console.CursorVisible = false;
 
             config = new EyeCandyCaptureConfig();
-            audio = new AudioCaptureProcessor(config)
+            audio = AudioCaptureBase.Factory(config);
+            audio.Requirements = new()
             {
-                Requirements = new()
-                {
-                    CalculateVolumeRMS = true,
-                    CalculateFFTMagnitude = true,
-                    CalculateFFTDecibels = true,
-                }
+                CalculateVolumeRMS = true,
+                CalculateFFTMagnitude = true,
+                CalculateFFTDecibels = true,
             };
 
             var ctsAbortCapture = new CancellationTokenSource();

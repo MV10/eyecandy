@@ -21,6 +21,7 @@ namespace demo
             Console.WriteLine("\n\nfrag: A Shadertoy-like fragment / pixel shader");
 
             var audioConfig = new EyeCandyCaptureConfig();
+            if (Program.WindowsUseOpenALSoft) audioConfig.LoopbackApi = LoopbackApi.OpenALSoft;
 
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Fragment / Pixel Shader";
