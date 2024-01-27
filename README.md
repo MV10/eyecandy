@@ -1,7 +1,7 @@
 # eyecandy [![NuGet](https://img.shields.io/nuget/v/eyecandy.svg)](https://nuget.org/packages/eyecandy)
 **.NET library for processing audio playback as OpenGL textures**
 
-> Version 4.0 _does not_ require audio loopback drivers for Windows! Loopback is internal!
+> Version 3 _does not_ require audio loopback drivers for Windows! Loopback is internal!
 
 If you're interested in audio visualization similar to the old WinAmp plugins (Milkdrop!), or more recently, websites like [Shadertoy](https://www.shadertoy.com/) or [VertexShaderArt](https://www.vertexshaderart.com/), then you've come to the right place. Although this is a fully independent library, it is the foundation for the [monkey-hi-hat](https://github.com/MV10/monkey-hi-hat) music visualization application, and the accompanying shaders in my [Volt's Laboratory](https://github.com/MV10/volts-laboratory) repository.
 
