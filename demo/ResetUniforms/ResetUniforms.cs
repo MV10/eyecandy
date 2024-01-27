@@ -24,6 +24,7 @@ namespace demo
             Console.WriteLine("R\tReset uniform to the default value (0.5, center of screen)");
 
             var audioConfig = new EyeCandyCaptureConfig();
+            if (Program.WindowsUseOpenALSoft) audioConfig.LoopbackApi = LoopbackApi.OpenALSoft;
 
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Shader.ResetUniforms";

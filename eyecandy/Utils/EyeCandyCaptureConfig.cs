@@ -1,4 +1,6 @@
 ﻿
+using System.Runtime.InteropServices;
+
 namespace eyecandy
 {
     /// <summary>
@@ -7,6 +9,18 @@ namespace eyecandy
     public class EyeCandyCaptureConfig
     {
         /// <summary>
+        /// Controls how loopback audio is captured. WindowsInternal relies on the WASAPI multimedia layer.
+        /// OpenALSoft works on Windows or Linux, but requires external loopback support (a driver for Windows,
+        /// and manual OS configuration changes on Linux such as PulseAudio settings). Windows systems will
+        /// default to WindowsInternal, otherwise the default is OpenALSoft.
+        /// </summary>
+        public LoopbackApi LoopbackApi { get; set; } = 
+            (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            ? LoopbackApi.WindowsInternal
+            : LoopbackApi.OpenALSoft;
+
+        /// <summary>
+        /// Currently only supported for OpenAL-Soft. WindowsInternal will use the default.
         /// Provide a device name or leave it empty to use the default device. On Linux the
         /// device may not be available unless playback is already running. It may be possible
         /// to configure a capture device as permanently available (ie. set as the default).

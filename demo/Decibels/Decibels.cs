@@ -25,6 +25,7 @@ namespace demo
             Console.WriteLine("\n\nwebaudio: Real FFT dBs (top) vs. WebAudio smoothed pseudo-dBs (bottom)");
 
             var audioConfig = new EyeCandyCaptureConfig();
+            if (Program.WindowsUseOpenALSoft) audioConfig.LoopbackApi = LoopbackApi.OpenALSoft;
 
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Decibels / WebAudio comparison";

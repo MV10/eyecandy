@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
+using System.Runtime.InteropServices;
 
 namespace eyecandy
 {
@@ -53,7 +54,7 @@ namespace eyecandy
         private int MaximumTextureUnitNumber;
         private bool TextureHandlesInitialized = false;
 
-        private AudioCaptureProcessor AudioProcessor;
+        private AudioCaptureBase AudioProcessor;
         private Task AudioTask;
         private CancellationTokenSource ctsAudioProcessing;
 
@@ -64,16 +65,18 @@ namespace eyecandy
         /// </summary>
         public AudioTextureEngine(EyeCandyCaptureConfig configuration)
         {
+            if (configuration.LoopbackApi == LoopbackApi.WindowsInternal && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) 
+                throw new ArgumentException($"{nameof(EyeCandyCaptureConfig.LoopbackApi)} WASAPI can only be used with Windows");
+
             // Instead of requiring the library consumer to manage TextureUnit assignments, query the
             // driver for the highest possible TU count, and hard-assign AudioTexture types to TUs in
             // descending order. The TU assignment is cached by type, so if a texture is created,
             // destroyed, and later created again, it will get the same TU assignment.
             GL.GetInteger(GetPName.MaxCombinedTextureImageUnits, out MaximumTextureUnitNumber);
+            MaximumTextureUnitNumber -= 1; // TextureUnit is 0-based
 
-            // TextureUnit is 0-based
-            MaximumTextureUnitNumber = MaximumTextureUnitNumber - 1;
+            AudioProcessor = AudioCaptureBase.Factory(configuration);
 
-            AudioProcessor = new(configuration);
             ErrorLogging.Logger?.LogTrace($"AudioTextureEngine: constructor completed");
         }
 
@@ -285,7 +288,7 @@ namespace eyecandy
         {
             AudioProcessor.Requirements = new()
             {
-                CalculateVolumeRMS = AudioCaptureProcessor.Configuration.DetectSilence || Textures.Any(t => t.Value.VolumeCalc == VolumeAlgorithm.RMS || t.Value.VolumeCalc == VolumeAlgorithm.All),
+                CalculateVolumeRMS = AudioCaptureBase.Configuration.DetectSilence || Textures.Any(t => t.Value.VolumeCalc == VolumeAlgorithm.RMS || t.Value.VolumeCalc == VolumeAlgorithm.All),
                 CalculateFFTMagnitude = !Textures.All(t => t.Value.FrequencyCalc == FrequencyAlgorithm.NotApplicable),
                 CalculateFFTDecibels = Textures.Any(t => t.Value.FrequencyCalc == FrequencyAlgorithm.Decibels || t.Value.FrequencyCalc == FrequencyAlgorithm.All),
                 CalculateFFTWebAudioDecibels = Textures.Any(t => t.Value.FrequencyCalc == FrequencyAlgorithm.WebAudioDecibels || t.Value.FrequencyCalc == FrequencyAlgorithm.All),

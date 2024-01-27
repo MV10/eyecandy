@@ -57,6 +57,23 @@ namespace eyecandy
     }
 
     /// <summary>
+    /// Determines how loopback audio is processed.
+    /// </summary>
+    public enum LoopbackApi
+    {
+        /// <summary>
+        /// WindowsInternal is WASAPI loopback provided by NAudio.
+        /// </summary>
+        WindowsInternal = 0,
+
+        /// <summary>
+        /// OpenAL-Soft works on Windows or Linux but requires external loopback support
+        /// (a driver on Windows, or manual configuration on Linux such as PulseAudio).
+        /// </summary>
+        OpenALSoft = 1
+    }
+
+    /// <summary>
     /// Controls error logging for the library overall and OpenGL/OpenAL error-reporting.
     /// Errors are always written to an ILogger if one is provided via ErrorLogging.Logger.
     /// </summary>

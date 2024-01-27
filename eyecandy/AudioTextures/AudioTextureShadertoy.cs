@@ -16,7 +16,7 @@ namespace eyecandy
         /// <inheritdoc/>
         public AudioTextureShadertoy()
         {
-            PixelWidth = AudioCaptureProcessor.Configuration.SampleSize;
+            PixelWidth = AudioCaptureBase.Configuration.SampleSize;
             Rows = 2;
 
             FrequencyCalc = FrequencyAlgorithm.WebAudioDecibels;
@@ -44,7 +44,7 @@ namespace eyecandy
                     if (x % 2 == 1) sample = (sample + (float)audioBuffers.FrequencyWebAudio[halfX + 1]) / 2f;
 
                     int y0green = (x * AudioTextureEngine.RGBAPixelSize) + 1;
-                    ChannelBuffer[y0green] = sample / (float)AudioCaptureProcessor.Configuration.NormalizeWebAudioPeak;
+                    ChannelBuffer[y0green] = sample / (float)AudioCaptureBase.Configuration.NormalizeWebAudioPeak;
 
                     int y1green = y0green + BufferWidth;
                     ChannelBuffer[y1green] = ((float)audioBuffers.Wave[x] / (float)short.MaxValue) / 2f + 0.5f;

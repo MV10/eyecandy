@@ -1,12 +1,17 @@
 ﻿using eyecandy;
 using Serilog.Extensions.Logging;
 using Serilog;
+using Microsoft.VisualBasic;
 
 namespace demo
 {
     internal class Program
     {
         public static bool StartFullScreen = false;
+
+        public static bool WindowsUseOpenALSoft = false;
+
+        private static readonly StringComparison SC = StringComparison.InvariantCultureIgnoreCase;
 
         static async Task Main(string[] args)
         {
@@ -23,12 +28,17 @@ namespace demo
 
             if(args.Length == 2)
             {
-                StartFullScreen = args[1].Contains("F", StringComparison.InvariantCultureIgnoreCase);
-                if (args[1].Contains("P", StringComparison.InvariantCultureIgnoreCase)) Console.WriteLine($"\nPID {Environment.ProcessId}\n\n");
+                StartFullScreen = args[1].Contains("F", SC);
+                WindowsUseOpenALSoft = args[1].Contains("O", SC);
+                if (args[1].Contains("P", SC)) Console.WriteLine($"\nPID {Environment.ProcessId}\n\n");
             }
 
             switch (args[0].ToLower())
             {
+                case "info":
+                    await Info.Demo();
+                    break;
+
                 case "peaks":
                     await Peaks.Demo();
                     break;
@@ -69,10 +79,6 @@ namespace demo
                     await Modes.Demo();
                     break;
 
-                case "info":
-                    await Info.Demo();
-                    break;
-
                 case "uniforms":
                     await ResetUniforms.Demo();
                     break;
@@ -109,13 +115,15 @@ namespace demo
             Console.WriteLine("frag\t\tShadertoy-style pixel fragment shader");
             Console.WriteLine("webaudio\tCompares WebAudio pseudo-Decibels to pure FFT Decibels");
             Console.WriteLine("modes\t\tDifferent OpenGL drawing modes (points, lines, tris, etc)");
-            Console.WriteLine("info\t\tOpenAL information (devices, defaults, extensions, etc.)");
             Console.WriteLine("uniforms\tTesting the Shader.ResetUniforms call");
             Console.WriteLine("logging\tWrites system details like \"info\" to demo.log");
+            Console.WriteLine("\ninfo\t\tOpenAL information (devices, defaults, extensions, etc.)");
+            Console.WriteLine("\t\t(Windows requires a loopback driver; no WASAPI equivalent)");
 
             Console.WriteLine("\n[options]");
             Console.WriteLine("F\t\tFull-screen mode");
             Console.WriteLine("P\t\tOutput Process ID");
+            Console.WriteLine("O\t\tWindows: Capture audio with OpenAL-Soft instead of WASAPI");
         }
 
         public static void ConfigureLogging(Microsoft.Extensions.Logging.ILogger logger)

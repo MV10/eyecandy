@@ -17,6 +17,9 @@ namespace demo
 
         public static async Task Demo()
         {
+            Console.WriteLine("OpenAL Information (no equivalent available for Windows WASAPI)");
+            Console.WriteLine("---------------------------------------------------------------");
+
             if(UseLogging)
             {
                 Console.WriteLine("\n\nWriting device info to ./demo.log");

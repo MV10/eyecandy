@@ -47,10 +47,10 @@ namespace eyecandy
         /// </summary>
         public AudioData()
         {
-            Wave = new short[AudioCaptureProcessor.Configuration.SampleSize];
-            FrequencyMagnitude = new double[AudioCaptureProcessor.Configuration.SampleSize];
-            FrequencyDecibels = new double[AudioCaptureProcessor.Configuration.SampleSize];
-            FrequencyWebAudio = new double[AudioCaptureProcessor.Configuration.SampleSize];
+            Wave = new short[AudioCaptureBase.Configuration.SampleSize];
+            FrequencyMagnitude = new double[AudioCaptureBase.Configuration.SampleSize];
+            FrequencyDecibels = new double[AudioCaptureBase.Configuration.SampleSize];
+            FrequencyWebAudio = new double[AudioCaptureBase.Configuration.SampleSize];
         }
 
         /// <summary>
