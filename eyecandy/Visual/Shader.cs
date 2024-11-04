@@ -66,7 +66,9 @@ namespace eyecandy
                 VertexShader = GL.CreateShader(ShaderType.VertexShader);
                 GL.ShaderSource(VertexShader, VertexShaderSource);
                 FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+                ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after loading vertex shader source file");
                 GL.ShaderSource(FragmentShader, FragmentShaderSource);
+                ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after loading fragment shader source file");
                 ErrorLogging.Logger?.LogDebug($"{loggerInfo} file-read completed");
             }
             catch (Exception ex)
@@ -84,6 +86,7 @@ namespace eyecandy
                 foreach (var lib in libs) GL.AttachShader(Handle, lib.Handle);
                 GL.AttachShader(Handle, VertexShader);
                 GL.AttachShader(Handle, FragmentShader);
+                ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after program created and shaders attached");
 
                 // compile
                 try
@@ -117,6 +120,7 @@ namespace eyecandy
                     ErrorLogging.LibraryError($"{loggerInfo} Compile", $"{ex}: {ex.Message}");
                     return;
                 }
+                ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after compiling shader program");
 
                 // attach and link
                 try
@@ -137,6 +141,7 @@ namespace eyecandy
                     ErrorLogging.LibraryError($"{loggerInfo} Linking", $"{ex}: {ex.Message}");
                     return;
                 }
+                ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after linking programs");
             }
             finally
             {
@@ -155,6 +160,7 @@ namespace eyecandy
                     Handle = -1;
                 }
             }
+            ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after cleanup");
 
             // cache uniform locations; note that uniforms not used by the shader code
             // are not "active" and will not be listed even though they're declared, thus
@@ -171,8 +177,7 @@ namespace eyecandy
                 Uniforms.Add(key, uniform);
                 ErrorLogging.Logger?.LogDebug($"{loggerInfo} caching uniform {key} at location {location}, type {type}, default value {value}");
             }
-
-            ErrorLogging.OpenGLErrorCheck(loggerInfo);
+            ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after caching uniforms");
         }
 
         /// <summary>
