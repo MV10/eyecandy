@@ -15,7 +15,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>eyecandy</PackageId>
-    <Version>3.0.1</Version>
+    <Version>3.0.2</Version>
     <Authors>Jon McGuire</Authors>
     <Product>eyecandy</Product>
     <Company>Mindmagma</Company>
@@ -38,10 +38,10 @@
   </ItemGroup>
 
 	<ItemGroup>
-    <PackageReference Include="FftSharp" Version="2.1.0" />
+    <PackageReference Include="FftSharp" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="NAudio" Version="2.2.1" />
-    <PackageReference Include="OpenTK" Version="4.8.2" />
+    <PackageReference Include="OpenTK" Version="4.9.4" />
   </ItemGroup>
 
 </Project>
