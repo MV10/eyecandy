@@ -17,9 +17,12 @@ namespace eyecandy
         public static readonly int RGBAPixelSize = 4;
 
         /// <summary>
-        /// Lock-section object for protecting access to GL texture-binding commands.
+        /// Mutex synchronization name for threadsafe access to OpenGL texture update methods.
+        /// Library consumers that frequently update textures (such as Monkey Hi Hat's support
+        /// for video file playback into texture buffers) should use this to avoid OpenGL
+        /// conflicts with eyecandy's background thread texture processing.
         /// </summary>
-        public static object GLTextureLock = new();
+        public static readonly string GLTextureMutexName = "AudioTextureMutex";
 
         /// <summary>
         /// When true, the engine is actively capturing and processing audio.

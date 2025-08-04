@@ -73,6 +73,11 @@ namespace eyecandy
         public int BufferWidth;
 
         /// <summary>
+        /// Syncronization object for OpenGL texture operations.
+        /// </summary>
+        protected static readonly Mutex GLTextureMutex = new(false, AudioTextureEngine.GLTextureMutexName);
+
+        /// <summary>
         /// Lock-section object for protecting access during UpdateChannelBuffer and GenerateTexture calls.
         /// </summary>
         protected internal object ChannelBufferLock = new();
@@ -125,7 +130,8 @@ namespace eyecandy
 
             if (!Enabled) return;
 
-            lock (AudioTextureEngine.GLTextureLock)
+            GLTextureMutex.WaitOne();
+            try
             {
                 GL.ActiveTexture(AssignedTextureUnit.ToTextureUnitEnum());
                 GL.BindTexture(TextureTarget.Texture2D, Handle);
@@ -140,8 +146,14 @@ namespace eyecandy
                     GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, PixelWidth, Rows, 0, PixelFormat.Rgba, PixelType.Float, ChannelBuffer);
                 }
 
-                ErrorLogging.OpenGLErrorCheck($"{GetType()}.{nameof(GenerateTexture)}");
+                GL.BindTexture(TextureTarget.Texture2D, 0);
             }
+            finally
+            {
+                GLTextureMutex.ReleaseMutex();
+            }
+
+            ErrorLogging.OpenGLErrorCheck($"{GetType()}.{nameof(GenerateTexture)}");
         }
 
         /// <summary>
