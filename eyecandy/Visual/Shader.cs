@@ -53,7 +53,7 @@ namespace eyecandy
                 if(!lib.IsValid)
                 {
                     IsValid = false;
-                    ErrorLogging.LibraryError($"{loggerInfo} Library Validation", $"Library {lib.Pathname} is not valid");
+                    ErrorLogging.EyecandyError($"{loggerInfo} Library Validation", $"Library {lib.Pathname} is not valid");
                     return;
                 }
             }
@@ -74,7 +74,7 @@ namespace eyecandy
             catch (Exception ex)
             {
                 IsValid = false;
-                ErrorLogging.LibraryError($"{loggerInfo} Read File", $"{ex}: {ex.Message}");
+                ErrorLogging.EyecandyError($"{loggerInfo} Read File", $"{ex}: {ex.Message}");
                 return;
             }
 
@@ -95,7 +95,7 @@ namespace eyecandy
                     GL.GetShader(VertexShader, ShaderParameter.CompileStatus, out int vertOk);
                     if (vertOk == 0)
                     {
-                        ErrorLogging.LibraryError($"{loggerInfo} Compile Vert", GL.GetShaderInfoLog(VertexShader));
+                        ErrorLogging.EyecandyError($"{loggerInfo} Compile Vert", GL.GetShaderInfoLog(VertexShader));
                         IsValid = false;
                         return;
                     }
@@ -104,7 +104,7 @@ namespace eyecandy
                     GL.GetShader(FragmentShader, ShaderParameter.CompileStatus, out int fragOk);
                     if (fragOk == 0)
                     {
-                        ErrorLogging.LibraryError($"{loggerInfo} Compile Frag", GL.GetShaderInfoLog(FragmentShader));
+                        ErrorLogging.EyecandyError($"{loggerInfo} Compile Frag", GL.GetShaderInfoLog(FragmentShader));
                         IsValid = false;
                         foreach (var lib in libs) GL.DetachShader(Handle, lib.Handle);
                         GL.DeleteProgram(Handle);
@@ -117,7 +117,7 @@ namespace eyecandy
                 catch (Exception ex)
                 {
                     IsValid = false;
-                    ErrorLogging.LibraryError($"{loggerInfo} Compile", $"{ex}: {ex.Message}");
+                    ErrorLogging.EyecandyError($"{loggerInfo} Compile", $"{ex}: {ex.Message}");
                     return;
                 }
                 ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after compiling shader program");
@@ -130,7 +130,7 @@ namespace eyecandy
                     if (linkOk == 0)
                     {
                         IsValid = false;
-                        ErrorLogging.LibraryError($"{loggerInfo} Linking", GL.GetProgramInfoLog(Handle));
+                        ErrorLogging.EyecandyError($"{loggerInfo} Linking", GL.GetProgramInfoLog(Handle));
                         return;
                     }
                     ErrorLogging.Logger?.LogDebug($"{loggerInfo} linking completed");
@@ -138,7 +138,7 @@ namespace eyecandy
                 catch (Exception ex)
                 {
                     IsValid = false;
-                    ErrorLogging.LibraryError($"{loggerInfo} Linking", $"{ex}: {ex.Message}");
+                    ErrorLogging.EyecandyError($"{loggerInfo} Linking", $"{ex}: {ex.Message}");
                     return;
                 }
                 ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after linking programs");
@@ -226,7 +226,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{SourceFiles} {nameof(SetTexture)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                    ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetTexture)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -247,7 +247,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                    ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -265,7 +265,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                    ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -283,7 +283,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                    ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -301,7 +301,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                    ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -319,7 +319,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                    ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -337,7 +337,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                    ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
                     IgnoredUniformNames.Add(name);
                 }
                 return;
@@ -355,7 +355,7 @@ namespace eyecandy
             {
                 if (!IgnoredUniformNames.Contains(name))
                 {
-                    ErrorLogging.LibraryError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                    ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
                     IgnoredUniformNames.Add(name);
                 }
                 return;

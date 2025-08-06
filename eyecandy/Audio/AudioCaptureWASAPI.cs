@@ -29,7 +29,7 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
         ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureWASAPI)}: Capture starting");
         if (IsDisposed)
         {
-            ErrorLogging.LibraryError($"{nameof(AudioCaptureWASAPI)}.{nameof(Capture)}", "Aborting, object has been disposed", LogLevel.Error);
+            ErrorLogging.EyecandyError($"{nameof(AudioCaptureWASAPI)}.{nameof(Capture)}", "Aborting, object has been disposed", LogLevel.Error);
             return;
         }
 
@@ -123,7 +123,7 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
 
         if (IsCapturing == 1)
         {
-            ErrorLogging.LibraryError($"{nameof(AudioCaptureWASAPI)}.Dispose", "Dispose invoked before audio processing was terminated.");
+            ErrorLogging.EyecandyError($"{nameof(AudioCaptureWASAPI)}.Dispose", "Dispose invoked before audio processing was terminated.");
         }
 
         if(CaptureDevice is not null)

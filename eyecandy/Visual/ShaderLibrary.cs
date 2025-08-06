@@ -51,7 +51,7 @@ public class ShaderLibrary : IDisposable
         catch (Exception ex)
         {
             IsValid = false;
-            ErrorLogging.LibraryError($"{nameof(ShaderLibrary)} ctor Read File", $"{ex}: {ex.Message}");
+            ErrorLogging.EyecandyError($"{nameof(ShaderLibrary)} ctor Read File", $"{ex}: {ex.Message}");
             return;
         }
 
@@ -62,7 +62,7 @@ public class ShaderLibrary : IDisposable
             GL.GetShader(Handle, ShaderParameter.CompileStatus, out int ok);
             if (ok == 0)
             {
-                ErrorLogging.LibraryError($"{nameof(ShaderLibrary)} ctor Compile ", GL.GetShaderInfoLog(Handle));
+                ErrorLogging.EyecandyError($"{nameof(ShaderLibrary)} ctor Compile ", GL.GetShaderInfoLog(Handle));
                 IsValid = false;
                 return;
             }
@@ -72,7 +72,7 @@ public class ShaderLibrary : IDisposable
         catch (Exception ex)
         {
             IsValid = false;
-            ErrorLogging.LibraryError($"{nameof(ShaderLibrary)} ctor Compile", $"{ex}: {ex.Message}");
+            ErrorLogging.EyecandyError($"{nameof(ShaderLibrary)} ctor Compile", $"{ex}: {ex.Message}");
             return;
         }
     }
