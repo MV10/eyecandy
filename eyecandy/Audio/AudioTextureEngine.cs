@@ -92,13 +92,13 @@ namespace eyecandy
             ErrorLogging.Logger?.LogTrace($"AudioTextureEngine: BeginAudioProcessing");
             if(IsDisposed)
             {
-                ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.{nameof(BeginAudioProcessing)}", "Aborting, object has been disposed", LogLevel.Error);
+                ErrorLogging.EyecandyError($"{nameof(AudioTextureEngine)}.{nameof(BeginAudioProcessing)}", "Aborting, object has been disposed", LogLevel.Error);
                 return;
             }
 
             if (IsCapturing)
             {
-                ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.{nameof(BeginAudioProcessing)}", "Invoked but already capturing audio.", LogLevel.Warning);
+                ErrorLogging.EyecandyError($"{nameof(AudioTextureEngine)}.{nameof(BeginAudioProcessing)}", "Invoked but already capturing audio.", LogLevel.Warning);
                 return;
             }
             ctsAudioProcessing = new();
@@ -306,14 +306,14 @@ namespace eyecandy
 
             if (IsCapturing)
             {
-                ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.Dispose", "Dispose invoked before audio processing was terminated. Attempting to force termination.");
+                ErrorLogging.EyecandyError($"{nameof(AudioTextureEngine)}.Dispose", "Dispose invoked before audio processing was terminated. Attempting to force termination.");
                 try
                 {
-                    if(!EndAudioProcessing()) ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.Dispose", "Audio processing did not terminate within the default 1000ms timeout.");
+                    if(!EndAudioProcessing()) ErrorLogging.EyecandyError($"{nameof(AudioTextureEngine)}.Dispose", "Audio processing did not terminate within the default 1000ms timeout.");
                 }
                 catch (Exception ex)
                 {
-                    ErrorLogging.LibraryError($"{nameof(AudioTextureEngine)}.Dispose", $"{ex.GetType()}: {ex.Message}");
+                    ErrorLogging.EyecandyError($"{nameof(AudioTextureEngine)}.Dispose", $"{ex.GetType()}: {ex.Message}");
                 }
             }
 

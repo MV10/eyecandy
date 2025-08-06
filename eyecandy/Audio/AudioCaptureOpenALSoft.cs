@@ -27,7 +27,7 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
         ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureOpenALSoft)}: Capture starting");
         if (IsDisposed)
         {
-            ErrorLogging.LibraryError($"{nameof(AudioCaptureOpenALSoft)}.{nameof(Capture)}", "Aborting, object has been disposed", LogLevel.Error);
+            ErrorLogging.EyecandyError($"{nameof(AudioCaptureOpenALSoft)}.{nameof(Capture)}", "Aborting, object has been disposed", LogLevel.Error);
             return;
         }
 
@@ -107,7 +107,7 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
 
         if (IsCapturing == 1)
         {
-            ErrorLogging.LibraryError($"{nameof(AudioCaptureOpenALSoft)}.Dispose", "Dispose invoked before audio processing was terminated.");
+            ErrorLogging.EyecandyError($"{nameof(AudioCaptureOpenALSoft)}.Dispose", "Dispose invoked before audio processing was terminated.");
         }
 
         ErrorLogging.Logger?.LogTrace($"  {GetType()}.Dispose() ALC.CaptureCloseDevice");

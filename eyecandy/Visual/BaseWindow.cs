@@ -77,6 +77,8 @@ namespace eyecandy
 
         private bool IsDisposed = false;
 
+        private static DebugProcKhr DebugMessageDelegate = ErrorLogging.OpenGLErrorCallback;
+
         /// <summary>
         /// The constructor requries a configuration object. This object is stored and is accessible
         /// but should not be altered during program execution. Some settings are cached elsewhere
@@ -90,6 +92,10 @@ namespace eyecandy
             StartFullScreen = Configuration.StartFullScreen;
             HideMousePointer = Configuration.HideMousePointer;
             FPSBuffer = new int[AverageFPSTimeframeSeconds];
+
+            GL.Enable(EnableCap.DebugOutput);
+            GL.Enable(EnableCap.DebugOutputSynchronous);
+            GL.Khr.DebugMessageCallback(DebugMessageDelegate, IntPtr.Zero);
         }
 
         /// <inheritdoc/>
@@ -140,9 +146,10 @@ namespace eyecandy
 
             if (!Shader.IsValid && Configuration.ExitOnInvalidShader)
             {
-                ErrorLogging.LibraryError($"{nameof(eyecandy)} {nameof(BaseWindow)}.{nameof(SetShader)}", $"Terminating, {nameof(Configuration.ExitOnInvalidShader)} is true.");
+                ErrorLogging.EyecandyError($"{nameof(eyecandy)} {nameof(BaseWindow)}.{nameof(SetShader)}", $"Terminating, {nameof(Configuration.ExitOnInvalidShader)} is true.");
                 ErrorLogging.WriteToConsole();
                 Shader.Dispose();
+                Thread.Sleep(250);
                 Environment.Exit(-1);
             }
         }

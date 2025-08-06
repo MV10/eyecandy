@@ -64,7 +64,7 @@ namespace demo
             GL.VertexAttribPointer(locationTexCoords, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
             //                                        ^ tex coords is 2 floats                 ^ 5 per row        ^ 4th and 5th float in each row
 
-            ErrorLogging.OpenGLErrorCheck($"{nameof(UniformsWindow)}.{OnLoad}");
+            //ErrorLogging.OpenGLErrorCheck($"{nameof(UniformsWindow)}.{OnLoad}");
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -78,7 +78,7 @@ namespace demo
 
             SwapBuffers();
 
-            ErrorLogging.OpenGLErrorCheck($"{nameof(UniformsWindow)}.{OnRenderFrame}");
+            //ErrorLogging.OpenGLErrorCheck($"{nameof(UniformsWindow)}.{OnRenderFrame}");
 
             CalculateFPS();
         }
