@@ -33,4 +33,5 @@ info            OpenAL information (devices, defaults, extensions, etc.)
 F               Full-screen mode
 P               Output Process ID
 O               Windows: Capture audio with OpenAL-Soft instead of WASAPI
+E               Simulate OpenGL errors (currently only \"freq\" does this)
 ```

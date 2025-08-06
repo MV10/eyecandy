@@ -5,17 +5,17 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Title>eyecandy</Title>
-    <Description>.NET library for processing OpenAL audio captures as OpenGL textures </Description>
+    <Description>.NET library for processing audio data as OpenGL textures </Description>
     <PackageProjectUrl>https://github.com/MV10/eyecandy</PackageProjectUrl>
     <PackageIcon></PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/MV10/eyecandy</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>.NET;OpenGL;OpenAL;OpenTK;visualization</PackageTags>
+    <PackageTags>visualization;milkdrop;OpenGL;WASAPI;NAudio;OpenAL;OpenTK;.NET</PackageTags>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>eyecandy</PackageId>
-    <Version>3.1.0</Version>
+    <Version>3.2.0</Version>
     <Authors>Jon McGuire</Authors>
     <Product>eyecandy</Product>
     <Company>Mindmagma</Company>
