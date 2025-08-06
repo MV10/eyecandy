@@ -153,7 +153,7 @@ namespace eyecandy
                 GLTextureMutex.ReleaseMutex();
             }
 
-            ErrorLogging.OpenGLErrorCheck($"{GetType()}.{nameof(GenerateTexture)}");
+            //ErrorLogging.OpenGLErrorCheck($"{GetType()}.{nameof(GenerateTexture)}");
         }
 
         /// <summary>

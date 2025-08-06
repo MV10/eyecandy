@@ -10,7 +10,9 @@ namespace demo
 
         public static bool WindowsUseOpenALSoft = false;
 
-        private static readonly StringComparison SC = StringComparison.InvariantCultureIgnoreCase;
+        public static bool SimulateOpenGLErrors = false;
+
+        private static readonly StringComparison IgnoreCase = StringComparison.InvariantCultureIgnoreCase;
 
         internal static Microsoft.Extensions.Logging.ILogger Logger;
 
@@ -29,9 +31,10 @@ namespace demo
 
             if(args.Length == 2)
             {
-                StartFullScreen = args[1].Contains("F", SC);
-                WindowsUseOpenALSoft = args[1].Contains("O", SC);
-                if (args[1].Contains("P", SC)) Console.WriteLine($"\nPID {Environment.ProcessId}\n\n");
+                StartFullScreen = args[1].Contains("F", IgnoreCase);
+                WindowsUseOpenALSoft = args[1].Contains("O", IgnoreCase);
+                SimulateOpenGLErrors = args[1].Contains("E", IgnoreCase);
+                if (args[1].Contains("P", IgnoreCase)) Console.WriteLine($"\nPID {Environment.ProcessId}\n\n");
             }
 
             ConfigureLogging(Logger);
@@ -127,10 +130,19 @@ namespace demo
             Console.WriteLine("F\t\tFull-screen mode");
             Console.WriteLine("P\t\tOutput Process ID");
             Console.WriteLine("O\t\tWindows: Capture audio with OpenAL-Soft instead of WASAPI");
+            Console.WriteLine("E\t\tSimulate OpenGL errors (currently only \"freq\" does this)");
         }
 
         public static void ConfigureLogging(Microsoft.Extensions.Logging.ILogger logger)
         {
+            // If the library consumer has already prepared logging, just use that
+            if(logger is not null)
+            {
+                Log.Logger = (ILogger)logger;
+                ErrorLogging.Logger = logger;
+                return;
+            }
+
             var logPath = Path.GetFullPath("./demo.log");
             if (File.Exists(logPath)) File.Delete(logPath);
 

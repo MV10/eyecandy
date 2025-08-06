@@ -76,6 +76,8 @@ namespace demo
 
             SwapBuffers();
             CalculateFPS();
+
+            if (Program.SimulateOpenGLErrors) GL.BindFramebuffer(0, 0);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)

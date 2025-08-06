@@ -37,11 +37,23 @@ namespace eyecandy
         /// </summary>
         public static List<string> EyecandyErrors = new();
 
+        // These are widely recognized as unimportant "noise" messages when the OpenGL
+        // Debug Message error callback is wired up. For example:
+        // https://deccer.github.io/OpenGL-Getting-Started/02-debugging/02-debug-callback/
+        private static readonly List<int> IgnoredErrorCallbackIDs =
+        [
+            0,              // gl{Push,Pop}DebugGroup calls
+            131169, 131185, // NVIDIA buffer allocated to use video memory
+            131218, 131204, // texture cannot be used for texture mapping
+            131222, 131154, // NVIDIA pixel transfer is syncrhonized with 3D rendering
+        ];
+
         /// <summary>
         /// True if either OpenGL or OpenAL errors have been collected.
         /// </summary>
         public static bool HasErrors = (OpenGLErrors.Count > 0 || OpenALErrors.Count > 0 || EyecandyErrors.Count > 0);
 
+        [Obsolete("GL.GetError calls are no longer needed since the KHR DebugMessageCallback is in use.")]
         /// <summary>
         /// Writes or stores outstanding OpenGL error messages (depending on the StoreErrors flag).
         /// </summary>
@@ -106,22 +118,22 @@ namespace eyecandy
             LogMessage(logLevel, message);
         }
 
+        // This is wired up in the BaseWindow constructor
         internal static void OpenGLErrorCallback(
-            DebugSource source,     // prefix GL_DEBUG_SOURCE_* ... API, WINDOW_SYSTEM, SHADER_COMPILER, THIRD_PARTY, APPLICATION, OTHER
-            DebugType type,         // prefix GL_DEBUG_TYPE_* ... ERROR, DEPRECATED_BEHAVIOR, UNDEFINED_BEHAVIOR, PORTABILITY, PERFORMANCE, MARKER, OTHER
-            int id,                 // ID associated with the message (driver specific)
-            DebugSeverity severity, // prefix GL_DEBUG_SEVERITY_* ... NOTIFICATION, LOW, MEDIUM, HIGH ... (others defined too?)
+            DebugSource source,     // API, WINDOW_SYSTEM, SHADER_COMPILER, THIRD_PARTY, APPLICATION, OTHER
+            DebugType type,         // ERROR, DEPRECATED_BEHAVIOR, UNDEFINED_BEHAVIOR, PORTABILITY, PERFORMANCE, MARKER, OTHER
+            int id,                 // ID associated with the message (driver specific; see IgnoredErrorCallbackIDs list above)
+            DebugSeverity severity, // NOTIFICATION, LOW, MEDIUM, HIGH ... (others defined too?)
             int length,             // length of the string in pMessage
             IntPtr pMessage,        // pointer to message string
             IntPtr pUserParam)      // not used here
         {
-            // ignore the noise; for example, 131185 is an NVIDIA "buffer created successfully" code
-            if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+            if (IgnoredErrorCallbackIDs.Contains(id)) return;
 
             var message = Marshal.PtrToStringAnsi(pMessage, length);
-            var errSource = source.ToString().Substring("GL_DEBUG_SOURCE_".Length);
-            var errType = type.ToString().Substring("GL_DEBUG_TYPE_".Length);
-            var errSev = severity.ToString().Substring("GL_DEBUG_SEVERITY_".Length);
+            var errSource = source.ToString().Substring("DebugSource".Length);
+            var errType = type.ToString().Substring("DebugType".Length);
+            var errSev = severity.ToString().Substring("DebugSeverity".Length);
             var stack = new StackTrace(true).ToString();
 
             var logMessage = $"OpenGL Error:\n[{errSev}] source={errSource} type={errType} id={id}\n{message}\n{stack}";
@@ -130,13 +142,10 @@ namespace eyecandy
             switch(severity)
             {
                 case DebugSeverity.DebugSeverityHigh:
-                    logLevel = LogLevel.Critical;
-                    break;
-
-                case DebugSeverity.DebugSeverityMedium:
                     logLevel = LogLevel.Error;
                     break;
 
+                case DebugSeverity.DebugSeverityMedium:
                 case DebugSeverity.DebugSeverityLow:
                     logLevel = LogLevel.Warning;
                     break;

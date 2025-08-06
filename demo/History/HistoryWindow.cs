@@ -75,7 +75,7 @@ namespace demo
             GL.VertexAttribPointer(locationTexCoords, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
             //                                        ^ tex coords is 2 floats                 ^ 5 per row        ^ 4th and 5th float in each row
 
-            ErrorLogging.OpenGLErrorCheck($"{nameof(HistoryWindow)}.{OnLoad}");
+            //ErrorLogging.OpenGLErrorCheck($"{nameof(HistoryWindow)}.{OnLoad}");
 
             Engine.BeginAudioProcessing();
         }
@@ -132,7 +132,7 @@ namespace demo
 
             SwapBuffers();
 
-            ErrorLogging.OpenGLErrorCheck($"{nameof(HistoryWindow)}.{OnRenderFrame}");
+            //ErrorLogging.OpenGLErrorCheck($"{nameof(HistoryWindow)}.{OnRenderFrame}");
 
             CalculateFPS();
         }
