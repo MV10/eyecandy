@@ -1,7 +1,6 @@
 ﻿using eyecandy;
 using Serilog.Extensions.Logging;
 using Serilog;
-using Microsoft.VisualBasic;
 
 namespace demo
 {
@@ -12,6 +11,8 @@ namespace demo
         public static bool WindowsUseOpenALSoft = false;
 
         private static readonly StringComparison SC = StringComparison.InvariantCultureIgnoreCase;
+
+        internal static Microsoft.Extensions.Logging.ILogger Logger;
 
         static async Task Main(string[] args)
         {
@@ -32,6 +33,8 @@ namespace demo
                 WindowsUseOpenALSoft = args[1].Contains("O", SC);
                 if (args[1].Contains("P", SC)) Console.WriteLine($"\nPID {Environment.ProcessId}\n\n");
             }
+
+            ConfigureLogging(Logger);
 
             switch (args[0].ToLower())
             {

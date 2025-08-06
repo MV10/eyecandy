@@ -2,10 +2,9 @@
 using eyecandy; // for error logging only
 
 using OpenTK.Audio.OpenAL;
-using Serilog;
-using Serilog.Extensions.Logging;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace demo
 {
@@ -13,18 +12,12 @@ namespace demo
     {
         public static bool UseLogging = false;
 
-        private static Microsoft.Extensions.Logging.ILogger Logger;
-
         public static async Task Demo()
         {
             Console.WriteLine("OpenAL Information (no equivalent available for Windows WASAPI)");
             Console.WriteLine("---------------------------------------------------------------");
 
-            if(UseLogging)
-            {
-                Console.WriteLine("\n\nWriting device info to ./demo.log");
-                Program.ConfigureLogging(Logger);
-            }
+            if(UseLogging) Console.WriteLine("\n\nWriting device info to ./demo.log");
 
             var devices = ALC.GetStringList(GetEnumerationStringList.DeviceSpecifier);
             Output($"\n\nDrivers:\n  {string.Join("\n  ", devices)}");
@@ -207,7 +200,7 @@ namespace demo
         {
             if (UseLogging)
             {
-                Logger.LogInformation(message);
+                Log.Logger?.Information(message);
             }
             else
             {

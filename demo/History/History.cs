@@ -24,13 +24,9 @@ namespace demo
 {
     internal class History
     {
-        internal static Microsoft.Extensions.Logging.ILogger Logger;
-
         public static async Task Demo()
         {
             Console.WriteLine("\n\nhistory: Basic audio capture history texture visualization");
-
-            Program.ConfigureLogging(Logger);
 
             Console.WriteLine("\nDuring playback:\n");
             Console.WriteLine("ESC\tEnd program");
