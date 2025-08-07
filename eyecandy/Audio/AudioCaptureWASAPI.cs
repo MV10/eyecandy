@@ -78,14 +78,14 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
         // largest possible buffer size, so the scaling is calculated dynamically.
 
         // First and last output elements are identical to source
-        Buffers.Wave[0] = source[0];
-        Buffers.Wave[Buffers.Wave.Length - 1] = source[source.Length - 1];
+        InternalBuffers.Wave[0] = source[0];
+        InternalBuffers.Wave[InternalBuffers.Wave.Length - 1] = source[source.Length - 1];
 
         // The step rate through the source array to produce destination array values
-        double interval = (double)source.Length / (double)Buffers.Wave.Length;
+        double interval = (double)source.Length / (double)InternalBuffers.Wave.Length;
 
         // Calculate 2nd through N-1 destination values
-        for (int i = 1; i < Buffers.Wave.Length - 1; i++)
+        for (int i = 1; i < InternalBuffers.Wave.Length - 1; i++)
         {
             // A pseudo-index value in the source array; for example, 2.375
             // represents source array element [2] added to 0.375 times the
@@ -101,7 +101,7 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
             if (frac == 0 || baseindex + 1 == source.Length)
             {
                 // Exactly aligned with a source array element
-                Buffers.Wave[i] = source[baseindex];
+                InternalBuffers.Wave[i] = source[baseindex];
             }
             else
             {
@@ -110,7 +110,7 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
                 double interpolated = diff * frac;
 
                 // Add that variance to the starting element value
-                Buffers.Wave[i] = (short)((double)source[baseindex] + interpolated);
+                InternalBuffers.Wave[i] = (short)((double)source[baseindex] + interpolated);
             }
         }
     }
