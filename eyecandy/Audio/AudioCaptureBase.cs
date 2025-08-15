@@ -16,10 +16,25 @@ public abstract class AudioCaptureBase : IDisposable
     /// </summary>
     public static AudioCaptureBase Factory(EyeCandyCaptureConfig configuration)
     {
-        return (configuration.LoopbackApi == LoopbackApi.OpenALSoft)
-            ? new AudioCaptureOpenALSoft(configuration)
-            : new AudioCaptureWASAPI(configuration);
+        switch(configuration.LoopbackApi)
+        {
+            case LoopbackApi.OpenALSoft:
+                return new AudioCaptureOpenALSoft(configuration);
+
+            case LoopbackApi.Metronome:
+                return new AudioCaptureMetronome(configuration);
+
+            default:
+                return new AudioCaptureWASAPI(configuration);
+        }
     }
+
+    /// <summary>
+    /// Returns a concrete instance of the AudioCaptureBase implementation that generates
+    /// fake data which is primarily used when silence is detected.
+    /// </summary>
+    public static AudioCaptureBase SyntheticDataFactory(EyeCandyCaptureConfig configuration)
+        => new AudioCaptureMetronome(configuration);
 
     /// <summary>
     /// Fixed stereo sample rate, 44.1kHz is equivalent to CD audio.
@@ -72,7 +87,7 @@ public abstract class AudioCaptureBase : IDisposable
     /// but should not be altered during program execution. Some settings are cached elsewhere
     /// for performance and/or thread-safety considerations and would not be updated.
     /// </summary>
-    public AudioCaptureBase(EyeCandyCaptureConfig configuration)
+    protected AudioCaptureBase(EyeCandyCaptureConfig configuration)
     {
         Configuration = configuration;
 
@@ -85,6 +100,11 @@ public abstract class AudioCaptureBase : IDisposable
         BufferFFTSource = new double[SampleSize * 2];
         BufferWebAudioSmoothing = new double[SampleSize];
         BufferRMSVolume = new int[RmsBufferLength];
+
+        if(Configuration.ReplaceSilence && this is not AudioCaptureMetronome)
+        {
+            // TODO create a metronome object but don't start it until silence is detected
+        }
 
         ErrorLogging.Logger?.LogTrace($"AudioCaptureProcessor: constructor completed");
     }
@@ -99,15 +119,21 @@ public abstract class AudioCaptureBase : IDisposable
     // Before calling, implementations should override and fill PCM into InternalBuffers.Wave[]
     private protected virtual void ProcessSamples()
     {
-        // Frequency is a windowed FFT of 2X PCM sample sets; decibels and WebAudio are
-        // derived from the FFT magnitude calculations
-        if (Requirements.CalculateFFTMagnitude) ProcessFrequency();
+        // Tell the world about our hot fresh new data
+        InternalBuffers.Timestamp = DateTime.Now;
 
         // Volume is RMS of previous 300ms of PCM data
         if (Requirements.CalculateVolumeRMS) ProcessVolume();
 
-        // Tell the world about our hot fresh new data
-        InternalBuffers.Timestamp = DateTime.Now;
+        // TODO if synthetic data should replace silence, shortcut to that Capture instead of processing FFT data
+        if(IsSilent && Configuration.ReplaceSilence)
+        {
+            return;
+        }
+
+        // Frequency is a windowed FFT of 2X PCM sample sets; decibels and WebAudio are
+        // derived from the FFT magnitude calculations
+        if (Requirements.CalculateFFTMagnitude) ProcessFrequency();
     }
 
     private void ProcessFrequency()
@@ -191,7 +217,8 @@ public abstract class AudioCaptureBase : IDisposable
         }
     }
 
-    private void ProcessVolume()
+    // Protected rather than private because AudioCaptureSyntheticData.ProcessSamples has to call it
+    protected void ProcessVolume()
     {
         // Currently only RMS volume is supported.
         for (int i = 0; i < SampleSize; i++)

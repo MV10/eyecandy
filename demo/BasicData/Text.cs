@@ -43,6 +43,9 @@ namespace demo
             Console.CursorVisible = false;
 
             config = new EyeCandyCaptureConfig();
+
+            if (Program.UseMetronome) config.LoopbackApi = LoopbackApi.Metronome;
+
             audio = AudioCaptureBase.Factory(config);
             audio.Requirements = new()
             {

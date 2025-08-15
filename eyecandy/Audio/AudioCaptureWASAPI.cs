@@ -40,6 +40,7 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
         while (!cancellationToken.IsCancellationRequested)
         {
             // do nothing, sample-handling is event-driven
+            Thread.Sleep(0); // see Capture in OpenALSoft version for the reason to use this
         }
 
         ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureWASAPI)}: Capture ending");

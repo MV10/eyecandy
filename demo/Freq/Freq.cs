@@ -25,8 +25,11 @@ namespace demo
             Console.WriteLine("\n\nfreq: Simple audio-reactive shader driven by Frequency and Volume history");
             Console.WriteLine("\n\nPress Enter to toggle between history-scroll and frequency-wave shaders...");
 
-            var audioConfig = new EyeCandyCaptureConfig();
-            if (Program.WindowsUseOpenALSoft) audioConfig.LoopbackApi = LoopbackApi.OpenALSoft;
+            var config = new EyeCandyCaptureConfig();
+
+            if (Program.UseMetronome) config.LoopbackApi = LoopbackApi.Metronome;
+
+            if (Program.WindowsUseOpenALSoft) config.LoopbackApi = LoopbackApi.OpenALSoft;
 
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Bass Frequency and Volume";
@@ -37,7 +40,7 @@ namespace demo
             windowConfig.VertexShaderPathname = "Freq/freq_scroll.vert";
             windowConfig.FragmentShaderPathname = "Freq/freq.frag";
 
-            var win = new FreqWindow(windowConfig, audioConfig);
+            var win = new FreqWindow(windowConfig, config);
             win.Focus();
             win.Run();
             win.Dispose();

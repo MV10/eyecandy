@@ -20,8 +20,11 @@ namespace demo
         {
             Console.WriteLine("\n\nwave: Simple audio-reactive shader driven by raw PCM wave audio data");
 
-            var audioConfig = new EyeCandyCaptureConfig();
-            if (Program.WindowsUseOpenALSoft) audioConfig.LoopbackApi = LoopbackApi.OpenALSoft;
+            var config = new EyeCandyCaptureConfig();
+
+            if (Program.UseMetronome) config.LoopbackApi = LoopbackApi.Metronome;
+
+            if (Program.WindowsUseOpenALSoft) config.LoopbackApi = LoopbackApi.OpenALSoft;
 
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Raw PCM Wave Audio";
@@ -32,7 +35,7 @@ namespace demo
             windowConfig.VertexShaderPathname = "Wave/wave.vert";
             windowConfig.FragmentShaderPathname = "Wave/wave.frag";
 
-            var win = new WaveWindow(windowConfig, audioConfig);
+            var win = new WaveWindow(windowConfig, config);
             win.Focus();
             win.Run();
             win.Dispose();

@@ -20,8 +20,11 @@ namespace demo
         {
             Console.WriteLine("\n\nfrag: A Shadertoy-like fragment / pixel shader");
 
-            var audioConfig = new EyeCandyCaptureConfig();
-            if (Program.WindowsUseOpenALSoft) audioConfig.LoopbackApi = LoopbackApi.OpenALSoft;
+            var config = new EyeCandyCaptureConfig();
+
+            if (Program.UseMetronome) config.LoopbackApi = LoopbackApi.Metronome;
+
+            if (Program.WindowsUseOpenALSoft) config.LoopbackApi = LoopbackApi.OpenALSoft;
 
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Fragment / Pixel Shader";
@@ -33,7 +36,7 @@ namespace demo
             windowConfig.VertexShaderPathname = "Frag/frag.vert";
             windowConfig.FragmentShaderPathname = "Frag/frag.frag";
 
-            var win = new FragWindow(windowConfig, audioConfig);
+            var win = new FragWindow(windowConfig, config);
             win.Focus();
             win.Run();
             win.Dispose();

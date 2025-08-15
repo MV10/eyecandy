@@ -37,8 +37,11 @@ namespace demo
             Console.WriteLine(" 4\tCombined 4ch buffer");
             Console.WriteLine(" W\tWebAudio API (time-smooted decibel freq)");
 
-            var audioConfig = new EyeCandyCaptureConfig();
-            if (Program.WindowsUseOpenALSoft) audioConfig.LoopbackApi = LoopbackApi.OpenALSoft;
+            var config = new EyeCandyCaptureConfig();
+
+            if (Program.UseMetronome) config.LoopbackApi = LoopbackApi.Metronome;
+
+            if (Program.WindowsUseOpenALSoft) config.LoopbackApi = LoopbackApi.OpenALSoft;
 
             var windowConfig = new EyeCandyWindowConfig();
             windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: History Textures";
@@ -49,7 +52,7 @@ namespace demo
             windowConfig.VertexShaderPathname = "History/history.vert";
             windowConfig.FragmentShaderPathname = "History/history.frag";
 
-            var win = new HistoryWindow(windowConfig, audioConfig);
+            var win = new HistoryWindow(windowConfig, config);
             win.Focus();
             win.Run();
             win.Dispose();

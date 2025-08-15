@@ -92,5 +92,32 @@ namespace eyecandy
         /// Maximum RMS volume for slience-detection.
         /// </summary>
         public double MaximumSilenceRMS { get; set; } = 1.5;
+
+        /// <summary>
+        /// If true and DetectSilence is true, synthetic data is generated when silence
+        /// is detected. This can help some visualizer shaders that will fail to generate
+        /// any output during periods of silence.
+        /// </summary>
+        public bool ReplaceSilence { get; set; } = false;
+
+        /// <summary>
+        /// Beats per minute for the metronome synthetic data generator.
+        /// </summary>
+        public double MetronomeBPM { get; set; } = 120;
+
+        /// <summary>
+        /// Duration in seconds of the metronome's synthetic beat.
+        /// </summary>
+        public double MetronomeBeatDuration { get; set; } = 0.1;
+
+        /// <summary>
+        /// Frequency in Hz of the metronome's synthetic beat.
+        /// </summary>
+        public double MetronomeBeatFrequency { get; set; } = 440;
+
+        /// <summary>
+        /// Amplitude for the mentronome's synthetic wave samples.
+        /// </summary>
+        public double MetronomeAmplitude { get; set; } = 0.5;
     }
 }

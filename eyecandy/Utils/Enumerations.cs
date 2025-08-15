@@ -70,7 +70,12 @@ namespace eyecandy
         /// OpenAL-Soft works on Windows or Linux but requires external loopback support
         /// (a driver on Windows, or manual configuration on Linux such as PulseAudio).
         /// </summary>
-        OpenALSoft = 1
+        OpenALSoft = 1,
+
+        /// <summary>
+        /// Metronome generates synthetic data with timings provided by NAudio.
+        /// </summary>
+        Metronome = 3,
     }
 
     /// <summary>

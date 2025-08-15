@@ -12,6 +12,8 @@ namespace demo
 
         public static bool SimulateOpenGLErrors = false;
 
+        public static bool UseMetronome = false;
+
         private static readonly StringComparison IgnoreCase = StringComparison.InvariantCultureIgnoreCase;
 
         internal static Microsoft.Extensions.Logging.ILogger Logger;
@@ -34,6 +36,7 @@ namespace demo
                 StartFullScreen = args[1].Contains("F", IgnoreCase);
                 WindowsUseOpenALSoft = args[1].Contains("O", IgnoreCase);
                 SimulateOpenGLErrors = args[1].Contains("E", IgnoreCase);
+                UseMetronome = args[1].Contains("M", IgnoreCase);
                 if (args[1].Contains("P", IgnoreCase)) Console.WriteLine($"\nPID {Environment.ProcessId}\n\n");
             }
 
@@ -131,6 +134,7 @@ namespace demo
             Console.WriteLine("P\t\tOutput Process ID");
             Console.WriteLine("O\t\tWindows: Capture audio with OpenAL-Soft instead of WASAPI");
             Console.WriteLine("E\t\tSimulate OpenGL errors (currently only \"freq\" does this)");
+            Console.WriteLine("M\t\tGenerate fake data with the Metronome audio data source");
         }
 
         public static void ConfigureLogging(Microsoft.Extensions.Logging.ILogger logger)

@@ -35,6 +35,9 @@ namespace demo
             Console.ReadKey(true);
 
             config = new EyeCandyCaptureConfig();
+
+            if (Program.UseMetronome) config.LoopbackApi = LoopbackApi.Metronome;
+
             audio = AudioCaptureBase.Factory(config);
             audio.Requirements = new()
             {
