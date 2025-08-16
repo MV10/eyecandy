@@ -13,30 +13,29 @@ https://www.studio1productions.com/Articles/16x9-Resolution.htm
 
 */
 
-namespace demo
+namespace demo;
+
+internal class Vert
 {
-    internal class Vert
+    public static async Task Demo()
     {
-        public static async Task Demo()
-        {
-            Console.WriteLine("\n\nvert: Simple vertex-only integer-stream shader (no audio support)");
+        Console.WriteLine("\n\nvert: Simple vertex-only integer-stream shader (no audio support)");
 
-            var windowConfig = new EyeCandyWindowConfig();
-            windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Vert Int-Stream Shader";
-            windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
-            windowConfig.StartFullScreen = Program.StartFullScreen;
+        var windowConfig = new EyeCandyWindowConfig();
+        windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Vert Int-Stream Shader";
+        windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
+        windowConfig.StartFullScreen = Program.StartFullScreen;
 
-            // This is done in the window constructor to demonstrate library-loading
-            //windowConfig.VertexShaderPathname = "Vert/vertdemo.vert";
-            //windowConfig.FragmentShaderPathname = "Vert/vertdemo.frag";
+        // This is done in the window constructor to demonstrate library-loading
+        //windowConfig.VertexShaderPathname = "Vert/vertdemo.vert";
+        //windowConfig.FragmentShaderPathname = "Vert/vertdemo.frag";
 
-            // Library-loading requires a newer OpenGL
-            windowConfig.OpenTKNativeWindowSettings.APIVersion = new Version(4, 6);
+        // Library-loading requires a newer OpenGL
+        windowConfig.OpenTKNativeWindowSettings.APIVersion = new Version(4, 6);
 
-            var win = new VertWindow(windowConfig);
-            win.Focus();
-            win.Run();
-            win.Dispose();
-        }
+        var win = new VertWindow(windowConfig);
+        win.Focus();
+        win.Run();
+        win.Dispose();
     }
 }

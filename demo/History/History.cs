@@ -20,42 +20,41 @@ https://www.studio1productions.com/Articles/16x9-Resolution.htm
 
 */
 
-namespace demo
+namespace demo;
+
+internal class History
 {
-    internal class History
+    public static async Task Demo()
     {
-        public static async Task Demo()
-        {
-            Console.WriteLine("\n\nhistory: Basic audio capture history texture visualization");
+        Console.WriteLine("\n\nhistory: Basic audio capture history texture visualization");
 
-            Console.WriteLine("\nDuring playback:\n");
-            Console.WriteLine("ESC\tEnd program");
-            Console.WriteLine(" P\tRaw PCM wave data");
-            Console.WriteLine(" V\tRMS volume (realtime)");
-            Console.WriteLine(" F\tFrequency magnitude");
-            Console.WriteLine(" D\tFrequency decibels");
-            Console.WriteLine(" 4\tCombined 4ch buffer");
-            Console.WriteLine(" W\tWebAudio API (time-smooted decibel freq)");
+        Console.WriteLine("\nDuring playback:\n");
+        Console.WriteLine("ESC\tEnd program");
+        Console.WriteLine(" P\tRaw PCM wave data");
+        Console.WriteLine(" V\tRMS volume (realtime)");
+        Console.WriteLine(" F\tFrequency magnitude");
+        Console.WriteLine(" D\tFrequency decibels");
+        Console.WriteLine(" 4\tCombined 4ch buffer");
+        Console.WriteLine(" W\tWebAudio API (time-smooted decibel freq)");
 
-            var config = new EyeCandyCaptureConfig();
+        var config = new EyeCandyCaptureConfig();
 
-            if (Program.UseSyntheticData) config.LoopbackApi = LoopbackApi.SyntheticData;
+        if (Program.UseSyntheticData) config.LoopbackApi = LoopbackApi.SyntheticData;
 
-            if (Program.WindowsUseOpenALSoft) config.LoopbackApi = LoopbackApi.OpenALSoft;
+        if (Program.WindowsUseOpenALSoft) config.LoopbackApi = LoopbackApi.OpenALSoft;
 
-            var windowConfig = new EyeCandyWindowConfig();
-            windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: History Textures";
-            windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
-            windowConfig.StartFullScreen = Program.StartFullScreen;
+        var windowConfig = new EyeCandyWindowConfig();
+        windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: History Textures";
+        windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
+        windowConfig.StartFullScreen = Program.StartFullScreen;
 
-            // remember Linux is case-sensitive...
-            windowConfig.VertexShaderPathname = "History/history.vert";
-            windowConfig.FragmentShaderPathname = "History/history.frag";
+        // remember Linux is case-sensitive...
+        windowConfig.VertexShaderPathname = "History/history.vert";
+        windowConfig.FragmentShaderPathname = "History/history.frag";
 
-            var win = new HistoryWindow(windowConfig, config);
-            win.Focus();
-            win.Run();
-            win.Dispose();
-        }
+        var win = new HistoryWindow(windowConfig, config);
+        win.Focus();
+        win.Run();
+        win.Dispose();
     }
 }

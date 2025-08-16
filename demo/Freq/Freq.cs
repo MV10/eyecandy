@@ -16,34 +16,33 @@ https://www.studio1productions.com/Articles/16x9-Resolution.htm
 
 */
 
-namespace demo
+namespace demo;
+
+internal class Freq
 {
-    internal class Freq
+    public static async Task Demo()
     {
-        public static async Task Demo()
-        {
-            Console.WriteLine("\n\nfreq: Simple audio-reactive shader driven by Frequency and Volume history");
-            Console.WriteLine("\n\nPress Enter to toggle between history-scroll and frequency-wave shaders...");
+        Console.WriteLine("\n\nfreq: Simple audio-reactive shader driven by Frequency and Volume history");
+        Console.WriteLine("\n\nPress Enter to toggle between history-scroll and frequency-wave shaders...");
 
-            var config = new EyeCandyCaptureConfig();
+        var config = new EyeCandyCaptureConfig();
 
-            if (Program.UseSyntheticData) config.LoopbackApi = LoopbackApi.SyntheticData;
+        if (Program.UseSyntheticData) config.LoopbackApi = LoopbackApi.SyntheticData;
 
-            if (Program.WindowsUseOpenALSoft) config.LoopbackApi = LoopbackApi.OpenALSoft;
+        if (Program.WindowsUseOpenALSoft) config.LoopbackApi = LoopbackApi.OpenALSoft;
 
-            var windowConfig = new EyeCandyWindowConfig();
-            windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Bass Frequency and Volume";
-            windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
-            windowConfig.StartFullScreen = Program.StartFullScreen;
+        var windowConfig = new EyeCandyWindowConfig();
+        windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Bass Frequency and Volume";
+        windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
+        windowConfig.StartFullScreen = Program.StartFullScreen;
 
-            // remember Linux is case-sensitive...
-            windowConfig.VertexShaderPathname = "Freq/freq_scroll.vert";
-            windowConfig.FragmentShaderPathname = "Freq/freq.frag";
+        // remember Linux is case-sensitive...
+        windowConfig.VertexShaderPathname = "Freq/freq_scroll.vert";
+        windowConfig.FragmentShaderPathname = "Freq/freq.frag";
 
-            var win = new FreqWindow(windowConfig, config);
-            win.Focus();
-            win.Run();
-            win.Dispose();
-        }
+        var win = new FreqWindow(windowConfig, config);
+        win.Focus();
+        win.Run();
+        win.Dispose();
     }
 }
