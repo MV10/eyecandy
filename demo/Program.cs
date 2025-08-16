@@ -12,7 +12,7 @@ namespace demo
 
         public static bool SimulateOpenGLErrors = false;
 
-        public static bool UseMetronome = false;
+        public static bool UseSyntheticData = false;
 
         private static readonly StringComparison IgnoreCase = StringComparison.InvariantCultureIgnoreCase;
 
@@ -31,13 +31,14 @@ namespace demo
             // For demo purposes, force all error output to the console.
             ErrorLogging.Strategy = LoggingStrategy.AlwaysOutputToConsole;
 
-            if(args.Length == 2)
+            Console.WriteLine($"\nPID {Environment.ProcessId}\n\n");
+
+            if (args.Length == 2)
             {
                 StartFullScreen = args[1].Contains("F", IgnoreCase);
-                WindowsUseOpenALSoft = args[1].Contains("O", IgnoreCase);
                 SimulateOpenGLErrors = args[1].Contains("E", IgnoreCase);
-                UseMetronome = args[1].Contains("M", IgnoreCase);
-                if (args[1].Contains("P", IgnoreCase)) Console.WriteLine($"\nPID {Environment.ProcessId}\n\n");
+                UseSyntheticData = args[1].Contains("S", IgnoreCase);
+                WindowsUseOpenALSoft = args[1].Contains("O", IgnoreCase);
             }
 
             ConfigureLogging(Logger);
@@ -131,10 +132,9 @@ namespace demo
 
             Console.WriteLine("\n[options]");
             Console.WriteLine("F\t\tFull-screen mode");
-            Console.WriteLine("P\t\tOutput Process ID");
-            Console.WriteLine("O\t\tWindows: Capture audio with OpenAL-Soft instead of WASAPI");
             Console.WriteLine("E\t\tSimulate OpenGL errors (currently only \"freq\" does this)");
-            Console.WriteLine("M\t\tGenerate fake data with the Metronome audio data source");
+            Console.WriteLine("S\t\tSimulate audio with the SyntheticData wave sample source");
+            Console.WriteLine("O\t\tWindows: Capture audio with OpenAL-Soft instead of WASAPI");
         }
 
         public static void ConfigureLogging(Microsoft.Extensions.Logging.ILogger logger)

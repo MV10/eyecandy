@@ -21,8 +21,8 @@ public abstract class AudioCaptureBase : IDisposable
             case LoopbackApi.OpenALSoft:
                 return new AudioCaptureOpenALSoft(configuration);
 
-            case LoopbackApi.Metronome:
-                return new AudioCaptureMetronome(configuration);
+            case LoopbackApi.SyntheticData:
+                return new AudioCaptureSyntheticData(configuration);
 
             default:
                 return new AudioCaptureWASAPI(configuration);
@@ -34,7 +34,7 @@ public abstract class AudioCaptureBase : IDisposable
     /// fake data which is primarily used when silence is detected.
     /// </summary>
     public static AudioCaptureBase SyntheticDataFactory(EyeCandyCaptureConfig configuration)
-        => new AudioCaptureMetronome(configuration);
+        => new AudioCaptureSyntheticData(configuration);
 
     /// <summary>
     /// Fixed stereo sample rate, 44.1kHz is equivalent to CD audio.
@@ -73,6 +73,8 @@ public abstract class AudioCaptureBase : IDisposable
     // private copy because we frequently read it inside another thread in the Capture method
     private protected int SampleSize;
 
+    private protected Action NewAudioDataCallback;
+
     private double[] BufferFFTSource;
     private double[] BufferWebAudioSmoothing;
     private int[] BufferRMSVolume;
@@ -81,6 +83,9 @@ public abstract class AudioCaptureBase : IDisposable
 
     private bool IsSilent = false;
     private DateTime SilenceStarted = DateTime.MaxValue;
+    private bool UsingSyntheticData = false;
+    private AudioCaptureSyntheticData SyntheticData;
+    private CancellationTokenSource ctsSynthetic;
 
     /// <summary>
     /// The constructor requries a configuration object. This object is stored and is accessible
@@ -101,9 +106,9 @@ public abstract class AudioCaptureBase : IDisposable
         BufferWebAudioSmoothing = new double[SampleSize];
         BufferRMSVolume = new int[RmsBufferLength];
 
-        if(Configuration.ReplaceSilence && this is not AudioCaptureMetronome)
+        if(Configuration.ReplaceSilence && this is not AudioCaptureSyntheticData)
         {
-            // TODO create a metronome object but don't start it until silence is detected
+            SyntheticData = new(configuration);
         }
 
         ErrorLogging.Logger?.LogTrace($"AudioCaptureProcessor: constructor completed");
@@ -114,7 +119,10 @@ public abstract class AudioCaptureBase : IDisposable
     /// When the CancellationToken is canceled to end processing, the caller should await the
     /// Task.Run to ensure shutdown is completed.
     /// </summary>
-    public abstract void Capture(Action newAudioDataCallback, CancellationToken cancellationToken);
+    public virtual void Capture(Action newAudioDataCallback, CancellationToken cancellationToken)
+    {
+        NewAudioDataCallback = newAudioDataCallback;
+    }
 
     // Before calling, implementations should override and fill PCM into InternalBuffers.Wave[]
     private protected virtual void ProcessSamples()
@@ -125,9 +133,23 @@ public abstract class AudioCaptureBase : IDisposable
         // Volume is RMS of previous 300ms of PCM data
         if (Requirements.CalculateVolumeRMS) ProcessVolume();
 
-        // TODO if synthetic data should replace silence, shortcut to that Capture instead of processing FFT data
+        // Stop synthetic data?
+        if(UsingSyntheticData && !IsSilent)
+        {
+            ctsSynthetic.Cancel();
+            UsingSyntheticData = false;
+        }
+
+        // Start synthetic data and/or skip FFT during silence?
         if(IsSilent && Configuration.ReplaceSilence)
         {
+            if(!UsingSyntheticData)
+            {
+                UsingSyntheticData = true;
+                ctsSynthetic = CancellationTokenFactory.GetCancellationTokenSource();
+                _ = Task.Run(() => { SyntheticData.Capture(NewAudioDataCallback, ctsSynthetic.Token); });
+            }
+
             return;
         }
 
@@ -258,5 +280,15 @@ public abstract class AudioCaptureBase : IDisposable
     }
 
     /// <inheritdoc/>
-    public abstract void Dispose();
+    public virtual void Dispose()
+    {
+        if (IsDisposed) return;
+        ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
+
+        CancellationTokenFactory.DisposeAll();
+
+        IsDisposed = true;
+        GC.SuppressFinalize(this);
+    }
+    private bool IsDisposed = false;
 }

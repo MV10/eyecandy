@@ -39,7 +39,7 @@ namespace demo
 
             var config = new EyeCandyCaptureConfig();
 
-            if (Program.UseMetronome) config.LoopbackApi = LoopbackApi.Metronome;
+            if (Program.UseSyntheticData) config.LoopbackApi = LoopbackApi.SyntheticData;
 
             if (Program.WindowsUseOpenALSoft) config.LoopbackApi = LoopbackApi.OpenALSoft;
 

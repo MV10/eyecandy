@@ -12,7 +12,6 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
     private static readonly int CaptureBufferMillisec = 23;
 
     private WindowsLoopbackWrapper CaptureDevice;
-    private Action NewAudioDataCallback;
 
     /// <inheritdoc/>
     public AudioCaptureWASAPI(EyeCandyCaptureConfig configuration)
@@ -33,7 +32,7 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
             return;
         }
 
-        NewAudioDataCallback = newAudioDataCallback;
+        base.Capture(newAudioDataCallback, cancellationToken);
 
         Interlocked.Exchange(ref IsCapturing, 1);
         CaptureDevice.StartRecording();
@@ -135,6 +134,8 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
         }
 
         NewAudioDataCallback = null;
+
+        base.Dispose();
 
         IsDisposed = true;
         GC.SuppressFinalize(this);

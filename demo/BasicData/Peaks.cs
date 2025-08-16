@@ -36,7 +36,7 @@ namespace demo
 
             config = new EyeCandyCaptureConfig();
 
-            if (Program.UseMetronome) config.LoopbackApi = LoopbackApi.Metronome;
+            if (Program.UseSyntheticData) config.LoopbackApi = LoopbackApi.SyntheticData;
 
             audio = AudioCaptureBase.Factory(config);
             audio.Requirements = new()

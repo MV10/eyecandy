@@ -10,7 +10,7 @@ namespace eyecandy;
 /// or development purposes (the easiest way is to simply not play audio, but it
 /// should also work to wire it up directly as the primary capture source).
 /// </summary>
-public class AudioCaptureMetronome : AudioCaptureBase, ISampleProvider, IDisposable
+public class AudioCaptureSyntheticData : AudioCaptureBase, ISampleProvider, IDisposable
 {
     /// <inheritdoc/>
     public WaveFormat WaveFormat { get => NAudioWaveFormat; }
@@ -24,38 +24,37 @@ public class AudioCaptureMetronome : AudioCaptureBase, ISampleProvider, IDisposa
     private int SampleIndex;
 
     private WaveOutEvent WaveOut;
-    private Action NewAudioDataCallback;
 
     /// <inheritdoc/>
-    public AudioCaptureMetronome(EyeCandyCaptureConfig configuration)
+    public AudioCaptureSyntheticData(EyeCandyCaptureConfig configuration)
     : base(configuration)
     {
         NAudioWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(SampleRate, 1); // 1 = Mono
 
         BufferSize = configuration.SampleSize;
-        SamplesPerBeat = (int)(60.0 / configuration.MetronomeBPM * SampleRate);
-        BeatSampleLength = (int)(configuration.MetronomeBeatDuration * SampleRate);
-        Amplitude = configuration.MetronomeAmplitude;
-        Frequency = configuration.MetronomeBeatFrequency;
+        SamplesPerBeat = (int)(60.0 / configuration.SyntheticDataBPM * SampleRate);
+        BeatSampleLength = (int)(configuration.SyntheticDataBeatDuration * SampleRate);
+        Amplitude = configuration.SyntheticDataAmplitude;
+        Frequency = configuration.SyntheticDataBeatFrequency;
 
         SampleIndex = 0;
 
         WaveOut = new();
-        WaveOut.Volume = 0; // we want the data, but we don't want to hear it...
+        WaveOut.Volume = Math.Clamp(configuration.SyntheticDataPlaybackVolume, 0, 1);
         WaveOut.Init(this);
     }
 
     /// <inheritdoc/>
     public override void Capture(Action newAudioDataCallback, CancellationToken cancellationToken)
     {
-        ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureMetronome)}: Capture starting");
+        ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureSyntheticData)}: Capture starting");
         if (IsDisposed)
         {
-            ErrorLogging.EyecandyError($"{nameof(AudioCaptureMetronome)}.{nameof(Capture)}", "Aborting, object has been disposed", LogLevel.Error);
+            ErrorLogging.EyecandyError($"{nameof(AudioCaptureSyntheticData)}.{nameof(Capture)}", "Aborting, object has been disposed", LogLevel.Error);
             return;
         }
 
-        NewAudioDataCallback = newAudioDataCallback;
+        base.Capture(newAudioDataCallback, cancellationToken);
 
         Interlocked.Exchange(ref IsCapturing, 1);
         WaveOut.Play();
@@ -66,7 +65,7 @@ public class AudioCaptureMetronome : AudioCaptureBase, ISampleProvider, IDisposa
             Thread.Sleep(0); // see Capture in OpenALSoft version for the reason to use this
         }
 
-        ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureMetronome)}: Capture ending");
+        ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureSyntheticData)}: Capture ending");
 
         Interlocked.Exchange(ref IsCapturing, 0);
         WaveOut.Stop();
@@ -79,6 +78,16 @@ public class AudioCaptureMetronome : AudioCaptureBase, ISampleProvider, IDisposa
     /// <inheritdoc/>
     public int Read(float[] buffer, int offset, int count)
     {
+        switch(Configuration.SyntheticAlgorithm)
+        {
+            case SyntheticDataAlgorithm.MetronomeBeat:
+            default:
+                return GenerateMetronomeData(buffer, offset, count);
+        }
+    }
+
+    private int GenerateMetronomeData(float[] buffer, int offset, int count)
+    {
         for (int i = 0; i < count; i++)
         {
             int currentBeatSample = SampleIndex % SamplesPerBeat;
@@ -86,7 +95,7 @@ public class AudioCaptureMetronome : AudioCaptureBase, ISampleProvider, IDisposa
 
             float sample = isBeatActive
                 ? (float)(Amplitude * Math.Sin(2 * Math.PI * Frequency * SampleIndex / SampleRate))
-                : 0.0f;
+                : Configuration.SyntheticDataMinimumLevel;
 
             buffer[offset + i] = sample;
 
@@ -102,8 +111,7 @@ public class AudioCaptureMetronome : AudioCaptureBase, ISampleProvider, IDisposa
             }
 
             SampleIndex++;
-            if (SampleIndex >= SamplesPerBeat)
-                SampleIndex = 0;
+            if (SampleIndex >= SamplesPerBeat) SampleIndex = 0;
         }
 
         // handle final partial buffer

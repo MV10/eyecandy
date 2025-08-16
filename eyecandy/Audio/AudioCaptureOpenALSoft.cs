@@ -31,6 +31,8 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
             return;
         }
 
+        base.Capture(newAudioDataCallback, cancellationToken);
+
         Connect();
 
         Interlocked.Exchange(ref IsCapturing, 1);
@@ -115,6 +117,8 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
 
         // This is fine on Windows but crashes Linux Pulse Audio.
         // ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.Dispose");
+
+        base.Dispose();
 
         IsDisposed = true;
         GC.SuppressFinalize(this);
