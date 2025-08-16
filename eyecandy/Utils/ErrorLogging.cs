@@ -53,10 +53,10 @@ public static class ErrorLogging
     /// </summary>
     public static bool HasErrors = (OpenGLErrors.Count > 0 || OpenALErrors.Count > 0 || EyecandyErrors.Count > 0);
 
-    [Obsolete("GL.GetError calls are no longer needed since the KHR DebugMessageCallback is in use.")]
     /// <summary>
     /// Writes or stores outstanding OpenGL error messages (depending on the StoreErrors flag).
     /// </summary>
+    [Obsolete("GL.GetError calls are no longer needed since the KHR DebugMessageCallback is in use.")]
     public static void OpenGLErrorCheck(string programStage = "unspecified")
         => ErrorCheck(programStage, GL.GetError, OpenGLErrors, ErrorCode.NoError);
 

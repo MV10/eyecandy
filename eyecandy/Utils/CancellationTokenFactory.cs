@@ -9,6 +9,9 @@ public static class CancellationTokenFactory
 {
     private static List<CancellationTokenSource> CTSList = new();
 
+    /// <summary>
+    /// Returns a CTS and adds it to the list for later disposal.
+    /// </summary>
     public static CancellationTokenSource GetCancellationTokenSource()
     {
         var cts = new CancellationTokenSource();
@@ -16,6 +19,9 @@ public static class CancellationTokenFactory
         return cts;
     }
 
+    /// <summary>
+    /// Disposes all CTS created by the factory.
+    /// </summary>
     public static void DisposeAll()
     {
         foreach(var cts in CTSList)

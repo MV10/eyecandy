@@ -56,6 +56,6 @@ public class AudioData
     /// <summary>
     /// How long silence has been detected (only accurate since latest Timestamp update).
     /// </summary>
-    public TimeSpan SilenceDuration()
-        => SilenceStarted == DateTime.MaxValue ? TimeSpan.Zero : DateTime.Now.Subtract(SilenceStarted);
+    public TimeSpan SilenceDuration
+        { get => SilenceStarted == DateTime.MaxValue ? TimeSpan.Zero : DateTime.Now.Subtract(SilenceStarted); }
 }
