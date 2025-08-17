@@ -21,31 +21,30 @@ https://www.studio1productions.com/Articles/16x9-Resolution.htm
 
 */
 
-namespace demo
+namespace demo;
+
+internal class Modes
 {
-    internal class Modes
+    public static async Task Demo()
     {
-        public static async Task Demo()
-        {
-            Console.WriteLine("\n\nmodes: Simple demonstration of OpenGL drawing modes");
-            Console.WriteLine("\nPress spacebar to cycle through the modes.");
+        Console.WriteLine("\n\nmodes: Simple demonstration of OpenGL drawing modes");
+        Console.WriteLine("\nPress spacebar to cycle through the modes.");
 
-            var audioConfig = new EyeCandyCaptureConfig();
-            if (Program.WindowsUseOpenALSoft) audioConfig.LoopbackApi = LoopbackApi.OpenALSoft;
+        var audioConfig = new EyeCandyCaptureConfig();
+        if (Program.WindowsUseOpenALSoft) audioConfig.LoopbackApi = LoopbackApi.OpenALSoft;
 
-            var windowConfig = new EyeCandyWindowConfig();
-            windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: OpenGL Drawing Modes";
-            windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
-            windowConfig.StartFullScreen = Program.StartFullScreen;
+        var windowConfig = new EyeCandyWindowConfig();
+        windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: OpenGL Drawing Modes";
+        windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
+        windowConfig.StartFullScreen = Program.StartFullScreen;
 
-            // remember Linux is case-sensitive...
-            windowConfig.VertexShaderPathname = "Modes/modes.vert";
-            windowConfig.FragmentShaderPathname = "Modes/modes.frag";
+        // remember Linux is case-sensitive...
+        windowConfig.VertexShaderPathname = "Modes/modes.vert";
+        windowConfig.FragmentShaderPathname = "Modes/modes.frag";
 
-            var win = new ModesWindow(windowConfig, audioConfig);
-            win.Focus();
-            win.Run();
-            win.Dispose();
-        }
+        var win = new ModesWindow(windowConfig, audioConfig);
+        win.Focus();
+        win.Run();
+        win.Dispose();
     }
 }

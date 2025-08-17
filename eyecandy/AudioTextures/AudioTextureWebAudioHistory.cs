@@ -1,33 +1,32 @@
 ﻿
-namespace eyecandy
+namespace eyecandy;
+
+/// <summary>
+/// Represents an audio texture containing WebAudio-style pseudo-decibel
+/// data in row 0, and history data in higher rows.
+/// </summary>
+public class AudioTextureWebAudioHistory : AudioTexture
 {
-    /// <summary>
-    /// Represents an audio texture containing WebAudio-style pseudo-decibel
-    /// data in row 0, and history data in higher rows.
-    /// </summary>
-    public class AudioTextureWebAudioHistory : AudioTexture
+    /// <inheritdoc/>
+    public AudioTextureWebAudioHistory()
     {
-        /// <inheritdoc/>
-        public AudioTextureWebAudioHistory()
-        {
-            PixelWidth = AudioCaptureBase.Configuration.SampleSize;
-            Rows = AudioCaptureBase.Configuration.HistorySize;
+        PixelWidth = AudioCaptureBase.Configuration.SampleSize;
+        Rows = AudioCaptureBase.Configuration.HistorySize;
 
-            FrequencyCalc = FrequencyAlgorithm.WebAudioDecibels;
-        }
+        FrequencyCalc = FrequencyAlgorithm.WebAudioDecibels;
+    }
 
-        /// <inheritdoc/>
-        public override void UpdateChannelBuffer(AudioData audioBuffers)
+    /// <inheritdoc/>
+    public override void UpdateChannelBuffer(AudioData audioBuffers)
+    {
+        lock (ChannelBufferLock)
         {
-            lock (ChannelBufferLock)
+            ScrollHistoryBuffer();
+
+            for (int x = 0; x < PixelWidth; x++)
             {
-                ScrollHistoryBuffer();
-
-                for (int x = 0; x < PixelWidth; x++)
-                {
-                    int green = (x * AudioTextureEngine.RGBAPixelSize) + 1;
-                    ChannelBuffer[green] = (float)audioBuffers.FrequencyWebAudio[x] / (float)AudioCaptureBase.Configuration.NormalizeWebAudioPeak;
-                }
+                int green = (x * AudioTextureEngine.RGBAPixelSize) + 1;
+                ChannelBuffer[green] = (float)audioBuffers.FrequencyWebAudio[x] / (float)AudioCaptureBase.Configuration.NormalizeWebAudioPeak;
             }
         }
     }

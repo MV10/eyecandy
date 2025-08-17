@@ -5,22 +5,23 @@ using NAudio.Wave;
 namespace eyecandy;
 
 /// <summary>
-/// Concrete implementation of AudioCaptureProcessor using Windows WASAPI.
+/// Concrete implementation of AudioCaptureBase using Windows WASAPI.
 /// </summary>
 public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
 {
     private static readonly int CaptureBufferMillisec = 23;
 
     private WindowsLoopbackWrapper CaptureDevice;
-    private Action NewAudioDataCallback;
 
     /// <inheritdoc/>
-    public AudioCaptureWASAPI(EyeCandyCaptureConfig configuration)
+    internal AudioCaptureWASAPI(EyeCandyCaptureConfig configuration)
     : base(configuration)
     {
         CaptureDevice = new(CaptureBufferMillisec); 
         CaptureDevice.WaveFormat = new WaveFormat(SampleRate, 1);
         CaptureDevice.DataAvailable += ProcessSamples;
+
+        ErrorLogging.Logger?.LogTrace($"{nameof(AudioCaptureWASAPI)}: constructor completed");
     }
 
     /// <inheritdoc/>
@@ -33,16 +34,20 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
             return;
         }
 
-        NewAudioDataCallback = newAudioDataCallback;
+        base.Capture(newAudioDataCallback, cancellationToken);
 
         Interlocked.Exchange(ref IsCapturing, 1);
         CaptureDevice.StartRecording();
         while (!cancellationToken.IsCancellationRequested)
         {
             // do nothing, sample-handling is event-driven
+            Thread.Sleep(0); // see Capture in OpenALSoft version for the reason to use this
+
+            DetectSilence();
         }
 
         ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureWASAPI)}: Capture ending");
+        CaptureEnding();
         CaptureDevice.StopRecording();
 
         Interlocked.Exchange(ref IsCapturing, 0);
@@ -118,6 +123,8 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
     /// <inheritdoc/>
     public override void Dispose()
     {
+        base.Dispose();
+
         if (IsDisposed) return;
         ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
 
@@ -134,6 +141,8 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
         }
 
         NewAudioDataCallback = null;
+
+        base.Dispose();
 
         IsDisposed = true;
         GC.SuppressFinalize(this);

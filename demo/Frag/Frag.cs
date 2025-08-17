@@ -12,32 +12,34 @@ Hit ESC to exit.
  
 */
 
-namespace demo
+namespace demo;
+
+internal class Frag
 {
-    internal class Frag
+    public static async Task Demo()
     {
-        public static async Task Demo()
-        {
-            Console.WriteLine("\n\nfrag: A Shadertoy-like fragment / pixel shader");
+        Console.WriteLine("\n\nfrag: A Shadertoy-like fragment / pixel shader");
 
-            var audioConfig = new EyeCandyCaptureConfig();
-            if (Program.WindowsUseOpenALSoft) audioConfig.LoopbackApi = LoopbackApi.OpenALSoft;
+        var config = new EyeCandyCaptureConfig();
 
-            var windowConfig = new EyeCandyWindowConfig();
-            windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Fragment / Pixel Shader";
-            //windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
-            windowConfig.OpenTKNativeWindowSettings.ClientSize = (640, 360); // match Shadertoy preview size for easy comparison
-            windowConfig.StartFullScreen = Program.StartFullScreen;
+        if (Program.UseSyntheticDataOnly) config.LoopbackApi = LoopbackApi.SyntheticData;
 
-            // remember Linux is case-sensitive...
-            windowConfig.VertexShaderPathname = "Frag/frag.vert";
-            windowConfig.FragmentShaderPathname = "Frag/frag.frag";
+        if (Program.WindowsUseOpenALSoft) config.LoopbackApi = LoopbackApi.OpenALSoft;
 
-            var win = new FragWindow(windowConfig, audioConfig);
-            win.Focus();
-            win.Run();
-            win.Dispose();
+        var windowConfig = new EyeCandyWindowConfig();
+        windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Fragment / Pixel Shader";
+        //windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
+        windowConfig.OpenTKNativeWindowSettings.ClientSize = (640, 360); // match Shadertoy preview size for easy comparison
+        windowConfig.StartFullScreen = Program.StartFullScreen;
 
-        }
+        // remember Linux is case-sensitive...
+        windowConfig.VertexShaderPathname = "Frag/frag.vert";
+        windowConfig.FragmentShaderPathname = "Frag/frag.frag";
+
+        var win = new FragWindow(windowConfig, config);
+        win.Focus();
+        win.Run();
+        win.Dispose();
+
     }
 }

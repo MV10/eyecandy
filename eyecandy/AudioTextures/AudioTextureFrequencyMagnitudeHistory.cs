@@ -1,33 +1,32 @@
 ﻿
-namespace eyecandy
+namespace eyecandy;
+
+/// <summary>
+/// Represents an audio texture containing FFT frequency magnitude
+/// data in row 0, and history data in higher rows.
+/// </summary>
+public class AudioTextureFrequencyMagnitudeHistory : AudioTexture
 {
-    /// <summary>
-    /// Represents an audio texture containing FFT frequency magnitude
-    /// data in row 0, and history data in higher rows.
-    /// </summary>
-    public class AudioTextureFrequencyMagnitudeHistory : AudioTexture
+    /// <inheritdoc/>
+    public AudioTextureFrequencyMagnitudeHistory()
     {
-        /// <inheritdoc/>
-        public AudioTextureFrequencyMagnitudeHistory()
-        {
-            PixelWidth = AudioCaptureBase.Configuration.SampleSize;
-            Rows = AudioCaptureBase.Configuration.HistorySize;
+        PixelWidth = AudioCaptureBase.Configuration.SampleSize;
+        Rows = AudioCaptureBase.Configuration.HistorySize;
 
-            FrequencyCalc = FrequencyAlgorithm.Magnitude;
-        }
+        FrequencyCalc = FrequencyAlgorithm.Magnitude;
+    }
 
-        /// <inheritdoc/>
-        public override void UpdateChannelBuffer(AudioData audioBuffers)
+    /// <inheritdoc/>
+    public override void UpdateChannelBuffer(AudioData audioBuffers)
+    {
+        lock (ChannelBufferLock)
         {
-            lock (ChannelBufferLock)
+            ScrollHistoryBuffer();
+
+            for (int x = 0; x < PixelWidth; x++)
             {
-                ScrollHistoryBuffer();
-
-                for (int x = 0; x < PixelWidth; x++)
-                {
-                    int green = (x * AudioTextureEngine.RGBAPixelSize) + 1;
-                    ChannelBuffer[green] = (float)audioBuffers.FrequencyMagnitude[x] / (float)AudioCaptureBase.Configuration.NormalizeFrequencyMagnitudePeak;
-                }
+                int green = (x * AudioTextureEngine.RGBAPixelSize) + 1;
+                ChannelBuffer[green] = (float)audioBuffers.FrequencyMagnitude[x] / (float)AudioCaptureBase.Configuration.NormalizeFrequencyMagnitudePeak;
             }
         }
     }

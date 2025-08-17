@@ -17,118 +17,120 @@ Hit ESC to exit.
 
 */
 
-namespace demo
+namespace demo;
+
+internal class Text
 {
-    internal class Text
+    static EyeCandyCaptureConfig config;
+    static AudioCaptureBase audio;
+
+    static ConsoleKey key = ConsoleKey.W;
+
+    public static async Task Demo()
     {
-        static EyeCandyCaptureConfig config;
-        static AudioCaptureBase audio;
+        Console.WriteLine("\n\ntext: Text-based audio capture data visualization");
 
-        static ConsoleKey key = ConsoleKey.W;
+        Console.WriteLine("\nDuring playback:\n");
+        Console.WriteLine("ESC\tEnd program");
+        Console.WriteLine(" W\tRaw PCM wave data");
+        Console.WriteLine(" V\tRMS volume (realtime)");
+        Console.WriteLine(" F\tFrequency magnitude (bass in red)");
+        Console.WriteLine(" D\tFrequency decibels (bass in red)");
 
-        public static async Task Demo()
+        Console.WriteLine("\n\nStart playback, press any key to begin capturing audio...");
+        Console.ReadKey(true);
+
+        Console.CursorVisible = false;
+
+        config = new EyeCandyCaptureConfig();
+
+        if (Program.UseSyntheticDataOnly) config.LoopbackApi = LoopbackApi.SyntheticData;
+
+        audio = AudioCaptureBase.Factory(config);
+        audio.Requirements = new()
         {
-            Console.WriteLine("\n\ntext: Text-based audio capture data visualization");
+            CalculateVolumeRMS = true,
+            CalculateFFTMagnitude = true,
+            CalculateFFTDecibels = true,
+        };
 
-            Console.WriteLine("\nDuring playback:\n");
-            Console.WriteLine("ESC\tEnd program");
-            Console.WriteLine(" W\tRaw PCM wave data");
-            Console.WriteLine(" V\tRMS volume (realtime)");
-            Console.WriteLine(" F\tFrequency magnitude (bass in red)");
-            Console.WriteLine(" D\tFrequency decibels (bass in red)");
+        var ctsAbortCapture = new CancellationTokenSource();
+        var captureTask = Task.Run(() => audio.Capture(RenderToConsole, ctsAbortCapture.Token));
 
-            Console.WriteLine("\n\nStart playback, press any key to begin capturing audio...");
-            Console.ReadKey(true);
-
-            Console.CursorVisible = false;
-
-            config = new EyeCandyCaptureConfig();
-            audio = AudioCaptureBase.Factory(config);
-            audio.Requirements = new()
+        while (key != ConsoleKey.Escape)
+        {
+            await Task.Delay(100);
+            if(Console.KeyAvailable)
             {
-                CalculateVolumeRMS = true,
-                CalculateFFTMagnitude = true,
-                CalculateFFTDecibels = true,
-            };
-
-            var ctsAbortCapture = new CancellationTokenSource();
-            var captureTask = Task.Run(() => audio.Capture(RenderToConsole, ctsAbortCapture.Token));
-
-            while (key != ConsoleKey.Escape)
-            {
-                await Task.Delay(100);
-                if(Console.KeyAvailable)
+                var k = Console.ReadKey(true);
+                switch(k.Key)
                 {
-                    var k = Console.ReadKey(true);
-                    switch(k.Key)
-                    {
-                        case ConsoleKey.Escape:
-                        case ConsoleKey.W:
-                        case ConsoleKey.V:
-                        case ConsoleKey.F:
-                        case ConsoleKey.D:
-                            key = k.Key;
-                            Console.Clear();
-                            break;
+                    case ConsoleKey.Escape:
+                    case ConsoleKey.W:
+                    case ConsoleKey.V:
+                    case ConsoleKey.F:
+                    case ConsoleKey.D:
+                        key = k.Key;
+                        Console.Clear();
+                        break;
 
-                        default:
-                            break;
-                    }
+                    default:
+                        break;
                 }
             }
-
-            ctsAbortCapture.Cancel();
-            await captureTask;
-            audio.Dispose();
-
-            Console.CursorVisible = true;
-            Console.Clear();
         }
 
-        static void RenderToConsole()
+        ctsAbortCapture.Cancel();
+        await captureTask;
+        audio.Dispose();
+
+        Console.CursorVisible = true;
+        Console.Clear();
+    }
+
+    static void RenderToConsole()
+    {
+        double width = Console.WindowWidth;
+        double centerline = Console.WindowWidth / 2;
+        int spacing;
+
+        switch (key)
         {
-            double width = Console.WindowWidth;
-            double centerline = Console.WindowWidth / 2;
-            int spacing;
-
-            switch (key)
-            {
-                case ConsoleKey.F:
-                case ConsoleKey.D:
-                    // for 1024 samples from a 44.1kHz signal, 100Hz bass is only the first 9-10 samples; draw them in red
-                    for (int i = 0; i < Console.WindowHeight - 1; i++)
+            case ConsoleKey.F:
+            case ConsoleKey.D:
+                // for 1024 samples from a 44.1kHz signal, 100Hz bass is only the first 9-10 samples; draw them in red
+                for (int i = 0; i < Console.WindowHeight - 1; i++)
+                {
+                    if(key == ConsoleKey.F)
                     {
-                        if(key == ConsoleKey.F)
-                        {
-                            spacing = (int)Math.Clamp((audio.Buffers.FrequencyMagnitude[i] / config.NormalizeFrequencyMagnitudePeak) * width * 1.5, 0, width - 1);
-                        }
-                        else
-                        {
-                            spacing = (int)Math.Clamp((audio.Buffers.FrequencyDecibels[i] / config.NormalizeFrequencyDecibelsPeak) * width * 0.75, 0, width - 1);
-                        }
-                        Console.SetCursorPosition(0, i);
-                        Console.ForegroundColor = (i < 11) ? ConsoleColor.Red : ConsoleColor.White;
-                        Console.WriteLine(">".PadLeft(spacing, '#').PadRight(Console.WindowWidth - spacing - 1));
+                        spacing = (int)Math.Clamp((audio.Buffers.FrequencyMagnitude[i] / config.NormalizeFrequencyMagnitudePeak) * width * 1.5, 0, width - 1);
                     }
-                    break;
-
-                case ConsoleKey.V:
-                    spacing = (int)Math.Clamp((audio.Buffers.RealtimeRMSVolume / config.NormalizeRMSVolumePeak) * width, 0, width - 1);
-                    Console.SetCursorPosition(0, 25);
+                    else
+                    {
+                        spacing = (int)Math.Clamp((audio.Buffers.FrequencyDecibels[i] / config.NormalizeFrequencyDecibelsPeak) * width * 0.75, 0, width - 1);
+                    }
+                    Console.SetCursorPosition(0, i);
+                    Console.ForegroundColor = (i < 11) ? ConsoleColor.Red : ConsoleColor.White;
                     Console.WriteLine(">".PadLeft(spacing, '#').PadRight(Console.WindowWidth - spacing - 1));
-                    break;
+                }
+                break;
 
-                case ConsoleKey.W:
-                    for (int i = 0; i < config.SampleSize; i++)
-                    {
-                        spacing = (int)(centerline + Math.Clamp(((double)audio.Buffers.Wave[i] / short.MaxValue) * centerline, -centerline, centerline));
-                        Console.WriteLine("|".PadLeft(spacing));
-                    }
-                    break;
+            case ConsoleKey.V:
+                spacing = (int)Math.Clamp((audio.Buffers.RealtimeRMSVolume / config.NormalizeRMSVolumePeak) * width, 0, width - 1);
+                Console.SetCursorPosition(0, 25);
+                Console.WriteLine(">".PadLeft(spacing, '#').PadRight(Console.WindowWidth - spacing - 1));
+                break;
 
-                default:
-                    break;
-            }
+            case ConsoleKey.W:
+                for (int i = 0; i < config.SampleSize; i++)
+                {
+                    spacing = (int)(centerline + Math.Clamp(((double)audio.Buffers.Wave[i] / short.MaxValue) * centerline, -centerline, centerline));
+                    Console.WriteLine("|".PadLeft(spacing));
+                }
+                break;
+
+            default:
+                break;
         }
     }
 }

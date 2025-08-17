@@ -16,30 +16,32 @@ https://www.studio1productions.com/Articles/16x9-Resolution.htm
 
 */
 
-namespace demo
+namespace demo;
+
+internal class Decibels
 {
-    internal class Decibels
+    public static async Task Demo()
     {
-        public static async Task Demo()
-        {
-            Console.WriteLine("\n\nwebaudio: Real FFT dBs (top) vs. WebAudio smoothed pseudo-dBs (bottom)");
+        Console.WriteLine("\n\nwebaudio: Real FFT dBs (top) vs. WebAudio smoothed pseudo-dBs (bottom)");
 
-            var audioConfig = new EyeCandyCaptureConfig();
-            if (Program.WindowsUseOpenALSoft) audioConfig.LoopbackApi = LoopbackApi.OpenALSoft;
+        var config = new EyeCandyCaptureConfig();
 
-            var windowConfig = new EyeCandyWindowConfig();
-            windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Decibels / WebAudio comparison";
-            windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
-            windowConfig.StartFullScreen = Program.StartFullScreen;
+        if (Program.UseSyntheticDataOnly) config.LoopbackApi = LoopbackApi.SyntheticData;
 
-            // remember Linux is case-sensitive...
-            windowConfig.VertexShaderPathname = "Decibels/decibels.vert";
-            windowConfig.FragmentShaderPathname = "Decibels/decibels.frag";
+        if (Program.WindowsUseOpenALSoft) config.LoopbackApi = LoopbackApi.OpenALSoft;
 
-            var win = new DecibelsWindow(windowConfig, audioConfig);
-            win.Focus();
-            win.Run();
-            win.Dispose();
-        }
+        var windowConfig = new EyeCandyWindowConfig();
+        windowConfig.OpenTKNativeWindowSettings.Title = "Eyecandy Demo: Decibels / WebAudio comparison";
+        windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
+        windowConfig.StartFullScreen = Program.StartFullScreen;
+
+        // remember Linux is case-sensitive...
+        windowConfig.VertexShaderPathname = "Decibels/decibels.vert";
+        windowConfig.FragmentShaderPathname = "Decibels/decibels.frag";
+
+        var win = new DecibelsWindow(windowConfig, config);
+        win.Focus();
+        win.Run();
+        win.Dispose();
     }
 }
