@@ -144,18 +144,28 @@ public abstract class AudioCaptureBase : IDisposable
         if(Configuration.DetectSilence) SilenceShortCircuitTimer.Restart();
     }
 
+    /// <summary>
+    /// Derived classes should call this when their Capture loop has exited.
+    /// </summary>
+    protected void CaptureEnding()
+    {
+        if (this is AudioCaptureSyntheticData) return;
+        ctsSynthetic?.Cancel();
+        ctsSynthetic = null; // disposal handled by CancellationTokenFactory
+    }
+
     // Before calling, implementations should override and fill PCM into InternalBuffers.Wave[]
     private protected virtual void ProcessSamples()
     {
         // Tell the world about our hot fresh new data
         InternalBuffers.Timestamp = DateTime.Now;
 
-        // Volume is RMS of previous 300ms of PCM data
-        if (Requirements.CalculateVolumeRMS) ProcessVolume();
-
         // Frequency is a windowed FFT of 2X PCM sample sets; decibels and WebAudio are
         // derived from the FFT magnitude calculations
         if (Requirements.CalculateFFTMagnitude) ProcessFrequency();
+
+        // Volume is RMS of previous 300ms of PCM data
+        if (Requirements.CalculateVolumeRMS) ProcessVolume();
     }
 
     /// <summary>
@@ -165,6 +175,7 @@ public abstract class AudioCaptureBase : IDisposable
     /// </summary>
     protected void DetectSilence()
     {
+        if (this is AudioCaptureSyntheticData) return;
         if (SilenceShortCircuitTimer.ElapsedMilliseconds < SilenceShortCircuitMillisec) return;
         SilenceShortCircuitTimer.Restart();
 

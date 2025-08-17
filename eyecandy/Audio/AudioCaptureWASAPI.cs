@@ -47,6 +47,7 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
         }
 
         ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureWASAPI)}: Capture ending");
+        CaptureEnding();
         CaptureDevice.StopRecording();
 
         Interlocked.Exchange(ref IsCapturing, 0);

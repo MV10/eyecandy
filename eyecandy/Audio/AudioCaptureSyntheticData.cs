@@ -70,7 +70,7 @@ public class AudioCaptureSyntheticData : AudioCaptureBase, IDisposable
             SampleIndex += BufferSize;
             base.ProcessSamples();
             InternalBuffers = Interlocked.Exchange(ref Buffers, InternalBuffers);
-            // DetectSilence();
+            DetectSilence();
             NewAudioDataCallback.Invoke();
 
             while (!cancellationToken.IsCancellationRequested)
@@ -82,6 +82,7 @@ public class AudioCaptureSyntheticData : AudioCaptureBase, IDisposable
         }
 
         ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureSyntheticData)}: Capture ending");
+        CaptureEnding();
 
         Interlocked.Exchange(ref IsCapturing, 0);
         Buffers.Timestamp = DateTime.MaxValue;

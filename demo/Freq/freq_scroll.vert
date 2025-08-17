@@ -39,7 +39,7 @@ void main () {
   // one y is multiplied by 1, the other is multiplied by 0
   float y = (ySnd * a) + (yVol * b);
   
-  // same for colors, while = sound tex, green = volume tex
+  // same for colors, white = sound tex, green = volume tex
   vec3 color = (vec3(1.0) * a) + (vec3(0.0, 1.0, 0.0) * b);
 
   gl_Position = vec4(x, y, 0.0, 1.0);

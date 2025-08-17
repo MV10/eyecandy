@@ -65,6 +65,7 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
         }
 
         ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureOpenALSoft)}: Capture ending");
+        CaptureEnding();
 
         ALC.CaptureStop(CaptureDevice);
         ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureOpenALSoft)}.{nameof(ALC.CaptureStop)}");

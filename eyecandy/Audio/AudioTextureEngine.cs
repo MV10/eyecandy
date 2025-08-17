@@ -140,7 +140,7 @@ public class AudioTextureEngine : IDisposable
             var existingUniform = Textures[type].UniformName;
             if (uniformName.Equals(existingUniform, StringComparison.InvariantCultureIgnoreCase))
             {
-                ErrorLogging.Logger?.LogWarning($"{nameof(AudioTextureEngine.Create)}: AudioTexture of type {type} already exists.");
+                ErrorLogging.Logger?.LogWarning($"{nameof(Create)}: AudioTexture of type {type} already exists.");
                 return;
             }
 
@@ -304,6 +304,8 @@ public class AudioTextureEngine : IDisposable
             CalculateFFTDecibels = Textures.Any(t => t.Value.FrequencyCalc == FrequencyAlgorithm.Decibels || t.Value.FrequencyCalc == FrequencyAlgorithm.All),
             CalculateFFTWebAudioDecibels = Textures.Any(t => t.Value.FrequencyCalc == FrequencyAlgorithm.WebAudioDecibels || t.Value.FrequencyCalc == FrequencyAlgorithm.All),
         };
+
+        if (AudioProcessor.SyntheticDataGenerator is not null) AudioProcessor.SyntheticDataGenerator.Requirements = AudioProcessor.Requirements;
     }
 
     /// <summary/>
