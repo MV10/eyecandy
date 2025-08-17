@@ -227,8 +227,12 @@ public class AudioTextureEngine : IDisposable
     {
         if (IsDisposed) return;
 
+        var buffers = AudioProcessor.UsingSyntheticData
+            ? AudioProcessor.SyntheticDataGenerator.Buffers
+            : AudioProcessor.Buffers;
+
         // Short-circuit if the audio buffers haven't changed yet AND we've already generated textures at least once.
-        if (AudioProcessor.Buffers.Timestamp < TexturesUpdatedTimestamp && TextureHandlesInitialized) return;
+        if (buffers.Timestamp < TexturesUpdatedTimestamp && TextureHandlesInitialized) return;
 
         foreach(var tex in Textures)
         {
@@ -246,9 +250,13 @@ public class AudioTextureEngine : IDisposable
     {
         if (IsDisposed) return;
 
+        var buffers = AudioProcessor.UsingSyntheticData 
+            ? AudioProcessor.SyntheticDataGenerator.Buffers 
+            : AudioProcessor.Buffers;
+
         foreach (var t in Textures)
         {
-            if (t.Value.Enabled) t.Value.UpdateChannelBuffer(AudioProcessor.Buffers);
+            if (t.Value.Enabled) t.Value.UpdateChannelBuffer(buffers);
         }
 
         if (IsSilent)

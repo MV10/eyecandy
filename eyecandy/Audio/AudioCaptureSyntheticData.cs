@@ -70,7 +70,7 @@ public class AudioCaptureSyntheticData : AudioCaptureBase, IDisposable
             SampleIndex += BufferSize;
             base.ProcessSamples();
             InternalBuffers = Interlocked.Exchange(ref Buffers, InternalBuffers);
-            DetectSilence();
+            // DetectSilence();
             NewAudioDataCallback.Invoke();
 
             while (!cancellationToken.IsCancellationRequested)
