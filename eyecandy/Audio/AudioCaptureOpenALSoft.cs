@@ -17,9 +17,11 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
     private ALCaptureDevice CaptureDevice;
 
     /// <inheritdoc/>
-    public AudioCaptureOpenALSoft(EyeCandyCaptureConfig configuration)
+    internal AudioCaptureOpenALSoft(EyeCandyCaptureConfig configuration)
     : base(configuration)
-    { }
+    {
+        ErrorLogging.Logger?.LogTrace($"{nameof(AudioCaptureOpenALSoft)}: constructor completed");
+    }
 
     /// <inheritdoc/>
     public override void Capture(Action newAudioDataCallback, CancellationToken cancellationToken)
@@ -45,8 +47,8 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
             while (samplesAvailable >= SampleSize)
             {
                 ProcessSamples();
-                newAudioDataCallback.Invoke();
                 samplesAvailable -= SampleSize;
+                newAudioDataCallback.Invoke();
             }
             // Relative FPS results using different methods with "demo freq" (worst-performer).
             // FPS for Win10x64 debug build in IDE with a Ryzen 9 3900XT and GeForce RTX 2060.
@@ -59,6 +61,7 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
             // Thread.SpinWait(1);  // 3600     duration-limited Yield
             // await Task.Yield();  // 3250     suspend task indefinitely (scheduler control)
 
+            DetectSilence();
         }
 
         ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureOpenALSoft)}: Capture ending");
@@ -104,6 +107,8 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
     /// <inheritdoc/>
     public override void Dispose()
     {
+        base.Dispose();
+
         if (IsDisposed) return;
         ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
 
@@ -116,7 +121,7 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
         ALC.CaptureCloseDevice(CaptureDevice);
 
         // This is fine on Windows but crashes Linux Pulse Audio.
-        // ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureProcessor)}.Dispose");
+        // ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureBase)}.Dispose");
 
         base.Dispose();
 

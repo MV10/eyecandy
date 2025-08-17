@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace eyecandy;
 
 /// <summary>
-/// Produces OpenGL textures based on OpenAL audio data provided by an AudioCaptureProcessor
+/// Produces OpenGL textures based on OpenAL audio data provided by an AudioCaptureBase
 /// running on a background thread.
 /// </summary>
 public class AudioTextureEngine : IDisposable
@@ -84,7 +84,7 @@ public class AudioTextureEngine : IDisposable
     }
 
     /// <summary>
-    /// Invokes the AudioCaptureProcessor on a background thread and begins updating any
+    /// Invokes the AudioCaptureBase on a background thread and begins updating any
     /// requested, enabled AudioTextures.
     /// </summary>
     public void BeginAudioProcessing()
@@ -106,11 +106,11 @@ public class AudioTextureEngine : IDisposable
     }
 
     /// <summary>
-    /// Cancels the AudioCaptureProcessor background thread. The return value indicates
+    /// Cancels the AudioCaptureBase background thread. The return value indicates
     /// whether this has completed within the specified timeout (default is 1000ms). Typically
     /// cancellation is nearly immediate (a few milliseconds). If it doesn't happen, callers
     /// can continue checking IsCapturing, which is a pass-through to the underlying state of
-    /// AudioCaptureProcessor. The async Task based method was removed (instead of being marked
+    /// AudioCaptureBase. The async Task based method was removed (instead of being marked
     /// obsolete) to avoid ambiguity.
     /// </summary>
     public bool EndAudioProcessing(int timeoutMS = 1000)
@@ -240,7 +240,7 @@ public class AudioTextureEngine : IDisposable
     }
 
     /// <summary>
-    /// This is invoked by the AudioCaptureProcessor thread whenever new audio sample data is available.
+    /// This is invoked by the AudioCaptureBase thread whenever new audio sample data is available.
     /// </summary>
     public void ProcessAudioDataCallback()
     {
@@ -284,7 +284,7 @@ public class AudioTextureEngine : IDisposable
     }
 
     /// <summary>
-    /// Generates an updated AudioProcessingRequirements structure and applies it to the AudioCaptureProcessor.
+    /// Generates an updated AudioProcessingRequirements structure and applies it to the AudioCaptureBase.
     /// This is primarily used internally when an AudioTexture is created, deleted, or the enabled state changes.
     /// </summary>
     public void EvaluateRequirements()

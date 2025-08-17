@@ -94,6 +94,11 @@ public class EyeCandyCaptureConfig
     public double MaximumSilenceRMS { get; set; } = 1.5;
 
     /// <summary>
+    /// Minimum time RMS volume must be below the threshold to trigger silence mode.
+    /// </summary>
+    public double MinimumSilenceSeconds { get; set; } = 0.25;
+
+    /// <summary>
     /// If nonzero and DetectSilence is true, synthetic data is generated when silence
     /// is detected. This can help some visualizer shaders that will fail to generate
     /// any output during periods of silence.
@@ -129,9 +134,4 @@ public class EyeCandyCaptureConfig
     /// The minimum volume level of generated wave audio data.
     /// </summary>
     public float SyntheticDataMinimumLevel { get; set; } = 0.1f;
-
-    /// <summary>
-    /// Used for debugging, generally leave this at zero. The range is 0.0f to 1.0f.
-    /// </summary>
-    public float SyntheticDataPlaybackVolume { get; set; } = 0;
 }

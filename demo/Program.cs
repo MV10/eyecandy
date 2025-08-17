@@ -1,6 +1,7 @@
 ﻿using eyecandy;
-using Serilog.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Extensions.Logging;
 
 namespace demo;
 
@@ -12,9 +13,11 @@ internal class Program
 
     public static bool SimulateOpenGLErrors = false;
 
-    public static bool UseSyntheticData = false;
+    public static bool UseSyntheticDataOnly = false;
 
     private static readonly StringComparison IgnoreCase = StringComparison.InvariantCultureIgnoreCase;
+
+    private static LogLevel MinimumLogLevel = LogLevel.Error;
 
     internal static Microsoft.Extensions.Logging.ILogger Logger;
 
@@ -37,8 +40,11 @@ internal class Program
         {
             StartFullScreen = args[1].Contains("F", IgnoreCase);
             SimulateOpenGLErrors = args[1].Contains("E", IgnoreCase);
-            UseSyntheticData = args[1].Contains("S", IgnoreCase);
+            UseSyntheticDataOnly = args[1].Contains("S", IgnoreCase);
             WindowsUseOpenALSoft = args[1].Contains("O", IgnoreCase);
+
+            if (args[1].Contains("D", IgnoreCase)) MinimumLogLevel = LogLevel.Debug;
+            if (args[1].Contains("V", IgnoreCase)) MinimumLogLevel = LogLevel.Trace;
         }
 
         ConfigureLogging(Logger);
@@ -135,6 +141,8 @@ internal class Program
         Console.WriteLine("E\t\tSimulate OpenGL errors (currently only \"freq\" does this)");
         Console.WriteLine("S\t\tSimulate audio with the SyntheticData wave sample source");
         Console.WriteLine("O\t\tWindows: Capture audio with OpenAL-Soft instead of WASAPI");
+        Console.WriteLine("D\t\tShow Debug log messages (default is Error/Critical)");
+        Console.WriteLine("V\t\tShow Verbose log messages (default is Error/Critical)");
     }
 
     public static void ConfigureLogging(Microsoft.Extensions.Logging.ILogger logger)
@@ -142,7 +150,7 @@ internal class Program
         // If the library consumer has already prepared logging, just use that
         if(logger is not null)
         {
-            Log.Logger = (ILogger)logger;
+            Log.Logger = (Serilog.ILogger)logger;
             ErrorLogging.Logger = logger;
             return;
         }
@@ -153,9 +161,20 @@ internal class Program
         Console.WriteLine($"Logging to {logPath}");
 
         var cfg = new LoggerConfiguration()
-                .MinimumLevel.Verbose()
                 .WriteTo.Async(a => a.File(logPath, shared: true))
                 .WriteTo.Console();
+
+        switch(MinimumLogLevel)
+        {
+            case LogLevel.Debug:
+                cfg.MinimumLevel.Debug(); break;
+
+            case LogLevel.Trace:
+                cfg.MinimumLevel.Verbose(); break;
+
+            default:
+                cfg.MinimumLevel.Error(); break;
+        }
 
         Log.Logger = cfg.CreateLogger();
 

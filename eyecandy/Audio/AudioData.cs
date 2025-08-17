@@ -2,7 +2,7 @@
 namespace eyecandy;
 
 /// <summary>
-/// A container for the various buffers used by AudioCaptureProcessor.
+/// A container for the various buffers used by AudioCaptureBase.
 /// </summary>
 public class AudioData
 {

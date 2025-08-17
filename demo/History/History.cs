@@ -39,7 +39,7 @@ internal class History
 
         var config = new EyeCandyCaptureConfig();
 
-        if (Program.UseSyntheticData) config.LoopbackApi = LoopbackApi.SyntheticData;
+        if (Program.UseSyntheticDataOnly) config.LoopbackApi = LoopbackApi.SyntheticData;
 
         if (Program.WindowsUseOpenALSoft) config.LoopbackApi = LoopbackApi.OpenALSoft;
 

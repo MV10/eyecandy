@@ -112,7 +112,7 @@ public abstract class AudioTexture : IDisposable
     /// <summary>
     /// Invoked whenever new audio data is available. Call lock(ChannelBufferLock) before
     /// modifying the ChannelBuffer contents. This is normally invoked on a separate thread by the
-    /// AudioTextureEngine callback when AudioCaptureProcessor has new audio sample data available.
+    /// AudioTextureEngine callback when AudioCaptureBase has new audio sample data available.
     /// </summary>
     public abstract void UpdateChannelBuffer(AudioData audioBuffers);
 

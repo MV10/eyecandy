@@ -1,6 +1,5 @@
 ﻿
 using Microsoft.Extensions.Logging;
-using NAudio.Wave;
 
 namespace eyecandy;
 
@@ -10,38 +9,34 @@ namespace eyecandy;
 /// or development purposes (the easiest way is to simply not play audio, but it
 /// should also work to wire it up directly as the primary capture source).
 /// </summary>
-public class AudioCaptureSyntheticData : AudioCaptureBase, ISampleProvider, IDisposable
+public class AudioCaptureSyntheticData : AudioCaptureBase, IDisposable
 {
-    /// <inheritdoc/>
-    public WaveFormat WaveFormat { get => NAudioWaveFormat; }
-
     private readonly int BufferSize;
-    private readonly int SamplesPerBeat;
-    private readonly int BeatSampleLength;
-    private readonly WaveFormat NAudioWaveFormat;
-    private readonly double Amplitude;
-    private readonly double Frequency;
-    private int SampleIndex;
+    private readonly double BufferDurationMs;
+    private readonly double BeatDurationSeconds;
+    private readonly long SamplesPerBeat;
+    private readonly long SamplesPerSpike;
+    private readonly double AngularFrequency;
+    private readonly double MaxAmplitude;
+    private readonly double MinAmplitude;
 
-    private WaveOutEvent WaveOut;
+    private long SampleIndex;
 
     /// <inheritdoc/>
-    public AudioCaptureSyntheticData(EyeCandyCaptureConfig configuration)
+    internal AudioCaptureSyntheticData(EyeCandyCaptureConfig configuration)
     : base(configuration)
     {
-        NAudioWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(SampleRate, 1); // 1 = Mono
+        var sampleRate = (double)SampleRate;
+        BufferSize = Configuration.SampleSize;
+        BufferDurationMs = (BufferSize / sampleRate) * 1000.0;
+        BeatDurationSeconds = 60.0 / Configuration.SyntheticDataBPM;
+        SamplesPerBeat = (long)(BeatDurationSeconds * sampleRate);
+        SamplesPerSpike = (long)(Configuration.SyntheticDataBeatDuration * sampleRate);
+        AngularFrequency = 2.0 * Math.PI * Configuration.SyntheticDataBeatFrequency / sampleRate;
+        MaxAmplitude = short.MaxValue * Configuration.SyntheticDataAmplitude;
+        MinAmplitude = MaxAmplitude * Configuration.SyntheticDataMinimumLevel;
 
-        BufferSize = configuration.SampleSize;
-        SamplesPerBeat = (int)(60.0 / configuration.SyntheticDataBPM * SampleRate);
-        BeatSampleLength = (int)(configuration.SyntheticDataBeatDuration * SampleRate);
-        Amplitude = configuration.SyntheticDataAmplitude;
-        Frequency = configuration.SyntheticDataBeatFrequency;
-
-        SampleIndex = 0;
-
-        WaveOut = new();
-        WaveOut.Volume = Math.Clamp(configuration.SyntheticDataPlaybackVolume, 0, 1);
-        WaveOut.Init(this);
+        ErrorLogging.Logger?.LogTrace($"{nameof(AudioCaptureSyntheticData)}: constructor completed");
     }
 
     /// <inheritdoc/>
@@ -57,86 +52,70 @@ public class AudioCaptureSyntheticData : AudioCaptureBase, ISampleProvider, IDis
         base.Capture(newAudioDataCallback, cancellationToken);
 
         Interlocked.Exchange(ref IsCapturing, 1);
-        WaveOut.Play();
+
+        SampleIndex = 0;
 
         while (!cancellationToken.IsCancellationRequested)
         {
-            // do nothing, sample-handling is event-driven
-            Thread.Sleep(0); // see Capture in OpenALSoft version for the reason to use this
+            var startTime = DateTime.UtcNow;
+
+            switch (Configuration.SyntheticAlgorithm)
+            {
+                case SyntheticDataAlgorithm.MetronomeBeat:
+                default:
+                    GenerateMetronomeData();
+                    break;
+            }
+
+            SampleIndex += BufferSize;
+            base.ProcessSamples();
+            InternalBuffers = Interlocked.Exchange(ref Buffers, InternalBuffers);
+            DetectSilence();
+            NewAudioDataCallback.Invoke();
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                var ms = (DateTime.UtcNow - startTime).TotalMilliseconds;
+                if (ms > BufferDurationMs) break;
+                Thread.Sleep(0); // see Capture in OpenALSoft version for the reason to use this
+            }
         }
 
         ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureSyntheticData)}: Capture ending");
 
         Interlocked.Exchange(ref IsCapturing, 0);
-        WaveOut.Stop();
         Buffers.Timestamp = DateTime.MaxValue;
         InternalBuffers.Timestamp = DateTime.MaxValue;
 
         NewAudioDataCallback = null;
     }
 
-    /// <inheritdoc/>
-    public int Read(float[] buffer, int offset, int count)
+    private void GenerateMetronomeData()
     {
-        switch(Configuration.SyntheticAlgorithm)
+        for (int i = 0; i < BufferSize; i++)
         {
-            case SyntheticDataAlgorithm.MetronomeBeat:
-            default:
-                return GenerateMetronomeData(buffer, offset, count);
+            long currentSample = SampleIndex + i;
+            double sampleValue = Math.Sin(AngularFrequency * currentSample);
+
+            // determine if the current sample is within the spike duration of a beat
+            bool isSpike = (currentSample % SamplesPerBeat) < SamplesPerSpike;
+            double currentAmplitude = isSpike ? MaxAmplitude : MinAmplitude;
+
+            // scale the sample and convert to short
+            InternalBuffers.Wave[i] = (short)(sampleValue * currentAmplitude);
         }
-    }
-
-    private int GenerateMetronomeData(float[] buffer, int offset, int count)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            int currentBeatSample = SampleIndex % SamplesPerBeat;
-            bool isBeatActive = currentBeatSample < BeatSampleLength;
-
-            float sample = isBeatActive
-                ? (float)(Amplitude * Math.Sin(2 * Math.PI * Frequency * SampleIndex / SampleRate))
-                : Configuration.SyntheticDataMinimumLevel;
-
-            buffer[offset + i] = sample;
-
-            if (i % BufferSize == 0 && i > 0)
-            {
-                for (int j = 0; j < BufferSize; j++)
-                {
-                    InternalBuffers.Wave[j] = (short)(buffer[offset + i - BufferSize + j] * short.MaxValue);
-                }
-                base.ProcessSamples();
-                InternalBuffers = Interlocked.Exchange(ref Buffers, InternalBuffers);
-                NewAudioDataCallback.Invoke();
-            }
-
-            SampleIndex++;
-            if (SampleIndex >= SamplesPerBeat) SampleIndex = 0;
-        }
-
-        // handle final partial buffer
-        if (count >= BufferSize)
-        {
-            for (int j = 0; j < BufferSize; j++)
-            {
-                InternalBuffers.Wave[j] = (short)(buffer[offset + count - BufferSize + j] * short.MaxValue);
-            }
-            base.ProcessSamples();
-            InternalBuffers = Interlocked.Exchange(ref Buffers, InternalBuffers);
-            NewAudioDataCallback.Invoke();
-        }
-
-        return count;
     }
 
     /// <inheritdoc/>
     public override void Dispose()
     {
+        base.Dispose();
+
         if (IsDisposed) return;
         ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
 
-        WaveOut?.Stop();
-        WaveOut?.Dispose();
+        // nothing to dispose but it will prevent calling Capture
+        // again given the base class may dispose resources
 
         IsDisposed = true;
         GC.SuppressFinalize(this);

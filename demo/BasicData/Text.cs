@@ -44,7 +44,7 @@ internal class Text
 
         config = new EyeCandyCaptureConfig();
 
-        if (Program.UseSyntheticData) config.LoopbackApi = LoopbackApi.SyntheticData;
+        if (Program.UseSyntheticDataOnly) config.LoopbackApi = LoopbackApi.SyntheticData;
 
         audio = AudioCaptureBase.Factory(config);
         audio.Requirements = new()
