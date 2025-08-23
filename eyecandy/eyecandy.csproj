@@ -15,11 +15,12 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>eyecandy</PackageId>
-    <Version>3.3.0</Version>
+    <Version>3.4.0</Version>
     <Authors>Jon McGuire</Authors>
     <Product>eyecandy</Product>
     <Company>Mindmagma</Company>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

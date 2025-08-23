@@ -2,6 +2,7 @@
 using eyecandy.Utils;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace eyecandy;
 
@@ -123,13 +124,44 @@ public abstract class AudioTexture : IDisposable
     {
         if (IsDisposed) return;
 
-        if (Handle == UninitializedTexture)
-        {
-            Handle = GL.GenTexture();
-        }
+        if (Handle == UninitializedTexture) CreateTexture();
 
         if (!Enabled) return;
 
+        GLTextureMutex.WaitOne();
+        try
+        {
+            lock (ChannelBufferLock)
+            {
+                unsafe
+                {
+                    GL.ActiveTexture(AssignedTextureUnit.ToTextureUnitEnum());
+                    GL.BindTexture(TextureTarget.Texture2D, Handle);
+                    fixed (float* ptr = ChannelBuffer)
+                    {
+                        GL.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, PixelWidth, Rows, PixelFormat.Rgba, PixelType.Float, (IntPtr)ptr);
+                    }
+                    GL.BindTexture(TextureTarget.Texture2D, 0);
+                }
+            }
+        }
+        finally
+        {
+            GLTextureMutex.ReleaseMutex();
+        }
+    }
+
+    /// <summary>
+    /// This must be called within a lock(ChannelBufferLock) region.
+    /// Presuming row 0 is the "bottom" row containing the newest data, this scrolls buffer rows "up"
+    /// through the array (row 0 becomes row 1 and so on).
+    /// </summary>
+    protected internal void ScrollHistoryBuffer()
+        => Array.Copy(ChannelBuffer, 0, ChannelBuffer, BufferWidth, ChannelBuffer.Length - BufferWidth);
+
+    private void CreateTexture()
+    {
+        Handle = GL.GenTexture();
         GLTextureMutex.WaitOne();
         try
         {
@@ -141,10 +173,7 @@ public abstract class AudioTexture : IDisposable
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
 
-            lock (ChannelBufferLock)
-            {
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, PixelWidth, Rows, 0, PixelFormat.Rgba, PixelType.Float, ChannelBuffer);
-            }
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, PixelWidth, Rows, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
@@ -152,17 +181,7 @@ public abstract class AudioTexture : IDisposable
         {
             GLTextureMutex.ReleaseMutex();
         }
-
-        //ErrorLogging.OpenGLErrorCheck($"{GetType()}.{nameof(GenerateTexture)}");
     }
-
-    /// <summary>
-    /// This must be called within a lock(ChannelBufferLock) region.
-    /// Presuming row 0 is the "bottom" row containing the newest data, this scrolls buffer rows "up"
-    /// through the array (row 0 becomes row 1 and so on).
-    /// </summary>
-    protected internal void ScrollHistoryBuffer()
-        => Array.Copy(ChannelBuffer, 0, ChannelBuffer, BufferWidth, ChannelBuffer.Length - BufferWidth);
 
     /// <summary/>
     public virtual void Dispose()
