@@ -27,6 +27,8 @@ public class ShaderLibrary : IDisposable
     // used for logging
     private string SourceFile;
 
+    private readonly ILogger Logger;
+
     /// <summary>
     /// Produces a compiled shader suitable for linking to one or more shader programs via
     /// the Shader class. This should be attached and detached during program compilation,
@@ -35,7 +37,8 @@ public class ShaderLibrary : IDisposable
     /// </summary>
     public ShaderLibrary(string pathname, ShaderType type = ShaderType.FragmentShader)
     {
-        ErrorLogging.Logger?.LogDebug($"{nameof(ShaderLibrary)} constructor loading {type}:\n  {pathname}");
+        Logger = ErrorLogging.LoggerFactory?.CreateLogger("Eyecandy." + nameof(ShaderLibrary));
+        Logger?.LogDebug($"Constructor loading {type} from {pathname}");
 
         Pathname = pathname;
         SourceFile = Path.GetFileName(pathname);
@@ -46,12 +49,12 @@ public class ShaderLibrary : IDisposable
             string shaderSource = File.ReadAllText(pathname);
             Handle = GL.CreateShader(type);
             GL.ShaderSource(Handle, shaderSource);
-            ErrorLogging.Logger?.LogDebug($"Shader constructor: file-read completed");
+            Logger?.LogDebug($"Constructor completed reading {SourceFile}");
         }
         catch (Exception ex)
         {
             IsValid = false;
-            ErrorLogging.EyecandyError($"{nameof(ShaderLibrary)} ctor Read File", $"{ex}: {ex.Message}");
+            Logger?.LogError($"Constructor reading {SourceFile} {ex}: {ex.Message}");
             return;
         }
 
@@ -62,17 +65,17 @@ public class ShaderLibrary : IDisposable
             GL.GetShader(Handle, ShaderParameter.CompileStatus, out int ok);
             if (ok == 0)
             {
-                ErrorLogging.EyecandyError($"{nameof(ShaderLibrary)} ctor Compile ", GL.GetShaderInfoLog(Handle));
+                Logger?.LogError($"Constructor compiling {SourceFile} {GL.GetShaderInfoLog(Handle)}");
                 IsValid = false;
                 return;
             }
 
-            ErrorLogging.Logger?.LogDebug($"{nameof(ShaderLibrary)} constructor: compilation completed");
+            Logger?.LogDebug($"Constructor compilation completed for {SourceFile}");
         }
         catch (Exception ex)
         {
             IsValid = false;
-            ErrorLogging.EyecandyError($"{nameof(ShaderLibrary)} ctor Compile", $"{ex}: {ex.Message}");
+            Logger?.LogError($"Constructor compiling {SourceFile} {ex}: {ex.Message}");
             return;
         }
     }
@@ -81,9 +84,9 @@ public class ShaderLibrary : IDisposable
     public void Dispose()
     {
         if (IsDisposed) return;
-        ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
+        Logger?.LogTrace("Dispose() ----------------------------");
 
-        ErrorLogging.Logger?.LogTrace($"  {GetType()}.Dispose() DeleteShader for {SourceFile}");
+        Logger?.LogTrace($"  Dispose() DeleteShader for {SourceFile}");
         GL.DeleteShader(Handle);
 
         IsDisposed = true;

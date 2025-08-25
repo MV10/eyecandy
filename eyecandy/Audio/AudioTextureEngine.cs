@@ -61,6 +61,8 @@ public class AudioTextureEngine : IDisposable
     private Task AudioTask;
     private CancellationTokenSource ctsAudioProcessing;
 
+    private readonly ILogger Logger;
+
     /// <summary>
     /// The constructor requries a configuration object. This object is stored and is accessible
     /// but should not be altered during program execution. Some settings are cached elsewhere
@@ -80,7 +82,8 @@ public class AudioTextureEngine : IDisposable
 
         AudioProcessor = AudioCaptureBase.Factory(configuration);
 
-        ErrorLogging.Logger?.LogTrace($"AudioTextureEngine: constructor completed");
+        Logger = ErrorLogging.LoggerFactory?.CreateLogger("Eyecandy." + nameof(AudioTextureEngine));
+        Logger?.LogTrace("Constructor completed");
     }
 
     /// <summary>
@@ -89,16 +92,16 @@ public class AudioTextureEngine : IDisposable
     /// </summary>
     public void BeginAudioProcessing()
     {
-        ErrorLogging.Logger?.LogTrace($"AudioTextureEngine: BeginAudioProcessing");
+        Logger?.LogTrace("BeginAudioProcessing");
         if(IsDisposed)
         {
-            ErrorLogging.EyecandyError($"{nameof(AudioTextureEngine)}.{nameof(BeginAudioProcessing)}", "Aborting, object has been disposed", LogLevel.Error);
+            Logger?.LogError($"{nameof(BeginAudioProcessing)} aborting, object has been disposed");
             return;
         }
 
         if (IsCapturing)
         {
-            ErrorLogging.EyecandyError($"{nameof(AudioTextureEngine)}.{nameof(BeginAudioProcessing)}", "Invoked but already capturing audio.", LogLevel.Warning);
+            Logger?.LogWarning($"{nameof(BeginAudioProcessing)} invoked but already capturing audio");
             return;
         }
         ctsAudioProcessing = new();
@@ -115,7 +118,7 @@ public class AudioTextureEngine : IDisposable
     /// </summary>
     public bool EndAudioProcessing(int timeoutMS = 1000)
     {
-        ErrorLogging.Logger?.LogTrace($"AudioTextureEngine: EndAudioProcessing");
+        Logger?.LogTrace("EndAudioProcessing");
 
         if (!IsCapturing) return true;
         ctsAudioProcessing.Cancel();
@@ -140,7 +143,7 @@ public class AudioTextureEngine : IDisposable
             var existingUniform = Textures[type].UniformName;
             if (uniformName.Equals(existingUniform, StringComparison.InvariantCultureIgnoreCase))
             {
-                ErrorLogging.Logger?.LogWarning($"{nameof(Create)}: AudioTexture of type {type} already exists.");
+                Logger?.LogWarning($"{nameof(Create)}: AudioTexture of type {type} already exists.");
                 return;
             }
 
@@ -158,14 +161,14 @@ public class AudioTextureEngine : IDisposable
         {
             assignedTextureUnit = MaximumTextureUnitNumber - TextureUnitAssignments.Count;
             TextureUnitAssignments.Add(type, assignedTextureUnit);
-            ErrorLogging.Logger?.LogDebug($"Assigned {type} to TextureUnit {assignedTextureUnit}");
+            Logger?.LogDebug($"Assigned {type} to TextureUnit {assignedTextureUnit}");
         }
 
         var texture = AudioTexture.Factory<AudioTextureType>(uniformName, assignedTextureUnit, enabled);
         Textures.Add(type, texture);
         EvaluateRequirements();
         if(IsCapturing) TextureHandlesInitialized = false;
-        ErrorLogging.Logger?.LogDebug($"AudioTextureEngine: Created {type}");
+        Logger?.LogDebug($"Created {type}");
     }
 
     /// <summary>
@@ -191,7 +194,7 @@ public class AudioTextureEngine : IDisposable
         (Textures[type] as IDisposable).Dispose();
         Textures.Remove(type);
         EvaluateRequirements();
-        ErrorLogging.Logger?.LogDebug($"AudioTextureEngine: Destroyed {type}");
+        Logger?.LogDebug($"Destroyed {type}");
     }
 
     /// <summary>
@@ -312,29 +315,29 @@ public class AudioTextureEngine : IDisposable
     public void Dispose()
     {
         if (IsDisposed) return;
-        ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
+        Logger?.LogTrace("Dispose() ----------------------------");
 
         if (IsCapturing)
         {
-            ErrorLogging.EyecandyError($"{nameof(AudioTextureEngine)}.Dispose", "Dispose invoked before audio processing was terminated. Attempting to force termination.");
+            Logger?.LogError("Dispose invoked before audio processing was terminated, attempting to force termination");
             try
             {
-                if(!EndAudioProcessing()) ErrorLogging.EyecandyError($"{nameof(AudioTextureEngine)}.Dispose", "Audio processing did not terminate within the default 1000ms timeout.");
+                if(!EndAudioProcessing()) Logger?.LogError("Dispose: audio processing did not terminate within the default 1000ms timeout");
             }
             catch (Exception ex)
             {
-                ErrorLogging.EyecandyError($"{nameof(AudioTextureEngine)}.Dispose", $"{ex.GetType()}: {ex.Message}");
+                Logger?.LogError($"Dispose {ex.GetType()}: {ex.Message}");
             }
         }
 
+        Logger?.LogTrace("  Disposing AudioTextures");
         foreach (var kvp in Textures)
         {
-            ErrorLogging.Logger?.LogTrace($"  {GetType()}.Dispose() AudioTexture");
             (kvp.Value as IDisposable).Dispose();
         }
         Textures.Clear();
 
-        ErrorLogging.Logger?.LogTrace($"  {GetType()}.Dispose() AudioProcessor");
+        Logger?.LogTrace("  Disposing AudioProcessor");
         AudioProcessor?.Dispose();
 
         IsDisposed = true;

@@ -16,20 +16,23 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
 
     private ALCaptureDevice CaptureDevice;
 
+    private readonly ILogger Logger;
+
     /// <inheritdoc/>
     internal AudioCaptureOpenALSoft(EyeCandyCaptureConfig configuration)
     : base(configuration)
     {
-        ErrorLogging.Logger?.LogTrace($"{nameof(AudioCaptureOpenALSoft)}: constructor completed");
+        Logger = ErrorLogging.LoggerFactory?.CreateLogger("Eyecandy." + nameof(AudioCaptureOpenALSoft));
+        Logger?.LogTrace("Constructor completed");
     }
 
     /// <inheritdoc/>
     public override void Capture(Action newAudioDataCallback, CancellationToken cancellationToken)
     {
-        ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureOpenALSoft)}: Capture starting");
+        Logger?.LogDebug("Capture starting");
         if (IsDisposed)
         {
-            ErrorLogging.EyecandyError($"{nameof(AudioCaptureOpenALSoft)}.{nameof(Capture)}", "Aborting, object has been disposed", LogLevel.Error);
+            Logger?.LogError("Capture aborting, object has been disposed");
             return;
         }
 
@@ -64,7 +67,7 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
             DetectSilence();
         }
 
-        ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureOpenALSoft)}: Capture ending");
+        Logger?.LogDebug($"Capture ending");
         CaptureEnding();
 
         ALC.CaptureStop(CaptureDevice);
@@ -77,7 +80,7 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
 
     private void Connect()
     {
-        ErrorLogging.Logger?.LogTrace($"{nameof(AudioCaptureOpenALSoft)}: Connect");
+        Logger?.LogTrace($"Connect");
 
         var captureDeviceName = string.IsNullOrEmpty(Configuration.CaptureDeviceName)
             ? ALC.GetString(ALDevice.Null, AlcGetString.CaptureDefaultDeviceSpecifier)
@@ -111,18 +114,15 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
         base.Dispose();
 
         if (IsDisposed) return;
-        ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
+        Logger?.LogTrace("Dispose() ----------------------------");
 
-        if (IsCapturing == 1)
-        {
-            ErrorLogging.EyecandyError($"{nameof(AudioCaptureOpenALSoft)}.Dispose", "Dispose invoked before audio processing was terminated.");
-        }
+        if (IsCapturing == 1) Logger?.LogError("Dispose invoked before audio processing was terminated");
 
-        ErrorLogging.Logger?.LogTrace($"  {GetType()}.Dispose() ALC.CaptureCloseDevice");
+        Logger?.LogTrace($"  Dispose() ALC.CaptureCloseDevice");
         ALC.CaptureCloseDevice(CaptureDevice);
 
-        // This is fine on Windows but crashes Linux Pulse Audio.
-        // ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureBase)}.Dispose");
+        // Warning: This is fine on Windows but crashes Linux Pulse Audio.
+        ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureOpenALSoft)}.Dispose");
 
         base.Dispose();
 

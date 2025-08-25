@@ -96,6 +96,8 @@ public abstract class AudioCaptureBase : IDisposable
     private Stopwatch SilenceShortCircuitTimer = new();
     private const long SilenceShortCircuitMillisec = 100;
 
+    private readonly ILogger Logger;
+
     /// <summary>
     /// The constructor requries a configuration object. This object is stored and is accessible
     /// but should not be altered during program execution. Some settings are cached elsewhere
@@ -105,6 +107,8 @@ public abstract class AudioCaptureBase : IDisposable
     /// </summary>
     protected AudioCaptureBase(EyeCandyCaptureConfig configuration)
     {
+        Logger = ErrorLogging.LoggerFactory?.CreateLogger("Eyecandy." + nameof(AudioCaptureBase));
+
         Configuration = configuration;
 
         Requirements = new()
@@ -124,11 +128,11 @@ public abstract class AudioCaptureBase : IDisposable
 
         if (Configuration.DetectSilence && Configuration.ReplaceSilenceAfterSeconds > 0 && this is not AudioCaptureSyntheticData)
         {
-            ErrorLogging.Logger?.LogTrace($"{nameof(AudioCaptureBase)} as {GetType()}: creating {nameof(SyntheticDataGenerator)}");
+            Logger?.LogTrace($"{GetType()} creating {nameof(SyntheticDataGenerator)}");
             SyntheticDataGenerator = new(configuration);
         }
 
-        ErrorLogging.Logger?.LogTrace($"{nameof(AudioCaptureBase)} as {GetType()}: constructor completed");
+        Logger?.LogTrace("Constructor completed");
     }
 
     /// <summary>
@@ -189,7 +193,7 @@ public abstract class AudioCaptureBase : IDisposable
                     IsSilent = false;
                     SilenceStarted = DateTime.MaxValue;
                     Buffers.SilenceStarted = DateTime.MaxValue;
-                    ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureBase)} as {GetType()}: silence mode ended (volume {Buffers.RealtimeRMSVolume})");
+                    Logger?.LogDebug($"{GetType()}: silence mode ended (volume {Buffers.RealtimeRMSVolume})");
                 }
             }
             else
@@ -200,7 +204,7 @@ public abstract class AudioCaptureBase : IDisposable
                     if (SilenceStarted == DateTime.MaxValue)
                     {
                         SilenceStarted = DateTime.Now;
-                        ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureBase)} as {GetType()}: silence wait period starting (volume {Buffers.RealtimeRMSVolume})");
+                        Logger?.LogDebug($"{GetType()}: silence wait period starting (volume {Buffers.RealtimeRMSVolume})");
                     }
                     else
                     {
@@ -209,8 +213,8 @@ public abstract class AudioCaptureBase : IDisposable
                         {
                             IsSilent = true;
                             Buffers.SilenceStarted = SilenceStarted;
-                            ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureBase)} as {GetType()}: silence mode started");
-                            if(Configuration.ReplaceSilenceAfterSeconds > 0) ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureBase)} as {GetType()}: waiting {Configuration.ReplaceSilenceAfterSeconds} seconds to generate silence-replacement data");
+                            Logger?.LogDebug($"{GetType()}: silence mode started");
+                            if(Configuration.ReplaceSilenceAfterSeconds > 0) Logger?.LogDebug($"{GetType()}: waiting {Configuration.ReplaceSilenceAfterSeconds} seconds to generate silence-replacement data");
                         }
                     }
                 }
@@ -220,7 +224,7 @@ public abstract class AudioCaptureBase : IDisposable
                     if (SilenceStarted != DateTime.MaxValue)
                     {
                         SilenceStarted = DateTime.MaxValue;
-                        ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureBase)} as {GetType()}: silence wait period expired (volume {Buffers.RealtimeRMSVolume})");
+                        Logger?.LogDebug($"{GetType()}: silence wait period expired (volume {Buffers.RealtimeRMSVolume})");
                     }
                 }
             }
@@ -232,7 +236,7 @@ public abstract class AudioCaptureBase : IDisposable
             UsingSyntheticData = false;
             ctsSynthetic?.Cancel();
             ctsSynthetic = null; // disposal managed by CancellationTokenFactory
-            ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureBase)} as {GetType()}: ending synthetic data to replace silence");
+            Logger?.LogDebug($"{GetType()}: ending synthetic data to replace silence");
         }
 
         // Start synthetic data and/or skip FFT during silence?
@@ -242,7 +246,7 @@ public abstract class AudioCaptureBase : IDisposable
                 && !UsingSyntheticData
                 && Buffers.SilenceDuration.TotalSeconds >= Configuration.ReplaceSilenceAfterSeconds)
             {
-                ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureBase)} as {GetType()}: starting synthetic data to replace silence");
+                Logger?.LogDebug($"{GetType()}: starting synthetic data to replace silence");
                 UsingSyntheticData = true;
                 ctsSynthetic = CancellationTokenFactory.GetCancellationTokenSource();
                 _ = Task.Run(() => { SyntheticDataGenerator.Capture(NewAudioDataCallback, ctsSynthetic.Token); });
@@ -358,7 +362,7 @@ public abstract class AudioCaptureBase : IDisposable
     public virtual void Dispose()
     {
         if (IsDisposed) return;
-        ErrorLogging.Logger?.LogTrace($"{nameof(AudioCaptureBase)} as {GetType()}.Dispose() ----------------------------");
+        Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
 
         CancellationTokenFactory.DisposeAll();
 

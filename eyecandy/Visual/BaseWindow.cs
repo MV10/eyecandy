@@ -79,6 +79,8 @@ public abstract class BaseWindow : GameWindow, IDisposable
 
     private static DebugProcKhr DebugMessageDelegate = ErrorLogging.OpenGLErrorCallback;
 
+    private readonly ILogger Logger;
+
     /// <summary>
     /// The constructor requries a configuration object. This object is stored and is accessible
     /// but should not be altered during program execution. Some settings are cached elsewhere
@@ -96,6 +98,9 @@ public abstract class BaseWindow : GameWindow, IDisposable
         GL.Enable(EnableCap.DebugOutput);
         GL.Enable(EnableCap.DebugOutputSynchronous);
         GL.Khr.DebugMessageCallback(DebugMessageDelegate, IntPtr.Zero);
+
+        Logger = ErrorLogging.LoggerFactory?.CreateLogger("Eyecandy." + nameof(BaseWindow));
+        Logger?.LogTrace("Constructor completed");
     }
 
     /// <inheritdoc/>
@@ -146,8 +151,7 @@ public abstract class BaseWindow : GameWindow, IDisposable
 
         if (!Shader.IsValid && Configuration.ExitOnInvalidShader)
         {
-            ErrorLogging.EyecandyError($"{nameof(eyecandy)} {nameof(BaseWindow)}.{nameof(SetShader)}", $"Terminating, {nameof(Configuration.ExitOnInvalidShader)} is true.");
-            ErrorLogging.WriteToConsole();
+            Logger?.LogError($"{nameof(SetShader)} terminating, shader compile failed");
             Shader.Dispose();
             Thread.Sleep(250);
             Environment.Exit(-1);
@@ -179,13 +183,13 @@ public abstract class BaseWindow : GameWindow, IDisposable
     protected new void Dispose()
     {
         if (IsDisposed) return;
-        ErrorLogging.Logger?.LogTrace("BaseWindow.Dispose() ----------------------------");
+        Logger?.LogTrace("Dispose() ----------------------------");
 
         base.Dispose();
 
         if(Shader is not null)
         {
-            ErrorLogging.Logger?.LogTrace($"  BaseWindow.Dispose() Shader");
+            Logger?.LogTrace($"  Disposing Shader");
             Shader.Dispose();
         }
 

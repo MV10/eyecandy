@@ -103,12 +103,16 @@ public abstract class AudioTexture : IDisposable
         return texture;
     }
 
+    private readonly ILogger Logger;
+
     /// <summary>
     /// The derived constructor must set PixelWidth and Rows (at a minimum). The factory method will store the
     /// UniformName, AssignedTextureUnit, Enabled flag, calculate BufferWidth, and allocate ChannelBuffer.
     /// </summary>
     protected AudioTexture()
-    { }
+    {
+        Logger = ErrorLogging.LoggerFactory?.CreateLogger("Eyecandy." + nameof(AudioTexture));
+    }
 
     /// <summary>
     /// Invoked whenever new audio data is available. Call lock(ChannelBufferLock) before
@@ -187,11 +191,11 @@ public abstract class AudioTexture : IDisposable
     public virtual void Dispose()
     {
         if (IsDisposed) return;
-        ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
+        Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
 
         if (Handle != UninitializedTexture)
         {
-            ErrorLogging.Logger?.LogTrace($"  {GetType()}.Dispose() DeleteTexture {UniformName}");
+            Logger?.LogTrace($"  {GetType()}.Dispose() DeleteTexture {UniformName}");
             GL.DeleteTexture(Handle);
             Handle = UninitializedTexture;
         }

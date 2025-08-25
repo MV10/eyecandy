@@ -3,45 +3,39 @@ using eyecandy; // for error logging only
 
 using OpenTK.Audio.OpenAL;
 using System.Diagnostics;
-using Microsoft.Extensions.Logging;
-using Serilog;
 
 namespace demo;
 
 internal class Info
 {
-    public static bool UseLogging = false;
-
     public static async Task Demo()
     {
         Console.WriteLine("OpenAL Information (no equivalent available for Windows WASAPI)");
         Console.WriteLine("---------------------------------------------------------------");
 
-        if(UseLogging) Console.WriteLine("\n\nWriting device info to ./demo.log");
-
         var devices = ALC.GetStringList(GetEnumerationStringList.DeviceSpecifier);
-        Output($"\n\nDrivers:\n  {string.Join("\n  ", devices)}");
+        Console.WriteLine($"\n\nDrivers:\n  {string.Join("\n  ", devices)}");
 
         var deviceName = ALC.GetString(ALDevice.Null, AlcGetString.DefaultDeviceSpecifier);
-        Output($"\n\nDefault driver:\n  {deviceName}");
+        Console.WriteLine($"\n\nDefault driver:\n  {deviceName}");
         foreach (var d in devices)
         {
             if (d.Contains("OpenAL Soft"))
             {
                 deviceName = d;
-                Output($"  Using: \"{deviceName}\"");
+                Console.WriteLine($"  Using: \"{deviceName}\"");
             }
         }
 
         var allDevices = ALC.EnumerateAll.GetStringList(GetEnumerateAllContextStringList.AllDevicesSpecifier);
-        Output($"\n\nPlayback devices:\n  {string.Join("\n  ", allDevices)}");
+        Console.WriteLine($"\n\nPlayback devices:\n  {string.Join("\n  ", allDevices)}");
 
         var list = ALC.GetStringList(GetEnumerationStringList.CaptureDeviceSpecifier);
-        Output($"\n\nCapture devices:\n  {string.Join("\n  ", list)}");
+        Console.WriteLine($"\n\nCapture devices:\n  {string.Join("\n  ", list)}");
 
         var defaultPlayback = ALC.GetString(ALDevice.Null, AlcGetString.DefaultAllDevicesSpecifier);
         var defaultCapture = ALC.GetString(ALDevice.Null, AlcGetString.CaptureDefaultDeviceSpecifier);
-        Output($"\n\nDefault  devices:\n  Playback: {defaultPlayback}\n  Capture: {defaultCapture}");
+        Console.WriteLine($"\n\nDefault  devices:\n  Playback: {defaultPlayback}\n  Capture: {defaultCapture}");
 
         var device = ALC.OpenDevice(deviceName);
         var context = ALC.CreateContext(device, (int[])null);
@@ -50,7 +44,7 @@ internal class Info
         ErrorLogging.OpenALErrorCheck("Startup");
 
         var attrs = ALC.GetContextAttributes(device);
-        Output($"\n\nOpenAL Context attributes:\n  {attrs}");
+        Console.WriteLine($"\n\nOpenAL Context attributes:\n  {attrs}");
 
         ALC.GetInteger(device, AlcGetInteger.MajorVersion, 1, out int alcMajorVersion);
         ALC.GetInteger(device, AlcGetInteger.MinorVersion, 1, out int alcMinorVersion);
@@ -59,16 +53,7 @@ internal class Info
         string rend = AL.Get(ALGetString.Renderer);
         string vend = AL.Get(ALGetString.Vendor);
         string vers = AL.Get(ALGetString.Version);
-        Output($"\n\nOpenAL Context extensions:\n  Vendor: {vend}\n  Version: {vers}\n  Renderer: {rend}\n  Extensions:\n    {string.Join("\n    ", exts.Split(" "))}\n  ALC Version: {alcMajorVersion}.{alcMinorVersion}\n  ALC Extensions:\n    {string.Join("\n    ", alcExts.Split(" "))}");
-
-
-
-        //
-        // Logged output ends here
-        //
-        if (UseLogging) goto ExitProgram;
-
-
+        Console.WriteLine($"\n\nOpenAL Context extensions:\n  Vendor: {vend}\n  Version: {vers}\n  Renderer: {rend}\n  Extensions:\n    {string.Join("\n    ", exts.Split(" "))}\n  ALC Version: {alcMajorVersion}.{alcMinorVersion}\n  ALC Extensions:\n    {string.Join("\n    ", alcExts.Split(" "))}");
 
         Console.WriteLine("\n\nESC      - Exit utility\nSpacebar - Test recording and playback");
         while (true)
@@ -194,17 +179,5 @@ internal class Info
         ALC.MakeContextCurrent(ALContext.Null);
         ALC.DestroyContext(context);
         ALC.CloseDevice(device);
-    }
-
-    private static void Output(string message)
-    {
-        if (UseLogging)
-        {
-            Log.Logger?.Information(message);
-        }
-        else
-        {
-            Console.WriteLine(message);
-        }
     }
 }

@@ -11,31 +11,32 @@ namespace eyecandy;
 public static class ErrorLogging
 {
     /// <summary>
-    /// By default, an ILogger is used, otherwise output to the console
-    /// when a debugger is attached, or store when no debugger is attached.
+    /// Optional log factory.
     /// </summary>
-    public static LoggingStrategy Strategy = LoggingStrategy.Automatic;
+    public static ILoggerFactory LoggerFactory
+    {
+        get;
+        set
+        {
+            if (value is null)
+            {
+                OpenALLogger = null;
+                OpenGLLogger = null;
+            }
+            else
+            {
+                OpenALLogger = value.CreateLogger("Eyecandy.OpenAL");
+                OpenGLLogger = value.CreateLogger("Eyecandy.OpenGL");
+            }
+            field = value;
+        }
+    } = null;
 
-    /// <summary>
-    /// Generally the library should use the EyecandyError method instead of directly
-    /// calling the logger.
-    /// </summary>
-    public static ILogger Logger = null;
+    // Automatically generated whenever LoggerFactory is set.
+    private static ILogger OpenALLogger = null;
 
-    /// <summary>
-    /// Any error messages collected by calls to OpenGLErrorCheck (if LoggingStrategy calls for storage).
-    /// </summary>
-    public static List<string> OpenGLErrors = new();
-
-    /// <summary>
-    /// Any error messages collected by calls to OpenALErrorCheck (if LoggingStrategy calls for storage).
-    /// </summary>
-    public static List<string> OpenALErrors = new();
-
-    /// <summary>
-    /// Any errors internal to the library, such as file-loading or shader compilation errors (if LoggingStrategy calls for storage). 
-    /// </summary>
-    public static List<string> EyecandyErrors = new();
+    // Automatically generated whenever LoggerFactory is set.
+    private static ILogger OpenGLLogger = null;
 
     // These are widely recognized as unimportant "noise" messages when the OpenGL
     // Debug Message error callback is wired up. For example:
@@ -49,73 +50,18 @@ public static class ErrorLogging
     ];
 
     /// <summary>
-    /// True if either OpenGL or OpenAL errors have been collected.
-    /// </summary>
-    public static bool HasErrors = (OpenGLErrors.Count > 0 || OpenALErrors.Count > 0 || EyecandyErrors.Count > 0);
-
-    /// <summary>
-    /// Writes or stores outstanding OpenGL error messages (depending on the StoreErrors flag).
-    /// </summary>
-    [Obsolete("GL.GetError calls are no longer needed since the KHR DebugMessageCallback is in use.")]
-    public static void OpenGLErrorCheck(string programStage = "unspecified")
-        => ErrorCheck(programStage, GL.GetError, OpenGLErrors, ErrorCode.NoError);
-
-    /// <summary>
     /// Writes or stores outstanding OpenAL error messages (depending on the StoreErrors flag).
     /// </summary>
     public static void OpenALErrorCheck(string programStage = "unspecified")
-        => ErrorCheck(programStage, AL.GetError, OpenALErrors, ALError.NoError);
-
-    /// <summary>
-    /// Outputs and optionally purges any stored OpenGL and OpenAL errors.
-    /// </summary>
-    public static void WriteToConsole(bool purge = true)
     {
-        if (!HasErrors) return;
-        Console.WriteLine("  (Stored errors not necessarily in the sequence listed.)");
-        foreach (var e in OpenGLErrors) Console.WriteLine(e);
-        foreach (var e in EyecandyErrors) Console.WriteLine(e);
-        foreach (var e in OpenALErrors) Console.WriteLine(e);
-        if (purge)
-        {
-            OpenGLErrors.Clear();
-            EyecandyErrors.Clear();
-            OpenALErrors.Clear();
-        }
-    }
-
-    // The OpenGL and OpenAL processes are identical except for the enum returned...
-    private static void ErrorCheck<T>(string programStage, Func<T> errorMethod, List<string> storage, T noError)
-    where T : Enum
-    {
-        bool consoleOutput = Strategy == LoggingStrategy.AlwaysOutputToConsole
-            || (Strategy == LoggingStrategy.Automatic && Logger is null);
-
-        var err = errorMethod.Invoke();
-        while (!err.Equals(noError))
+        if (OpenALLogger is null) return;
+        var err = AL.GetError();
+        while (!err.Equals(ALError.NoError))
         {
             var message = $"  Program stage \"{programStage}\": {err}";
-            Logger?.LogError(message.Trim());
-
-            if (Strategy == LoggingStrategy.AlwaysStore)
-            {
-                storage.Add(message);
-            }
-
-            if(consoleOutput)
-            {
-                foreach (var e in storage) Console.WriteLine(e);
-                storage.Clear();
-                Console.WriteLine(message);
-            }
-            err = errorMethod.Invoke();
+            OpenALLogger.LogError(message.Trim());
+            err = AL.GetError();
         }
-    }
-
-    internal static void EyecandyError(string programStage, string err, LogLevel logLevel = LogLevel.Error)
-    {
-        var message = $"[{logLevel}] at program stage \"{programStage}\": {err}";
-        LogMessage(logLevel, message);
     }
 
     // This is wired up in the BaseWindow constructor
@@ -128,7 +74,7 @@ public static class ErrorLogging
         IntPtr pMessage,        // pointer to message string
         IntPtr pUserParam)      // not used here
     {
-        if (IgnoredErrorCallbackIDs.Contains(id)) return;
+        if (OpenGLLogger is null || IgnoredErrorCallbackIDs.Contains(id)) return;
 
         var message = Marshal.PtrToStringAnsi(pMessage, length);
         var errSource = source.ToString().Substring("DebugSource".Length);
@@ -154,26 +100,45 @@ public static class ErrorLogging
                 break;
         }
 
-        LogMessage(logLevel, logMessage);
+        OpenGLLogger.Log(logLevel, logMessage);
     }
 
-    private static void LogMessage(LogLevel logLevel, string message)
-    {
-        Logger?.Log(logLevel, message.Trim());
+    [Obsolete("Set the LoggerFactory property and configure the logger for the desired output.")]
+    public static LoggingStrategy Strategy = LoggingStrategy.Automatic;
 
-        if (Strategy == LoggingStrategy.AlwaysStore)
-        {
-            EyecandyErrors.Add(message);
-        }
+    [Obsolete("Set the LoggerFactory property and configure the logger for the desired output.")]
+    public static ILogger Logger = null;
 
-        bool consoleOutput = Strategy == LoggingStrategy.AlwaysOutputToConsole
-            || (Strategy == LoggingStrategy.Automatic && Logger is null);
+    [Obsolete("Set the LoggerFactory property and configure the logger for the desired output.")]
+    public static List<string> OpenGLErrors = new();
 
-        if (consoleOutput)
-        {
-            foreach (var e in EyecandyErrors) Console.WriteLine(e);
-            EyecandyErrors.Clear();
-            Console.WriteLine(message);
-        }
-    }
+    [Obsolete("Set the LoggerFactory property and configure the logger for the desired output.")]
+    public static List<string> OpenALErrors = new();
+
+    [Obsolete("Set the LoggerFactory property and configure the logger for the desired output.")]
+    public static List<string> EyecandyErrors = new();
+
+    [Obsolete("Set the LoggerFactory property and configure the logger for the desired output.")]
+    public static bool HasErrors = false;
+
+    [Obsolete("GL.GetError calls are no longer needed since the KHR DebugMessageCallback is in use.")]
+    public static void OpenGLErrorCheck(string programStage = "unspecified") { }
+
+    [Obsolete("Use the version of OpenALErrorCheck that does not rely on the obsolete storage collections")]
+    private static void ErrorCheck<T>(string programStage, Func<T> errorMethod, List<string> storage, T noError)
+    where T : Enum
+    { }
+}
+
+[Obsolete("Set the ErrorLogging.LoggerFactory property and configure the logger for the desired output.")]
+public enum LoggingStrategy
+{
+    [Obsolete("Set the ErrorLogging.LoggerFactory property and configure the logger for the desired output.")]
+    Automatic = 0,
+
+    [Obsolete("Set the ErrorLogging.LoggerFactory property and configure the logger for the desired output.")]
+    AlwaysOutputToConsole = 1,
+
+    [Obsolete("Set the ErrorLogging.LoggerFactory property and configure the logger for the desired output.")]
+    AlwaysStore = 2,
 }
