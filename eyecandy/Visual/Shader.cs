@@ -29,6 +29,8 @@ public class Shader : IDisposable
     // used for logging
     private string SourceFiles;
 
+    private readonly ILogger Logger;
+
     // avoid blasting the log with "ignored" messages from every render pass!
     private List<string> IgnoredUniformNames = new();
 
@@ -40,9 +42,10 @@ public class Shader : IDisposable
     public Shader(string vertexPathname, string fragmentPathname, params ShaderLibrary[] libs)
     {
         SourceFiles = $"{Path.GetFileName(vertexPathname)} / {Path.GetFileName(fragmentPathname)}";
-        var loggerInfo = $"{nameof(Shader)} ctor ({SourceFiles})";
-
-        ErrorLogging.Logger?.LogDebug($"{loggerInfo} loading with {libs.Length} libraries");
+        var loggerInfo = $"constructor({SourceFiles})";
+        Logger = ErrorLogging.LoggerFactory?.CreateLogger("Eyecandy." + nameof(Shader));
+        
+        Logger?.LogDebug($"{loggerInfo} loading with {libs.Length} libraries");
 
         int VertexShader = 0;
         int FragmentShader = 0;
@@ -53,7 +56,7 @@ public class Shader : IDisposable
             if(!lib.IsValid)
             {
                 IsValid = false;
-                ErrorLogging.EyecandyError($"{loggerInfo} Library Validation", $"Library {lib.Pathname} is not valid");
+                Logger?.LogError($"{loggerInfo} library validation: {lib.Pathname} is not valid");
                 return;
             }
         }
@@ -66,15 +69,13 @@ public class Shader : IDisposable
             VertexShader = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(VertexShader, VertexShaderSource);
             FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-            //ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after loading vertex shader source file");
             GL.ShaderSource(FragmentShader, FragmentShaderSource);
-            //ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after loading fragment shader source file");
-            //ErrorLogging.Logger?.LogDebug($"{loggerInfo} file-read completed");
+            Logger?.LogDebug($"{loggerInfo} file-read completed");
         }
         catch (Exception ex)
         {
             IsValid = false;
-            ErrorLogging.EyecandyError($"{loggerInfo} Read File", $"{ex}: {ex.Message}");
+            Logger?.LogError($"{loggerInfo} reading file {ex}: {ex.Message}");
             return;
         }
 
@@ -86,7 +87,6 @@ public class Shader : IDisposable
             foreach (var lib in libs) GL.AttachShader(Handle, lib.Handle);
             GL.AttachShader(Handle, VertexShader);
             GL.AttachShader(Handle, FragmentShader);
-            //ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after program created and shaders attached");
 
             // compile
             try
@@ -95,7 +95,7 @@ public class Shader : IDisposable
                 GL.GetShader(VertexShader, ShaderParameter.CompileStatus, out int vertOk);
                 if (vertOk == 0)
                 {
-                    ErrorLogging.EyecandyError($"{loggerInfo} Compile Vert", GL.GetShaderInfoLog(VertexShader));
+                    Logger?.LogError($"{loggerInfo} compile vert {GL.GetShaderInfoLog(VertexShader)}");
                     IsValid = false;
                     return;
                 }
@@ -104,7 +104,7 @@ public class Shader : IDisposable
                 GL.GetShader(FragmentShader, ShaderParameter.CompileStatus, out int fragOk);
                 if (fragOk == 0)
                 {
-                    ErrorLogging.EyecandyError($"{loggerInfo} Compile Frag", GL.GetShaderInfoLog(FragmentShader));
+                    Logger?.LogError($"{loggerInfo} compile frag {GL.GetShaderInfoLog(FragmentShader)}");
                     IsValid = false;
                     foreach (var lib in libs) GL.DetachShader(Handle, lib.Handle);
                     GL.DeleteProgram(Handle);
@@ -112,15 +112,14 @@ public class Shader : IDisposable
                     return;
                 }
 
-                ErrorLogging.Logger?.LogDebug($"{loggerInfo} compilation completed");
+                Logger?.LogDebug($"{loggerInfo} compilation completed");
             }
             catch (Exception ex)
             {
                 IsValid = false;
-                ErrorLogging.EyecandyError($"{loggerInfo} Compile", $"{ex}: {ex.Message}");
+                Logger?.LogError($"{loggerInfo} compilation {ex}: {ex.Message}");
                 return;
             }
-            //ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after compiling shader program");
 
             // attach and link
             try
@@ -130,18 +129,17 @@ public class Shader : IDisposable
                 if (linkOk == 0)
                 {
                     IsValid = false;
-                    ErrorLogging.EyecandyError($"{loggerInfo} Linking", GL.GetProgramInfoLog(Handle));
+                    Logger?.LogError($"{loggerInfo} linking {GL.GetProgramInfoLog(Handle)}");
                     return;
                 }
-                ErrorLogging.Logger?.LogDebug($"{loggerInfo} linking completed");
+                Logger?.LogDebug($"{loggerInfo} linking completed");
             }
             catch (Exception ex)
             {
                 IsValid = false;
-                ErrorLogging.EyecandyError($"{loggerInfo} Linking", $"{ex}: {ex.Message}");
+                Logger?.LogError($"{loggerInfo} linking {ex}: {ex.Message}");
                 return;
             }
-            //ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after linking programs");
         }
         finally
         {
@@ -160,13 +158,12 @@ public class Shader : IDisposable
                 Handle = -1;
             }
         }
-        //ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after cleanup");
 
         // cache uniform locations; note that uniforms not used by the shader code
         // are not "active" and will not be listed even though they're declared, thus
         // the SetUniform overrides ignore any uniform key-name not in the cache
         GL.GetProgram(Handle, GetProgramParameterName.ActiveUniforms, out var uniformCount);
-        ErrorLogging.Logger?.LogDebug($"{loggerInfo} {uniformCount} active uniforms reported");
+        Logger?.LogDebug($"{loggerInfo} {uniformCount} active uniforms reported");
         Uniforms = new(uniformCount);
         for (var i = 0; i < uniformCount; i++)
         {
@@ -175,9 +172,8 @@ public class Shader : IDisposable
             var value = GetUniform(location, type);
             var uniform = new Uniform(key, location, size, type, value);
             Uniforms.Add(key, uniform);
-            ErrorLogging.Logger?.LogDebug($"{loggerInfo} caching uniform {key} at location {location}, type {type}, default value {value}");
+            Logger?.LogDebug($"{loggerInfo} caching uniform {key} at location {location}, type {type}, default value {value}");
         }
-        //ErrorLogging.OpenGLErrorCheck($"{loggerInfo} after caching uniforms");
     }
 
     /// <summary>
@@ -226,7 +222,7 @@ public class Shader : IDisposable
         {
             if (!IgnoredUniformNames.Contains(name))
             {
-                ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetTexture)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                Logger?.LogTrace($"{SourceFiles} {nameof(SetTexture)}: No uniform named \"{name}\"; ignoring request.");
                 IgnoredUniformNames.Add(name);
             }
             return;
@@ -247,7 +243,7 @@ public class Shader : IDisposable
         {
             if (!IgnoredUniformNames.Contains(name))
             {
-                ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                Logger?.LogTrace($"{SourceFiles} {nameof(SetUniform)}: No uniform named \"{name}\"; ignoring request.");
                 IgnoredUniformNames.Add(name);
             }
             return;
@@ -265,7 +261,7 @@ public class Shader : IDisposable
         {
             if (!IgnoredUniformNames.Contains(name))
             {
-                ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                Logger?.LogTrace($"{SourceFiles} {nameof(SetUniform)}: No uniform named \"{name}\"; ignoring request.");
                 IgnoredUniformNames.Add(name);
             }
             return;
@@ -283,7 +279,7 @@ public class Shader : IDisposable
         {
             if (!IgnoredUniformNames.Contains(name))
             {
-                ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                Logger?.LogTrace($"{SourceFiles} {nameof(SetUniform)}: No uniform named \"{name}\"; ignoring request.");
                 IgnoredUniformNames.Add(name);
             }
             return;
@@ -301,7 +297,7 @@ public class Shader : IDisposable
         {
             if (!IgnoredUniformNames.Contains(name))
             {
-                ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                Logger?.LogTrace($"{SourceFiles} {nameof(SetUniform)}: No uniform named \"{name}\"; ignoring request.");
                 IgnoredUniformNames.Add(name);
             }
             return;
@@ -319,7 +315,7 @@ public class Shader : IDisposable
         {
             if (!IgnoredUniformNames.Contains(name))
             {
-                ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                Logger?.LogTrace($"{SourceFiles} {nameof(SetUniform)}: No uniform named \"{name}\"; ignoring request.");
                 IgnoredUniformNames.Add(name);
             }
             return;
@@ -337,7 +333,7 @@ public class Shader : IDisposable
         {
             if (!IgnoredUniformNames.Contains(name))
             {
-                ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                Logger?.LogTrace($"{SourceFiles} {nameof(SetUniform)}: No uniform named \"{name}\"; ignoring request.");
                 IgnoredUniformNames.Add(name);
             }
             return;
@@ -355,7 +351,7 @@ public class Shader : IDisposable
         {
             if (!IgnoredUniformNames.Contains(name))
             {
-                ErrorLogging.EyecandyError($"{SourceFiles} {nameof(SetUniform)}", $"No uniform named \"{name}\"; ignoring request.", LogLevel.Trace);
+                Logger?.LogTrace($"{SourceFiles} {nameof(SetUniform)}: No uniform named \"{name}\"; ignoring request.");
                 IgnoredUniformNames.Add(name);
             }
             return;
@@ -419,9 +415,9 @@ public class Shader : IDisposable
     public void Dispose()
     {
         if (IsDisposed) return;
-        ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
+        Logger?.LogTrace("Dispose() ----------------------------");
 
-        ErrorLogging.Logger?.LogTrace($"  {GetType()}.Dispose() DeleteProgram for {SourceFiles}");
+        Logger?.LogTrace($"  Dispose() DeleteProgram for {SourceFiles}");
         GL.DeleteProgram(Handle);
 
         if (ActiveShader == this) ActiveShader = null;

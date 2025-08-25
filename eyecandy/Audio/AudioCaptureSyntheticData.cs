@@ -22,6 +22,8 @@ public class AudioCaptureSyntheticData : AudioCaptureBase, IDisposable
 
     private long SampleIndex;
 
+    private readonly ILogger Logger;
+
     /// <inheritdoc/>
     internal AudioCaptureSyntheticData(EyeCandyCaptureConfig configuration)
     : base(configuration)
@@ -36,16 +38,17 @@ public class AudioCaptureSyntheticData : AudioCaptureBase, IDisposable
         MaxAmplitude = short.MaxValue * Configuration.SyntheticDataAmplitude;
         MinAmplitude = MaxAmplitude * Configuration.SyntheticDataMinimumLevel;
 
-        ErrorLogging.Logger?.LogTrace($"{nameof(AudioCaptureSyntheticData)}: constructor completed");
+        Logger = ErrorLogging.LoggerFactory?.CreateLogger("Eyecandy." + nameof(AudioCaptureSyntheticData));
+        Logger?.LogTrace("Constructor completed");
     }
 
     /// <inheritdoc/>
     public override void Capture(Action newAudioDataCallback, CancellationToken cancellationToken)
     {
-        ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureSyntheticData)}: Capture starting");
+        Logger?.LogDebug("Capture starting");
         if (IsDisposed)
         {
-            ErrorLogging.EyecandyError($"{nameof(AudioCaptureSyntheticData)}.{nameof(Capture)}", "Aborting, object has been disposed", LogLevel.Error);
+            Logger?.LogError("Capture aborting, object has been disposed");
             return;
         }
 
@@ -81,7 +84,7 @@ public class AudioCaptureSyntheticData : AudioCaptureBase, IDisposable
             }
         }
 
-        ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureSyntheticData)}: Capture ending");
+        Logger?.LogDebug("Capture ending");
         CaptureEnding();
 
         Interlocked.Exchange(ref IsCapturing, 0);
@@ -113,7 +116,7 @@ public class AudioCaptureSyntheticData : AudioCaptureBase, IDisposable
         base.Dispose();
 
         if (IsDisposed) return;
-        ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
+        Logger?.LogTrace("Dispose() ----------------------------");
 
         // nothing to dispose but it will prevent calling Capture
         // again given the base class may dispose resources

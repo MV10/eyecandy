@@ -19,19 +19,24 @@ demo [type] [options]
 [type]
 peaks           Peak audio capture values (use for configuration)
 text            Text-based audio visualizations
+silence         Silence-detection testing
 history         Raw history-texture dumps
 wave            Raw PCM wave audio visualization
 freq            Frequency magnitude and volume history (multiple shaders)
 vert            VertexShaderArt-style integer-array vertex shader (no audio)
 frag            Shadertoy-style pixel fragment shader
 webaudio        Compares WebAudio pseudo-Decibels to pure FFT Decibels
+modes           Different OpenGL drawing modes (points, lines, tris, etc)
+uniforms        Testing the Shader.ResetUniforms call
 
 info            OpenAL information (devices, defaults, extensions, etc.)
                 (Windows requires a loopback driver; no WASAPI equivalent)
 
 [options]
 F               Full-screen mode
-P               Output Process ID
-O               Windows: Capture audio with OpenAL-Soft instead of WASAPI
 E               Simulate OpenGL errors (currently only \"freq\" does this)
+S               Simulate audio with the SyntheticData wave sample source
+O               Windows: Capture audio with OpenAL-Soft instead of WASAPI
+D               Show Debug log messages (default is Error/Critical)
+V               Show Verbose log messages (default is Error/Critical)
 ```

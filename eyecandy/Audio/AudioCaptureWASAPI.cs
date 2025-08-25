@@ -21,16 +21,19 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
         CaptureDevice.WaveFormat = new WaveFormat(SampleRate, 1);
         CaptureDevice.DataAvailable += ProcessSamples;
 
-        ErrorLogging.Logger?.LogTrace($"{nameof(AudioCaptureWASAPI)}: constructor completed");
+        Logger = ErrorLogging.LoggerFactory?.CreateLogger("Eyecandy." + nameof(AudioCaptureWASAPI));
+        Logger?.LogTrace("Constructor completed");
     }
+
+    private readonly ILogger Logger;
 
     /// <inheritdoc/>
     public override void Capture(Action newAudioDataCallback, CancellationToken cancellationToken)
     {
-        ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureWASAPI)}: Capture starting");
+        Logger?.LogDebug("Capture starting");
         if (IsDisposed)
         {
-            ErrorLogging.EyecandyError($"{nameof(AudioCaptureWASAPI)}.{nameof(Capture)}", "Aborting, object has been disposed", LogLevel.Error);
+            Logger?.LogError("Capture aborting, object has been disposed");
             return;
         }
 
@@ -46,7 +49,7 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
             DetectSilence();
         }
 
-        ErrorLogging.Logger?.LogDebug($"{nameof(AudioCaptureWASAPI)}: Capture ending");
+        Logger?.LogDebug("Capture ending");
         CaptureEnding();
         CaptureDevice.StopRecording();
 
@@ -126,11 +129,11 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
         base.Dispose();
 
         if (IsDisposed) return;
-        ErrorLogging.Logger?.LogTrace($"{GetType()}.Dispose() ----------------------------");
+        Logger?.LogTrace("Dispose() ----------------------------");
 
         if (IsCapturing == 1)
         {
-            ErrorLogging.EyecandyError($"{nameof(AudioCaptureWASAPI)}.Dispose", "Dispose invoked before audio processing was terminated.");
+            Logger?.LogError("Dispose invoked before audio processing was terminated");
         }
 
         if(CaptureDevice is not null)

@@ -1,7 +1,5 @@
 ﻿using eyecandy;
 using Microsoft.Extensions.Logging;
-using Serilog;
-using Serilog.Extensions.Logging;
 
 namespace demo;
 
@@ -19,20 +17,15 @@ internal class Program
 
     private static LogLevel MinimumLogLevel = LogLevel.Error;
 
-    internal static Microsoft.Extensions.Logging.ILogger Logger;
+    internal static ILogger Logger;
 
     static async Task Main(string[] args)
     {
-        //if(args.Length == 0) args = new[]{ "modes" };
-
         if(args.Length == 0 || args.Length > 2)
         {
             Help();
             Environment.Exit(0);
         }
-
-        // For demo purposes, force all error output to the console.
-        ErrorLogging.Strategy = LoggingStrategy.AlwaysOutputToConsole;
 
         Console.WriteLine($"\nPID {Environment.ProcessId}\n\n");
 
@@ -47,7 +40,14 @@ internal class Program
             if (args[1].Contains("V", IgnoreCase)) MinimumLogLevel = LogLevel.Trace;
         }
 
-        ConfigureLogging(Logger);
+        // For demo purposes, force all error output to the console.
+        using var loggerFactory = LoggerFactory.Create(config =>
+        {
+            config
+            .AddSimpleConsole(options => options.SingleLine = true)
+            .SetMinimumLevel(MinimumLogLevel);
+        });
+        ErrorLogging.LoggerFactory = loggerFactory;
 
         switch (args[0].ToLower())
         {
@@ -99,17 +99,10 @@ internal class Program
                 await ResetUniforms.Demo();
                 break;
 
-            case "logging":
-                Info.UseLogging = true;
-                await Info.Demo();
-                break;
-
             default:
                 Help();
                 break;
         }
-
-        Log.CloseAndFlush();
 
         // give the console time to output everything :(
         await Task.Delay(250);
@@ -132,7 +125,6 @@ internal class Program
         Console.WriteLine("webaudio\tCompares WebAudio pseudo-Decibels to pure FFT Decibels");
         Console.WriteLine("modes\t\tDifferent OpenGL drawing modes (points, lines, tris, etc)");
         Console.WriteLine("uniforms\tTesting the Shader.ResetUniforms call");
-        Console.WriteLine("logging\tWrites system details like \"info\" to demo.log");
         Console.WriteLine("\ninfo\t\tOpenAL information (devices, defaults, extensions, etc.)");
         Console.WriteLine("\t\t(Windows requires a loopback driver; no WASAPI equivalent)");
 
@@ -143,43 +135,5 @@ internal class Program
         Console.WriteLine("O\t\tWindows: Capture audio with OpenAL-Soft instead of WASAPI");
         Console.WriteLine("D\t\tShow Debug log messages (default is Error/Critical)");
         Console.WriteLine("V\t\tShow Verbose log messages (default is Error/Critical)");
-    }
-
-    public static void ConfigureLogging(Microsoft.Extensions.Logging.ILogger logger)
-    {
-        // If the library consumer has already prepared logging, just use that
-        if(logger is not null)
-        {
-            Log.Logger = (Serilog.ILogger)logger;
-            ErrorLogging.Logger = logger;
-            return;
-        }
-
-        var logPath = Path.GetFullPath("./demo.log");
-        if (File.Exists(logPath)) File.Delete(logPath);
-
-        Console.WriteLine($"Logging to {logPath}");
-
-        var cfg = new LoggerConfiguration()
-                .WriteTo.Async(a => a.File(logPath, shared: true))
-                .WriteTo.Console();
-
-        switch(MinimumLogLevel)
-        {
-            case LogLevel.Debug:
-                cfg.MinimumLevel.Debug(); break;
-
-            case LogLevel.Trace:
-                cfg.MinimumLevel.Verbose(); break;
-
-            default:
-                cfg.MinimumLevel.Error(); break;
-        }
-
-        Log.Logger = cfg.CreateLogger();
-
-        logger = new SerilogLoggerFactory().CreateLogger("eyecandy-demo");
-
-        ErrorLogging.Logger = logger;
     }
 }
