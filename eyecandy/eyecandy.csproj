@@ -40,7 +40,7 @@
 
 	<ItemGroup>
     <PackageReference Include="FftSharp" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="OpenTK" Version="4.9.4" />
   </ItemGroup>
