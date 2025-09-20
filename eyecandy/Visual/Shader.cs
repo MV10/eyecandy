@@ -210,13 +210,19 @@ public class Shader : IDisposable
     /// <summary>
     /// Assigns a texture to a shader uniform.
     /// </summary>
-    public void SetTexture(string name, int handle, TextureUnit unit)
-        => SetTexture(name, handle, unit.ToOrdinal());
+    public void SetTexture(string name, int handle, TextureUnit unit, TextureTarget target = TextureTarget.Texture2D)
+        => SetTexture(name, handle, unit.ToOrdinal(), target);
+
+    /// <summary>
+    /// Assigns a cubemap texture to a shader uniform.
+    /// </summary>
+    public void SetCubemap(string name, int handle, TextureUnit unit)
+        => SetTexture(name, handle, unit.ToOrdinal(), TextureTarget.TextureCubeMap);
 
     /// <summary>
     /// Assigns a texture to a shader uniform.
     /// </summary>
-    public void SetTexture(string name, int handle, int unit)
+    public void SetTexture(string name, int handle, int unit, TextureTarget target = TextureTarget.Texture2D)
     {
         if (!Uniforms.ContainsKey(name))
         {
@@ -230,7 +236,7 @@ public class Shader : IDisposable
         Use();
 
         GL.ActiveTexture(unit.ToTextureUnitEnum());
-        GL.BindTexture(TextureTarget.Texture2D, handle);
+        GL.BindTexture(target, handle);
         GL.Uniform1(Uniforms[name].Location, unit);
     }
 
