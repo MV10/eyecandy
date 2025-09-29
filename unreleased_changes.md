@@ -5,13 +5,13 @@
 
 ### Changelog
 * https://github.com/MV10/eyecandy/wiki/5.-Changelog
-
 * v4.1.0 released 2025-09-20
+* v4.2.0 TBD
 
 
 ### Work In Progress
 
-*
+* Add line-in support
 
 
 ### TODO

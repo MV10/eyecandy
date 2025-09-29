@@ -52,7 +52,14 @@ internal class Program
         switch (args[0].ToLower())
         {
             case "info":
-                await Info.Demo();
+                if(WindowsUseOpenALSoft)
+                {
+                    await InfoOpenAL.Demo();
+                }
+                else
+                {
+                    await InfoWASAPI.Demo();
+                }
                 break;
 
             case "peaks":
