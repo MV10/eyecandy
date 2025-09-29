@@ -2,7 +2,7 @@
   "profiles": {
     "demo": {
       "commandName": "Project",
-      "commandLineArgs": "info"
+      "commandLineArgs": "help"
     }
   }
 }

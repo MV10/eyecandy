@@ -132,15 +132,15 @@ internal class Program
         Console.WriteLine("webaudio\tCompares WebAudio pseudo-Decibels to pure FFT Decibels");
         Console.WriteLine("modes\t\tDifferent OpenGL drawing modes (points, lines, tris, etc)");
         Console.WriteLine("uniforms\tTesting the Shader.ResetUniforms call");
-        Console.WriteLine("\ninfo\t\tOpenAL information (devices, defaults, extensions, etc.)");
-        Console.WriteLine("\t\t(Windows requires a loopback driver; no WASAPI equivalent)");
+        Console.WriteLine("\ninfo\t\tList known playback and capture devices (uses WASAPI)");
+        Console.WriteLine("info O\t\tUse OpenAL instead of WASAPI, also tests capture/playback");
 
         Console.WriteLine("\n[options]");
         Console.WriteLine("F\t\tFull-screen mode");
-        Console.WriteLine("E\t\tSimulate OpenGL errors (currently only \"freq\" does this)");
         Console.WriteLine("S\t\tSimulate audio with the SyntheticData wave sample source");
-        Console.WriteLine("O\t\tWindows: Capture audio with OpenAL-Soft instead of WASAPI");
+        Console.WriteLine("E\t\tSimulate OpenGL errors (currently only \"freq\" does this)");
         Console.WriteLine("D\t\tShow Debug log messages (default is Error/Critical)");
         Console.WriteLine("V\t\tShow Verbose log messages (default is Error/Critical)");
+        Console.WriteLine("O\t\tCapture audio with OpenAL (requires loopback driver)");
     }
 }
