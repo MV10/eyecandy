@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.Extensions.Logging;
+using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
 namespace eyecandy;
@@ -11,13 +12,25 @@ public class AudioCaptureWASAPI : AudioCaptureBase, IDisposable
 {
     private static readonly int CaptureBufferMillisec = 23;
 
-    private WindowsLoopbackWrapper CaptureDevice;
+    private WasapiCapture CaptureDevice;
 
     /// <inheritdoc/>
     internal AudioCaptureWASAPI(EyeCandyCaptureConfig configuration)
     : base(configuration)
     {
-        CaptureDevice = new(CaptureBufferMillisec); 
+        if(string.IsNullOrWhiteSpace(configuration.CaptureDeviceName))
+        {
+            CaptureDevice = new WindowsLoopbackWrapper(CaptureBufferMillisec);
+        }
+        else
+        {
+            using var devices = new MMDeviceEnumerator();
+            var device =
+                devices.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active)
+                .FirstOrDefault(d => d.FriendlyName.Equals(configuration.CaptureDeviceName, StringComparison.OrdinalIgnoreCase)) 
+                ?? throw new ArgumentException($"WASAPI capture device \"{configuration.CaptureDeviceName}\" not found");
+            CaptureDevice = new WasapiCapture(device, false, CaptureBufferMillisec);
+        }
         CaptureDevice.WaveFormat = new WaveFormat(SampleRate, 1);
         CaptureDevice.DataAvailable += ProcessSamples;
 

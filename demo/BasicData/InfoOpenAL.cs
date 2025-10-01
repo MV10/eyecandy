@@ -6,11 +6,11 @@ using System.Diagnostics;
 
 namespace demo;
 
-internal class Info
+internal class InfoOpenAL
 {
     public static async Task Demo()
     {
-        Console.WriteLine("OpenAL Information (no equivalent available for Windows WASAPI)");
+        Console.WriteLine("OpenAL Device Information and record/playback test");
         Console.WriteLine("---------------------------------------------------------------");
 
         var devices = ALC.GetStringList(GetEnumerationStringList.DeviceSpecifier);
