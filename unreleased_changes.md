@@ -11,7 +11,10 @@
 
 ### Work In Progress
 
-* Add line-in support
+* Add WASAPI line-in support (set `EyeCandyCaptureConfig.CaptureDeviceName`)
+* Add WASAPI device enumeration to demo project with the `info` switch
+* Change OpenAL device enumeration in demo to require `info O` switches
+* Add compiled demo.exe to Github release page when packages are published
 
 
 ### TODO

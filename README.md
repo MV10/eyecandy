@@ -11,7 +11,9 @@ Please refer to the repository [wiki](https://github.com/MV10/eyecandy/wiki) for
 
 ## Demos
 
-The repository's demo project has a lot of useful utilities, and illustrates different ways to use the library. Here is the help output (run the demo program without args to see this):
+The repository's demo project has a lot of useful utilities, and illustrates different ways to use the library. Each time the eyecandy package is updated, a compiled demo.exe is added to this repository's [Releases](https://github.com/MV10/eyecandy/releases) page. Just drop it into the directory where your eyecandy project is located and run it from a terminal/command prompt. This is particularly useful with the `info` switch to enumerate audio devices for configuration purposes (set `EyeCandyCaptureConfig.CaptureDeviceName` to an input source).
+
+Here is the help output (run the demo program without args to see this):
 
 ```
 demo [type] [options]
@@ -29,14 +31,14 @@ webaudio        Compares WebAudio pseudo-Decibels to pure FFT Decibels
 modes           Different OpenGL drawing modes (points, lines, tris, etc)
 uniforms        Testing the Shader.ResetUniforms call
 
-info            OpenAL information (devices, defaults, extensions, etc.)
-                (Windows requires a loopback driver; no WASAPI equivalent)
+info            List known playback and capture devices (uses WASAPI)
+info O          Use OpenAL instead of WASAPI, also tests capture/playback
 
 [options]
 F               Full-screen mode
-E               Simulate OpenGL errors (currently only \"freq\" does this)
 S               Simulate audio with the SyntheticData wave sample source
-O               Windows: Capture audio with OpenAL-Soft instead of WASAPI
+E               Simulate OpenGL errors (currently only "freq" does this)
 D               Show Debug log messages (default is Error/Critical)
 V               Show Verbose log messages (default is Error/Critical)
+O               Capture audio with OpenAL (requires loopback driver)
 ```
