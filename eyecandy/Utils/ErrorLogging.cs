@@ -91,12 +91,15 @@ public static class ErrorLogging
     /// </summary>
     internal static void FlushOpenGLErrors()
     {
-        if (OpenGLLogger is null) return;
-        OpenGLLogger.LogError($"\n\n{IntervalTracking.Count} errors were suppressed at interval {LogInterval}; final tallies:\n");
-        foreach(var kvp in IntervalTracking)
+        if (OpenGLLogger is not null)
         {
-            OpenGLLogger.LogError($"\nThis error raised {kvp.Value.Counter} times:\n{kvp.Value.Message}");
+            OpenGLLogger.LogError($"\n\n{IntervalTracking.Count} errors were suppressed at interval {LogInterval}; final tallies:\n");
+            foreach (var kvp in IntervalTracking)
+            {
+                OpenGLLogger.LogError($"\nThis error raised {kvp.Value.Counter} times:\n{kvp.Value.Message}");
+            }
         }
+        IntervalTracking.Clear();
     }
 
     // This is wired up in the BaseWindow constructor
