@@ -48,7 +48,7 @@ public static class ErrorLogging
     public static OpenGLErrorLogFlags LoggingMode = OpenGLErrorLogFlags.Normal;
 
     /// <summary>
-    /// Limits the frequency at which a given error message will be logged.
+    /// Limits the frequency (in seconds) at which a given error message will be logged.
     /// </summary>
     public static long LogInterval = 0;
 
@@ -58,7 +58,7 @@ public static class ErrorLogging
     // Automatically generated whenever LoggerFactory is set.
     private static ILogger OpenGLLogger = null;
 
-    private static Dictionary<uint, (string Message, long Counter)> IntervalTracking = new();
+    private static Dictionary<uint, (string Message, long Counter, DateTime LastLogged)> ThrottledErrors = new();
 
     // These are widely recognized as unimportant "noise" messages when the OpenGL
     // Debug Message error callback is wired up. For example:
@@ -93,13 +93,13 @@ public static class ErrorLogging
     {
         if (OpenGLLogger is not null)
         {
-            OpenGLLogger.LogError($"\n\n{IntervalTracking.Count} errors were suppressed at interval {LogInterval}; final tallies:\n");
-            foreach (var kvp in IntervalTracking)
+            OpenGLLogger.LogError($"\n\n{ThrottledErrors.Count} duplicate errors were throttled to a rate of {LogInterval}ms. Final tallies:\n");
+            foreach (var kvp in ThrottledErrors)
             {
                 OpenGLLogger.LogError($"\nThis error raised {kvp.Value.Counter} times:\n{kvp.Value.Message}");
             }
         }
-        IntervalTracking.Clear();
+        ThrottledErrors.Clear();
     }
 
     // This is wired up in the BaseWindow constructor
@@ -150,16 +150,21 @@ public static class ErrorLogging
         if (LogInterval > 0)
         {
             var hash = StringHashing.Hash(logMessage);
-            if (IntervalTracking.TryGetValue(hash, out var entry))
+            if (ThrottledErrors.TryGetValue(hash, out var entry))
             {
+                bool suppress = DateTime.UtcNow.Subtract(entry.LastLogged).TotalMilliseconds < LogInterval;
+                if (!suppress) entry.LastLogged = DateTime.UtcNow;
+
                 entry.Counter++;
-                IntervalTracking[hash] = entry;
-                if (entry.Counter % LogInterval != 0) return;
-                logMessage = $"{logMessage}\n(Suppressing duplicate errors at interval {LogInterval}; this is number {entry.Counter})";
+                ThrottledErrors[hash] = entry;
+
+                if (suppress) return;
+
+                logMessage = $"{logMessage}\n(Duplicate errors throttled to a rate of {LogInterval}ms; this is number {entry.Counter})";
             }
             else
             {
-                IntervalTracking.Add(hash, (logMessage, 1));
+                ThrottledErrors.Add(hash, (logMessage, 1, DateTime.UtcNow));
             }
         }
 

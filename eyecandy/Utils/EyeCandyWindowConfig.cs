@@ -65,11 +65,10 @@ public class EyeCandyWindowConfig
     public bool OpenGLErrorBreakpoint { get; set; } = false;
 
     /// <summary>
-    /// When true, OpenGL errors (which can happen at very high frequency) are checked for
-    /// duplication and only logged at the specified interval. If the containing program
-    /// calls ErrorLogging.FlushGLErrors, a final tally is output at program termination.
-    /// Set this to zero to disable interval logging. The default is 36000, which is about
-    /// once per minute at 60FPS.
+    /// Specified in milliseconds, the default is 60 seconds. Because OpenGL errors can 
+    /// happen at high frequencies, this limits how often a given error is actually logged.
+    /// Each time it is logged, the true count is also logged, and when the program exits
+    /// the total count for each throttled error is logged. Requires use of BaseWindow.
     /// </summary>
-    public long OpenGLErrorInterval { get; set; } = 36000;
+    public long OpenGLErrorThrottle { get; set; } = 60000;
 }

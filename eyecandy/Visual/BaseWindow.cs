@@ -101,7 +101,7 @@ public abstract class BaseWindow : GameWindow, IDisposable
         HideMousePointer = Configuration.HideMousePointer;
         FPSBuffer = new int[AverageFPSTimeframeSeconds];
 
-        ErrorLogging.LogInterval = configuration.OpenGLErrorInterval;
+        ErrorLogging.LogInterval = configuration.OpenGLErrorThrottle;
         ErrorLogging.LoggingMode = configuration.OpenGLErrorLogging;
         if(configuration.OpenGLErrorLogging != OpenGLErrorLogFlags.Disabled)
         {

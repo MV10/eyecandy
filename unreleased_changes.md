@@ -9,11 +9,6 @@
 ### Work In Progress
 
 * Local v4.3.0
-* Logs extra error details via `GLErrorAppState` object
-* Added `EyeCandyWindowConfig.OpenGLDebugMode` flag (default is false)
-* Added `EyeCandyWindowConfig.OpenGLErrorBreakpoint` flag (default is false)
-* Added `EyeCandyWindowConfig.OpenGLErrorInterval` (default is 36,000)
-* Removed obsolete `ErrorLogging` fields
 
 
 ### TODO
