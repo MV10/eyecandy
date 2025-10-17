@@ -92,10 +92,10 @@ public static class ErrorLogging
     internal static void FlushOpenGLErrors()
     {
         if (OpenGLLogger is null) return;
-        OpenGLLogger.LogInformation($"\n\nErrors were suppressed at interval {LogInterval}; final tallies:\n");
+        OpenGLLogger.LogError($"\n\n{IntervalTracking.Count} errors were suppressed at interval {LogInterval}; final tallies:\n");
         foreach(var kvp in IntervalTracking)
         {
-            OpenGLLogger.LogInformation($"\nLogged {kvp.Value.Counter} times:\n{kvp.Value.Message}");
+            OpenGLLogger.LogError($"\nThis error raised {kvp.Value.Counter} times:\n{kvp.Value.Message}");
         }
     }
 
@@ -149,7 +149,9 @@ public static class ErrorLogging
             var hash = StringHashing.Hash(logMessage);
             if (IntervalTracking.TryGetValue(hash, out var entry))
             {
-                if (++entry.Counter % LogInterval != 0) return;
+                entry.Counter++;
+                IntervalTracking[hash] = entry;
+                if (entry.Counter % LogInterval != 0) return;
                 logMessage = $"{logMessage}\n(Suppressing duplicate errors at interval {LogInterval}; this is number {entry.Counter})";
             }
             else
