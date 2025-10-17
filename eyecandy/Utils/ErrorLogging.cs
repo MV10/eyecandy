@@ -7,7 +7,11 @@ using System.Runtime.InteropServices;
 
 namespace eyecandy;
 
-/// <summary/>
+/// <summary>
+/// OpenGL and OpenAL error logging. Note this will handle OpenGL errors for the entire
+/// application, not just eyecandy. Requires use of the OpenTK BaseWindow class for
+/// OpenGL logging, otherwise none of this will be correctly "wired up" for output.
+/// </summary>
 public static class ErrorLogging
 {
     /// <summary>
@@ -32,11 +36,29 @@ public static class ErrorLogging
         }
     } = null;
 
+    /// <summary>
+    /// Set by BaseWindow constructor based on the EyeCandyWindowConfig 
+    /// setting by the same name.
+    /// </summary>
+    public static bool DebugBreakOnGLError = false;
+
+    /// <summary>
+    /// Controls how OpenGL error logging works. Refer to the flags for more information.
+    /// </summary>
+    public static OpenGLErrorLogFlags LoggingMode = OpenGLErrorLogFlags.Normal;
+
+    /// <summary>
+    /// Limits the frequency (in seconds) at which a given error message will be logged.
+    /// </summary>
+    public static long LogInterval = 0;
+
     // Automatically generated whenever LoggerFactory is set.
     private static ILogger OpenALLogger = null;
 
     // Automatically generated whenever LoggerFactory is set.
     private static ILogger OpenGLLogger = null;
+
+    private static Dictionary<uint, (string Message, long Counter, DateTime LastLogged)> ThrottledErrors = new();
 
     // These are widely recognized as unimportant "noise" messages when the OpenGL
     // Debug Message error callback is wired up. For example:
@@ -64,6 +86,22 @@ public static class ErrorLogging
         }
     }
 
+    /// <summary>
+    /// The BaseWindow.Dispose method calls this to report all interval-suppressed errors and total counts.
+    /// </summary>
+    internal static void FlushOpenGLErrors()
+    {
+        if (OpenGLLogger is not null)
+        {
+            OpenGLLogger.LogError($"\n\n{ThrottledErrors.Count} duplicate errors were throttled to a rate of {LogInterval}ms. Final tallies:\n");
+            foreach (var kvp in ThrottledErrors)
+            {
+                OpenGLLogger.LogError($"\nThis error raised {kvp.Value.Counter} times:\n{kvp.Value.Message}");
+            }
+        }
+        ThrottledErrors.Clear();
+    }
+
     // This is wired up in the BaseWindow constructor
     internal static void OpenGLErrorCallback(
         DebugSource source,     // API, WINDOW_SYSTEM, SHADER_COMPILER, THIRD_PARTY, APPLICATION, OTHER
@@ -82,7 +120,53 @@ public static class ErrorLogging
         var errSev = severity.ToString().Substring("DebugSeverity".Length);
         var stack = new StackTrace(true).ToString();
 
-        var logMessage = $"OpenGL Error:\n[{errSev}] source={errSource} type={errType} id={id}\n{message}\n{stack}";
+        var appState = string.Empty;
+        if(!string.IsNullOrEmpty(GLErrorAppState.AppState))
+        {
+            appState = $"AppState:\n{GLErrorAppState.AppState}\n";
+        }
+        if(!string.IsNullOrEmpty(GLErrorAppState.MethodState.Args))
+        {
+            appState = $"{appState}MethodState:\n{GLErrorAppState.MethodState.Name}({GLErrorAppState.MethodState.Args})\n";
+        }
+
+        var logMessage = string.Empty;
+
+        switch (LoggingMode)
+        {
+            case OpenGLErrorLogFlags.Normal:
+            case OpenGLErrorLogFlags.DebugContext:
+                logMessage = $"OpenGL Error:\n[{errSev}] source={errSource} type={errType} id={id}\n{message}\n{appState}{stack}";
+                break;
+
+            case OpenGLErrorLogFlags.LowDetail:
+                logMessage = $"OpenGL [{errSev} / {errSource}] {message}";
+                break;
+
+            default: // disabled, but this should not even be wired up
+                return;
+        }
+
+        if (LogInterval > 0)
+        {
+            var hash = StringHashing.Hash(logMessage);
+            if (ThrottledErrors.TryGetValue(hash, out var entry))
+            {
+                bool suppress = DateTime.UtcNow.Subtract(entry.LastLogged).TotalMilliseconds < LogInterval;
+                if (!suppress) entry.LastLogged = DateTime.UtcNow;
+
+                entry.Counter++;
+                ThrottledErrors[hash] = entry;
+
+                if (suppress) return;
+
+                logMessage = $"{logMessage}\n(Duplicate errors throttled to a rate of {LogInterval}ms; this is number {entry.Counter})";
+            }
+            else
+            {
+                ThrottledErrors.Add(hash, (logMessage, 1, DateTime.UtcNow));
+            }
+        }
 
         var logLevel = LogLevel.Information;
         switch(severity)
@@ -100,45 +184,8 @@ public static class ErrorLogging
                 break;
         }
 
+        if (Debugger.IsAttached && DebugBreakOnGLError) Debugger.Break();
+
         OpenGLLogger.Log(logLevel, logMessage);
     }
-
-    [Obsolete("Set the LoggerFactory property and configure the logger for the desired output.")]
-    public static LoggingStrategy Strategy = LoggingStrategy.Automatic;
-
-    [Obsolete("Set the LoggerFactory property and configure the logger for the desired output.")]
-    public static ILogger Logger = null;
-
-    [Obsolete("Set the LoggerFactory property and configure the logger for the desired output.")]
-    public static List<string> OpenGLErrors = new();
-
-    [Obsolete("Set the LoggerFactory property and configure the logger for the desired output.")]
-    public static List<string> OpenALErrors = new();
-
-    [Obsolete("Set the LoggerFactory property and configure the logger for the desired output.")]
-    public static List<string> EyecandyErrors = new();
-
-    [Obsolete("Set the LoggerFactory property and configure the logger for the desired output.")]
-    public static bool HasErrors = false;
-
-    [Obsolete("GL.GetError calls are no longer needed since the KHR DebugMessageCallback is in use.")]
-    public static void OpenGLErrorCheck(string programStage = "unspecified") { }
-
-    [Obsolete("Use the version of OpenALErrorCheck that does not rely on the obsolete storage collections")]
-    private static void ErrorCheck<T>(string programStage, Func<T> errorMethod, List<string> storage, T noError)
-    where T : Enum
-    { }
-}
-
-[Obsolete("Set the ErrorLogging.LoggerFactory property and configure the logger for the desired output.")]
-public enum LoggingStrategy
-{
-    [Obsolete("Set the ErrorLogging.LoggerFactory property and configure the logger for the desired output.")]
-    Automatic = 0,
-
-    [Obsolete("Set the ErrorLogging.LoggerFactory property and configure the logger for the desired output.")]
-    AlwaysOutputToConsole = 1,
-
-    [Obsolete("Set the ErrorLogging.LoggerFactory property and configure the logger for the desired output.")]
-    AlwaysStore = 2,
 }

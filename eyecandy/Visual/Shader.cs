@@ -3,6 +3,7 @@ using eyecandy.Utils;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using System.Reflection;
 
 namespace eyecandy;
 
@@ -224,20 +225,29 @@ public class Shader : IDisposable
     /// </summary>
     public void SetTexture(string name, int handle, int unit, TextureTarget target = TextureTarget.Texture2D)
     {
-        if (!Uniforms.ContainsKey(name))
+        try
         {
-            if (!IgnoredUniformNames.Contains(name))
-            {
-                Logger?.LogTrace($"{SourceFiles} {nameof(SetTexture)}: No uniform named \"{name}\"; ignoring request.");
-                IgnoredUniformNames.Add(name);
-            }
-            return;
-        }
-        Use();
+            GLErrorAppState.SetMethodState(nameof(SetTexture), $"name:{name}, handle:{handle}, unit:{unit.ToTextureUnitEnum()}, target:{target}");
 
-        GL.ActiveTexture(unit.ToTextureUnitEnum());
-        GL.BindTexture(target, handle);
-        GL.Uniform1(Uniforms[name].Location, unit);
+            if (!Uniforms.ContainsKey(name))
+            {
+                if (!IgnoredUniformNames.Contains(name))
+                {
+                    Logger?.LogTrace($"{SourceFiles} {nameof(SetTexture)}: No uniform named \"{name}\"; ignoring request.");
+                    IgnoredUniformNames.Add(name);
+                }
+                return;
+            }
+            Use();
+
+            GL.ActiveTexture(unit.ToTextureUnitEnum());
+            GL.BindTexture(target, handle);
+            GL.Uniform1(Uniforms[name].Location, unit);
+        }
+        finally
+        {
+            GLErrorAppState.ClearMethodState();
+        }
     }
 
     /// <summary>

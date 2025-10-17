@@ -36,6 +36,9 @@ internal class Freq
         windowConfig.OpenTKNativeWindowSettings.ClientSize = (960, 540);
         windowConfig.StartFullScreen = Program.StartFullScreen;
 
+        // if we're demonstrating error logging, use a faster rate than the default 60sec
+        windowConfig.OpenGLErrorThrottle = 1000;
+
         // remember Linux is case-sensitive...
         windowConfig.VertexShaderPathname = "Freq/freq_scroll.vert";
         windowConfig.FragmentShaderPathname = "Freq/freq.frag";
