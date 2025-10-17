@@ -91,3 +91,32 @@ public enum SyntheticDataAlgorithm
     MetronomeBeat = 0,
 }
 
+/// <summary>
+/// Determines how OpenGL error logging works. Does not affect other logging.
+/// </summary>
+public enum OpenGLErrorLogFlags
+{
+    /// <summary>
+    /// For some drivers, this may provide the best performance but
+    /// some errors or detailed error messages may be suppressed.
+    /// </summary>
+    Normal = 0,
+    
+    /// <summary>
+    /// For some drivers, this may provide more detailed information,
+    /// possibly with a slight performance cost (driver-dependent).
+    /// </summary>
+    DebugContext = 1,
+
+    /// <summary>
+    /// Outputs minimal error information. Because OpenGL errors can
+    /// occur at high rates (one per frame), this can be useful during
+    /// troubleshooting when the errors "drown out" other log data.
+    /// </summary>
+    LowDetail = 2,
+
+    /// <summary>
+    /// Disables all OpenGL error logging.
+    /// </summary>
+    Disabled = 3,
+}

@@ -52,4 +52,24 @@ public class EyeCandyWindowConfig
     /// the ErrorLogging.ShaderError list before use.
     /// </summary>
     public bool ExitOnInvalidShader { get; set; } = true;
+
+    /// <summary>
+    /// Controls how OpenGL error logging works. Refer to the flags for more information.
+    /// </summary>
+    public OpenGLErrorLogFlags OpenGLErrorLogging { get; set; } = OpenGLErrorLogFlags.Normal;
+
+    /// <summary>
+    /// Issues a Debug.Break command when true, if the OpenGL error callback is invoked
+    /// a debugger is attached.
+    /// </summary>
+    public bool OpenGLErrorBreakpoint { get; set; } = false;
+
+    /// <summary>
+    /// When true, OpenGL errors (which can happen at very high frequency) are checked for
+    /// duplication and only logged at the specified interval. If the containing program
+    /// calls ErrorLogging.FlushGLErrors, a final tally is output at program termination.
+    /// Set this to zero to disable interval logging. The default is 36000, which is about
+    /// once per minute at 60FPS.
+    /// </summary>
+    public long OpenGLErrorInterval { get; set; } = 36000;
 }

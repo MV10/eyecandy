@@ -64,15 +64,21 @@ public abstract class BaseWindow : GameWindow, IDisposable
     private bool HideMousePointer;
 
     // used to modify the settings passed to the base constructor
-    private static NativeWindowSettings ForceOpenGLES(NativeWindowSettings nativeWindowSettings)
+    private static NativeWindowSettings ModifiedNativeSettings(EyeCandyWindowConfig config)
     {
         if(ForceOpenGLES3dot2)
         {
-            nativeWindowSettings.API = ContextAPI.OpenGLES;
-            nativeWindowSettings.APIVersion = new Version(3, 2);
-            nativeWindowSettings.Profile = ContextProfile.Core;
+            config.OpenTKNativeWindowSettings.API = ContextAPI.OpenGLES;
+            config.OpenTKNativeWindowSettings.APIVersion = new Version(3, 2);
+            config.OpenTKNativeWindowSettings.Profile = ContextProfile.Core;
         }
-        return nativeWindowSettings;
+
+        if (config.OpenGLErrorLogging == OpenGLErrorLogFlags.DebugContext)
+        {
+            config.OpenTKNativeWindowSettings.Flags = ContextFlags.Debug;
+        }
+
+        return config.OpenTKNativeWindowSettings;
     }
 
     private bool IsDisposed = false;
@@ -87,7 +93,7 @@ public abstract class BaseWindow : GameWindow, IDisposable
     /// for performance and/or thread-safety considerations and would not be updated.
     /// </summary>
     public BaseWindow(EyeCandyWindowConfig configuration, bool createShaderFromConfig = true)
-        : base(configuration.OpenTKGameWindowSettings, ForceOpenGLES(configuration.OpenTKNativeWindowSettings))
+        : base(configuration.OpenTKGameWindowSettings, ModifiedNativeSettings(configuration))
     {
         Configuration = configuration;
         if(createShaderFromConfig) SetShader(configuration.VertexShaderPathname, configuration.FragmentShaderPathname);
@@ -95,9 +101,15 @@ public abstract class BaseWindow : GameWindow, IDisposable
         HideMousePointer = Configuration.HideMousePointer;
         FPSBuffer = new int[AverageFPSTimeframeSeconds];
 
-        GL.Enable(EnableCap.DebugOutput);
-        GL.Enable(EnableCap.DebugOutputSynchronous);
-        GL.Khr.DebugMessageCallback(DebugMessageDelegate, IntPtr.Zero);
+        ErrorLogging.LogInterval = configuration.OpenGLErrorInterval;
+        ErrorLogging.LoggingMode = configuration.OpenGLErrorLogging;
+        if(configuration.OpenGLErrorLogging != OpenGLErrorLogFlags.Disabled)
+        {
+            GL.Enable(EnableCap.DebugOutput);
+            GL.Enable(EnableCap.DebugOutputSynchronous);
+            GL.Khr.DebugMessageCallback(DebugMessageDelegate, IntPtr.Zero);
+            ErrorLogging.DebugBreakOnGLError = configuration.OpenGLErrorBreakpoint;
+        }
 
         Logger = ErrorLogging.LoggerFactory?.CreateLogger("Eyecandy." + nameof(BaseWindow));
         Logger?.LogTrace("Constructor completed");
@@ -192,6 +204,8 @@ public abstract class BaseWindow : GameWindow, IDisposable
             Logger?.LogTrace($"  Disposing Shader");
             Shader.Dispose();
         }
+
+        ErrorLogging.FlushOpenGLErrors();
 
         IsDisposed = true;
         GC.SuppressFinalize(this);
