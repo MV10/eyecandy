@@ -91,7 +91,7 @@ public static class ErrorLogging
     /// </summary>
     internal static void FlushOpenGLErrors()
     {
-        if (OpenGLLogger is not null)
+        if (OpenGLLogger is not null && ThrottledErrors.Count > 0)
         {
             OpenGLLogger.LogError($"\n\n{ThrottledErrors.Count} duplicate errors were throttled to a rate of {LogInterval}ms. Final tallies:\n");
             foreach (var kvp in ThrottledErrors)

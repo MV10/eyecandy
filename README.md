@@ -3,7 +3,7 @@
 
 If you're interested in audio visualization similar to the old WinAmp plugins (Milkdrop!), or more recently, websites like [Shadertoy](https://www.shadertoy.com/) or [VertexShaderArt](https://www.vertexshaderart.com/), then you've come to the right place. Although this is a fully independent library, it is the foundation for the [monkey-hi-hat](https://github.com/MV10/monkey-hi-hat) music visualization application, and the accompanying shaders in my [Volt's Laboratory](https://github.com/MV10/volts-laboratory) repository.
 
-This library does all the hard work of capturing live-playback audio and producing different representations of the sound data as OpenGL textures. On modern Windows 10 64-bit hardware, 4-digit frame rates are not unusual. While Linux isn't officially supported yet, it does work, and it performs well enough that I have used it on a 32-bit Raspberry Pi4B, in some cases attaining 200+ FPS (due to poor/limited GPUs, the Pi will not be supported even after Linux support is officially available). 
+This library does all the hard work of capturing live-playback audio and producing different representations of the sound data as OpenGL textures. On modern Windows 64-bit hardware, 4-digit frame rates are not unusual. As of October 2025, Linux support is officially "Coming Soon". In reality, it already works, but I haven't tested it exhaustively. (It performs well enough that I have used it on a 32-bit Raspberry Pi4B, in some cases attaining 200+ FPS, although the Pi will not be supported even after Linux support is officially available due to GPU and driver limitations and quality.) 
 
 Please refer to the repository [wiki](https://github.com/MV10/eyecandy/wiki) for usage, configuration, and other details. The `demo` project is also a good reference, and the library's public API is fully documented. There is even more information in the [monkey-hi-hat](https://github.com/MV10/monkey-hi-hat) wiki that will be of interest to library consumers.
 
@@ -29,8 +29,8 @@ webaudio        Compares WebAudio pseudo-Decibels to pure FFT Decibels
 modes           Different OpenGL drawing modes (points, lines, tris, etc)
 uniforms        Testing the Shader.ResetUniforms call
 
-info            List known playback and capture devices (uses WASAPI)
-info O          Use OpenAL instead of WASAPI, also tests capture/playback
+info            List known audio devices (Windows: WASAPI, Linux: OpenAL)
+info O          Windows: Use OpenAL instead of WASAPI (requires loopback)
 
 [options]
 F               Full-screen mode

@@ -2,7 +2,7 @@
 
 ### Changelog
 * https://github.com/MV10/eyecandy/wiki/5.-Changelog
-* v4.3.0 released 2025-10-17
+* v4.3.1 released 2025-10-29
 
 
 ### Work In Progress
