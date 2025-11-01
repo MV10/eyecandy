@@ -19,7 +19,7 @@ public static class ErrorLogging
     /// </summary>
     public static ILoggerFactory LoggerFactory
     {
-        get;
+        get => _loggerFactory;
         set
         {
             if (value is null)
@@ -32,9 +32,30 @@ public static class ErrorLogging
                 OpenALLogger = value.CreateLogger("Eyecandy.OpenAL");
                 OpenGLLogger = value.CreateLogger("Eyecandy.OpenGL");
             }
-            field = value;
+            _loggerFactory = value;
         }
-    } = null;
+    }
+    private static ILoggerFactory _loggerFactory = null;
+    
+    // Switch to this after migrating to .NET 10 
+    // public static ILoggerFactory LoggerFactory
+    // {
+    //     get => field;
+    //     set
+    //     {
+    //         if (value is null)
+    //         {
+    //             OpenALLogger = null;
+    //             OpenGLLogger = null;
+    //         }
+    //         else
+    //         {
+    //             OpenALLogger = value.CreateLogger("Eyecandy.OpenAL");
+    //             OpenGLLogger = value.CreateLogger("Eyecandy.OpenGL");
+    //         }
+    //         field = value;
+    //     }
+    // } = null;
 
     /// <summary>
     /// Set by BaseWindow constructor based on the EyeCandyWindowConfig 
@@ -72,18 +93,28 @@ public static class ErrorLogging
     ];
 
     /// <summary>
-    /// Writes or stores outstanding OpenAL error messages (depending on the StoreErrors flag).
+    /// Logs OpenAL error messages (depending on the StoreErrors flag).
+    /// Returns true if an error was logged.
     /// </summary>
-    public static void OpenALErrorCheck(string programStage = "unspecified")
+    public static bool OpenALErrorCheck(string programStage = "unspecified")
     {
-        if (OpenALLogger is null) return;
+        var errors = false;
+        
         var err = AL.GetError();
         while (!err.Equals(ALError.NoError))
         {
+            errors = true;
             var message = $"  Program stage \"{programStage}\": {err}";
-            OpenALLogger.LogError(message.Trim());
-            err = AL.GetError();
+            OpenALLogger?.LogError(message.Trim());
+
+            // OpenAL on Linux wasn't clearing the old error, don't loop
+            var nexterr = AL.GetError();
+            if (nexterr == err) break;
+
+            err = nexterr;
         }
+
+        return errors;
     }
 
     /// <summary>

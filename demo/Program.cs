@@ -18,8 +18,6 @@ internal class Program
 
     private static LogLevel MinimumLogLevel = LogLevel.Error;
 
-    internal static ILogger Logger;
-
     static async Task Main(string[] args)
     {
         if(args.Length == 0 || args.Length > 2)

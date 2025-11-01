@@ -26,7 +26,7 @@ internal class Freq
         Console.WriteLine("\n\nPress Enter to toggle between history-scroll and frequency-wave shaders...");
 
         var config = new EyeCandyCaptureConfig();
-
+        
         if (Program.UseSyntheticDataOnly) config.LoopbackApi = LoopbackApi.SyntheticData;
 
         if (Program.WindowsUseOpenALSoft) config.LoopbackApi = LoopbackApi.OpenALSoft;
