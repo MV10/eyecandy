@@ -29,6 +29,11 @@ public class EyeCandyCaptureConfig
     /// control which system handles the capture.
     /// </summary>
     public string CaptureDeviceName { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Use this to override the OpenAL context device name. Typically the default name is suitable.
+    /// </summary>
+    public string OpenALContextDeviceName { get; set; } = string.Empty;
 
     /// <summary>
     /// Adjust with caution. Use a power of 2. Defines the number of PCM samples required

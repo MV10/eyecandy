@@ -13,17 +13,17 @@ internal class InfoOpenAL
         Console.WriteLine("OpenAL Device Information and record/playback test");
         Console.WriteLine("---------------------------------------------------------------");
 
-        var devices = ALC.GetStringList(GetEnumerationStringList.DeviceSpecifier);
-        Console.WriteLine($"\n\nDrivers:\n  {string.Join("\n  ", devices)}");
+        var contextDevices = ALC.GetStringList(GetEnumerationStringList.DeviceSpecifier);
+        Console.WriteLine($"\n\nContext devices:\n  {string.Join("\n  ", contextDevices)}");
 
-        var deviceName = ALC.GetString(ALDevice.Null, AlcGetString.DefaultDeviceSpecifier);
-        Console.WriteLine($"\n\nDefault driver:\n  {deviceName}");
-        foreach (var d in devices)
+        var defaultContext = ALC.GetString(ALDevice.Null, AlcGetString.DefaultDeviceSpecifier);
+        Console.WriteLine($"\n\nDefault context device:\n  {defaultContext}");
+        foreach (var d in contextDevices)
         {
             if (d.Contains("OpenAL Soft"))
             {
-                deviceName = d;
-                Console.WriteLine($"  Using: \"{deviceName}\"");
+                defaultContext = d;
+                Console.WriteLine($"  Using: \"{defaultContext}\"");
             }
         }
 
@@ -37,22 +37,22 @@ internal class InfoOpenAL
         var defaultCapture = ALC.GetString(ALDevice.Null, AlcGetString.CaptureDefaultDeviceSpecifier);
         Console.WriteLine($"\n\nDefault  devices:\n  Playback: {defaultPlayback}\n  Capture: {defaultCapture}");
 
-        var device = ALC.OpenDevice(deviceName);
-        var context = ALC.CreateContext(device, (int[])null);
+        var contextDevice = ALC.OpenDevice(defaultContext);
+        var context = ALC.CreateContext(contextDevice, (int[])null);
         ALC.MakeContextCurrent(context);
 
         ErrorLogging.OpenALErrorCheck("Startup");
 
-        var attrs = ALC.GetContextAttributes(device);
+        var attrs = ALC.GetContextAttributes(contextDevice);
         Console.WriteLine($"\n\nOpenAL Context attributes:\n  {attrs}");
 
-        ALC.GetInteger(device, AlcGetInteger.MajorVersion, 1, out int alcMajorVersion);
-        ALC.GetInteger(device, AlcGetInteger.MinorVersion, 1, out int alcMinorVersion);
-        string alcExts = ALC.GetString(device, AlcGetString.Extensions);
-        string exts = AL.Get(ALGetString.Extensions);
-        string rend = AL.Get(ALGetString.Renderer);
-        string vend = AL.Get(ALGetString.Vendor);
-        string vers = AL.Get(ALGetString.Version);
+        ALC.GetInteger(contextDevice, AlcGetInteger.MajorVersion, 1, out int alcMajorVersion);
+        ALC.GetInteger(contextDevice, AlcGetInteger.MinorVersion, 1, out int alcMinorVersion);
+        string alcExts = ALC.GetString(contextDevice, AlcGetString.Extensions) ?? string.Empty;
+        string exts = AL.Get(ALGetString.Extensions) ?? string.Empty;
+        string rend = AL.Get(ALGetString.Renderer) ?? string.Empty;
+        string vend = AL.Get(ALGetString.Vendor) ?? string.Empty;
+        string vers = AL.Get(ALGetString.Version) ?? string.Empty;
         Console.WriteLine($"\n\nOpenAL Context extensions:\n  Vendor: {vend}\n  Version: {vers}\n  Renderer: {rend}\n  Extensions:\n    {string.Join("\n    ", exts.Split(" "))}\n  ALC Version: {alcMajorVersion}.{alcMinorVersion}\n  ALC Extensions:\n    {string.Join("\n    ", alcExts.Split(" "))}");
 
         Console.WriteLine("\n\nESC      - Exit utility\nSpacebar - Test recording and playback");
@@ -178,6 +178,6 @@ internal class InfoOpenAL
         Console.WriteLine("\n\nExiting...");
         ALC.MakeContextCurrent(ALContext.Null);
         ALC.DestroyContext(context);
-        ALC.CloseDevice(device);
+        ALC.CloseDevice(contextDevice);
     }
 }

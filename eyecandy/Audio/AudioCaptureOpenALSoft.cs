@@ -1,4 +1,5 @@
 ﻿
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using OpenTK.Audio.OpenAL;
 
@@ -14,6 +15,8 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
     /// </summary>
     public static readonly ALFormat SampleFormat = ALFormat.Mono16;
 
+    private ALDevice ContextDevice;   
+    private ALContext Context;    
     private ALCaptureDevice CaptureDevice;
 
     private readonly ILogger Logger;
@@ -42,7 +45,12 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
 
         Interlocked.Exchange(ref IsCapturing, 1);
         ALC.CaptureStart(CaptureDevice);
-        ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureOpenALSoft)}.{nameof(ALC.CaptureStart)}");
+        if (ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureOpenALSoft)}.{nameof(ALC.CaptureStart)}"))
+        {
+            Console.WriteLine("Aborting due to OpenAL error starting capture.");
+            Thread.Sleep(250); // slow console
+            Environment.Exit(1);
+        }
 
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -71,30 +79,56 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
         CaptureEnding();
 
         ALC.CaptureStop(CaptureDevice);
-        ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureOpenALSoft)}.{nameof(ALC.CaptureStop)}");
+        if (ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureOpenALSoft)}.{nameof(ALC.CaptureStop)}"))
+        {
+            Console.WriteLine("Aborting due to OpenAL error stopping capture.");
+            Thread.Sleep(250); // slow console
+            Environment.Exit(1);
+        }
 
         Interlocked.Exchange(ref IsCapturing, 0);
         Buffers.Timestamp = DateTime.MaxValue;
         InternalBuffers.Timestamp = DateTime.MaxValue;
     }
-
+    
     private void Connect()
     {
         Logger?.LogTrace($"Connect");
 
+        var contextDeviceName = string.IsNullOrEmpty(Configuration.OpenALContextDeviceName)
+            ? ALC.GetString(ALDevice.Null, AlcGetString.DefaultDeviceSpecifier)
+            : Configuration.OpenALContextDeviceName;
+
+        Logger?.LogTrace($"OpenAL context device name: {contextDeviceName}");
+
+        ContextDevice = ALC.OpenDevice(contextDeviceName);
+        Context = ALC.CreateContext(ContextDevice, (int[])null);
+        ALC.MakeContextCurrent(Context);
+        
+        Console.WriteLine(ErrorLogging.OpenALErrorCheck("Before GetString for device name"));
+        
         var captureDeviceName = string.IsNullOrEmpty(Configuration.CaptureDeviceName)
             ? ALC.GetString(ALDevice.Null, AlcGetString.CaptureDefaultDeviceSpecifier)
             : Configuration.CaptureDeviceName;
 
+        Console.WriteLine(ErrorLogging.OpenALErrorCheck("After GetString for device name"));
+
+        Logger?.LogTrace($"Audio capture device name: {captureDeviceName}");
+
         CaptureDevice = ALC.CaptureOpenDevice(captureDeviceName, SampleRate, SampleFormat, SampleSize);
 
         // NOTE: If we end up supporting surround capture and the driver can't handle it, the
-        // OpenAL Soft error looks like this. (Creative's OpenAL does not return an error and the
-        // CaptureSamples call will crash with an Access Violation exception.)
+        // OpenAL Soft error looks like this. (Creative's OpenAL does not return an error, but
+        // the CaptureSamples call will crash with an Access Violation exception.)
         // [ALSOFT] (EE) Failed to match format, wanted: 5.1 Surround Int16 44100hz, got: 0x00000003 mask 2 channels 32-bit 44100hz
         // https://github.com/kcat/openal-soft/issues/893
 
-        ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureOpenALSoft)}.{nameof(Connect)}");
+        if (ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureOpenALSoft)}.{nameof(ALC.CaptureOpenDevice)}"))
+        {
+            Console.WriteLine("Aborting due to OpenAL error connecting to capture device.");
+            Thread.Sleep(250); // slow console
+            Environment.Exit(1);
+        }
     }
 
     private protected override void ProcessSamples()
@@ -116,13 +150,15 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
         if (IsDisposed) return;
         Logger?.LogTrace("Dispose() ----------------------------");
 
-        if (IsCapturing == 1) Logger?.LogError("Dispose invoked before audio processing was terminated");
+        if (IsCapturing == 1) Logger?.LogWarning("Dispose invoked before audio processing was terminated");
 
-        Logger?.LogTrace($"  Dispose() ALC.CaptureCloseDevice");
         ALC.CaptureCloseDevice(CaptureDevice);
-
+        ALC.MakeContextCurrent(ALContext.Null);
+        ALC.DestroyContext(Context);
+        ALC.CloseDevice(ContextDevice);
+        
         // Warning: This is fine on Windows but crashes Linux Pulse Audio.
-        ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureOpenALSoft)}.Dispose");
+        // ErrorLogging.OpenALErrorCheck($"{nameof(AudioCaptureOpenALSoft)}.Dispose");
 
         base.Dispose();
 
