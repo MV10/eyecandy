@@ -105,13 +105,9 @@ public class AudioCaptureOpenALSoft : AudioCaptureBase, IDisposable
         Context = ALC.CreateContext(ContextDevice, (int[])null);
         ALC.MakeContextCurrent(Context);
         
-        Console.WriteLine(ErrorLogging.OpenALErrorCheck("Before GetString for device name"));
-        
         var captureDeviceName = string.IsNullOrEmpty(Configuration.CaptureDeviceName)
             ? ALC.GetString(ALDevice.Null, AlcGetString.CaptureDefaultDeviceSpecifier)
             : Configuration.CaptureDeviceName;
-
-        Console.WriteLine(ErrorLogging.OpenALErrorCheck("After GetString for device name"));
 
         Logger?.LogTrace($"Audio capture device name: {captureDeviceName}");
 
