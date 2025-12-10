@@ -48,6 +48,7 @@ public class Shader : IDisposable
         
         Logger?.LogDebug($"{loggerInfo} loading with {libs.Length} libraries");
 
+        var compileLogger = ErrorLogging.LoggerFactory?.CreateLogger("Eyecandy.ShaderCompiler");
         int VertexShader = 0;
         int FragmentShader = 0;
 
@@ -57,7 +58,7 @@ public class Shader : IDisposable
             if(!lib.IsValid)
             {
                 IsValid = false;
-                Logger?.LogError($"{loggerInfo} library validation: {lib.Pathname} is not valid");
+                compileLogger?.LogError($"{loggerInfo} library validation: {lib.Pathname} is not valid");
                 return;
             }
         }
@@ -71,12 +72,12 @@ public class Shader : IDisposable
             GL.ShaderSource(VertexShader, VertexShaderSource);
             FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(FragmentShader, FragmentShaderSource);
-            Logger?.LogDebug($"{loggerInfo} file-read completed");
+            compileLogger?.LogDebug($"{loggerInfo} file-read completed");
         }
         catch (Exception ex)
         {
             IsValid = false;
-            Logger?.LogError($"{loggerInfo} reading file {ex}: {ex.Message}");
+            compileLogger?.LogError($"{loggerInfo} reading file {ex}: {ex.Message}");
             return;
         }
 
@@ -96,7 +97,7 @@ public class Shader : IDisposable
                 GL.GetShader(VertexShader, ShaderParameter.CompileStatus, out int vertOk);
                 if (vertOk == 0)
                 {
-                    Logger?.LogError($"{loggerInfo} compile vert {GL.GetShaderInfoLog(VertexShader)}");
+                    compileLogger?.LogError($"{loggerInfo} compile vert {GL.GetShaderInfoLog(VertexShader)}");
                     IsValid = false;
                     return;
                 }
@@ -105,7 +106,7 @@ public class Shader : IDisposable
                 GL.GetShader(FragmentShader, ShaderParameter.CompileStatus, out int fragOk);
                 if (fragOk == 0)
                 {
-                    Logger?.LogError($"{loggerInfo} compile frag {GL.GetShaderInfoLog(FragmentShader)}");
+                    compileLogger?.LogError($"{loggerInfo} compile frag {GL.GetShaderInfoLog(FragmentShader)}");
                     IsValid = false;
                     foreach (var lib in libs) GL.DetachShader(Handle, lib.Handle);
                     GL.DeleteProgram(Handle);
@@ -113,12 +114,12 @@ public class Shader : IDisposable
                     return;
                 }
 
-                Logger?.LogDebug($"{loggerInfo} compilation completed");
+                compileLogger?.LogDebug($"{loggerInfo} compilation completed");
             }
             catch (Exception ex)
             {
                 IsValid = false;
-                Logger?.LogError($"{loggerInfo} compilation {ex}: {ex.Message}");
+                compileLogger?.LogError($"{loggerInfo} compilation {ex}: {ex.Message}");
                 return;
             }
 
@@ -130,15 +131,15 @@ public class Shader : IDisposable
                 if (linkOk == 0)
                 {
                     IsValid = false;
-                    Logger?.LogError($"{loggerInfo} linking {GL.GetProgramInfoLog(Handle)}");
+                    compileLogger?.LogError($"{loggerInfo} linking {GL.GetProgramInfoLog(Handle)}");
                     return;
                 }
-                Logger?.LogDebug($"{loggerInfo} linking completed");
+                compileLogger?.LogDebug($"{loggerInfo} linking completed");
             }
             catch (Exception ex)
             {
                 IsValid = false;
-                Logger?.LogError($"{loggerInfo} linking {ex}: {ex.Message}");
+                compileLogger?.LogError($"{loggerInfo} linking {ex}: {ex.Message}");
                 return;
             }
         }
