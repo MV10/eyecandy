@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Title>eyecandy</Title>
@@ -15,13 +14,14 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>eyecandy</PackageId>
-    <Version>4.3.3</Version>
+    <Version>4.3.4</Version>
     <Authors>Jon McGuire</Authors>
     <Product>eyecandy</Product>
     <Company>Mindmagma</Company>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>latest</LangVersion>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

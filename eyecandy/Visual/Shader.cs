@@ -49,6 +49,8 @@ public class Shader : IDisposable
         Logger?.LogDebug($"{loggerInfo} loading with {libs.Length} libraries");
 
         var compileLogger = ErrorLogging.LoggerFactory?.CreateLogger("Eyecandy.ShaderCompiler");
+        compileLogger?.LogInformation($"Compiling shaders {SourceFiles} with {libs.Length} libraries");
+        
         int VertexShader = 0;
         int FragmentShader = 0;
 
@@ -160,6 +162,8 @@ public class Shader : IDisposable
                 Handle = -1;
             }
         }
+        
+        compileLogger?.LogInformation($"Shader compiled successfully");
 
         // cache uniform locations; note that uniforms not used by the shader code
         // are not "active" and will not be listed even though they're declared, thus
