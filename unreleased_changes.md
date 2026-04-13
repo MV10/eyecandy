@@ -4,9 +4,10 @@
 * https://github.com/MV10/eyecandy/wiki/5.-Changelog
 * v4.3.3 released 2025-11-01
 
-* v4.3.4
+* v4.3.4 released 2026-04-13
 * Add .NET 10 support (.NET 8 still supported)
 * Add `eyecandy.ShaderCompiler` error logging category
+* Updated NAudio and MS logging package dependencies.
 
 
 ### Work In Progress
