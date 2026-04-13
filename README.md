@@ -11,9 +11,7 @@ of the sound data as OpenGL textures. On modern Windows 64-bit hardware, 4-digit
 As of October 2025, Linux support is back! (It performs well enough that I have used it on a 32-bit Raspberry Pi 4B,
 in some cases attaining 200+ FPS, although the Pi will not be supported due to GPU and driver limitations and quality.) 
 
-Please refer to the repository [wiki](https://github.com/MV10/eyecandy/wiki) for usage, configuration, and other details. The `demo` project is also
-a good reference, and the library's public API is fully documented. There is even more information in the
-[monkey-hi-hat](https://github.com/MV10/monkey-hi-hat) wiki that will be of interest to library consumers.
+Please refer to the [documentation](https://www.monkeyhihat.com/docs/index.php#/eyecandy-introduction) for usage, configuration, and other details. The `demo` project is also a good reference, and the library's public API is fully documented.
 
 > Version 3+ _does not_ require audio loopback drivers for Windows! Loopback is internal!
 
